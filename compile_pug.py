@@ -1,3 +1,6 @@
+# This script will automatically install pug on your computer and compile all of the pug files in the project
+# NPM does need to be install first though: https://nodejs.org/en/download/
+
 import os
 
 print("Installing PUG")
