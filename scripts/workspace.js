@@ -21,7 +21,7 @@ var ee = null;
 * that inherits from Control (e.g. DragControl)
 */
 var control = null;
-var offline = true;
+var offline = false;
 
 function loadInterface() {
   let controlParam = getURLParameter("c");
@@ -82,6 +82,8 @@ function initializeTest() {
     window.setInterval(Control.clockUpdate, 100);
   }
 
+  Database.logCycleStart(target.pose);
+
 }
 
 function setRandomTargetPose() {
@@ -138,6 +140,7 @@ function clearWorkspace() {
 * i.e. the EE has reached the target
 */
 function success() {
+  Database.logCycleFinish();
   console.log("SUCCESS!");
   ee.resetColor();
   clearWorkspace();

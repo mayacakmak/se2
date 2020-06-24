@@ -4,7 +4,9 @@
 function Database() {
   
   Database.isAnonymous = false;
-  Database.uid = null;
+  Database.uid = null; // User ID
+  Database.sid = null; // Session ID
+  Database.cid = null; // Cycle ID
   Database.isLogging = true;
 
   /*
@@ -28,7 +30,7 @@ function Database() {
       appId: "1:430487423155:web:edbef6c7dbbd04da"
     };
 
-  this.database= Database.config["databaseURL"];
+  this.database = Database.config["databaseURL"];
   this.app = firebase.initializeApp(Database.config);
 
   this.initialize = function() {
@@ -63,7 +65,7 @@ function Database() {
       }
 
       // Create directory in database to save this user's data
-      Database.logEvent("SessionStarted");
+      Database.logSessionStart();
 
       if (Database.readyCallback != null)
         Database.readyCallback();
@@ -77,21 +79,67 @@ function Database() {
     firebase.auth().signOut().catch(Database.handleError);
     Database.uid = null;
   }
-  
-  Database.logEvent = function(eventName, eventLog) {
+
+  Database.insertTime = function(event) {
+    var date = new Date();
+    event.timestamp = date.getTime();
+    event.date = date.toDateString();
+    event.time = date.toTimeString();
+    return event;
+  }
+
+  Database.logSessionStart = function() {
     if (Database.isLogging) {
-      if (eventLog == undefined)
-        eventLog = {};
-      var dir = 'users/' + (Database.uid);
+      var dir = 'users/' + Database.uid + '/sessions';
       var dbRef = firebase.database().ref(dir);
-      var date = new Date();
-      eventLog["timeStamp"] = date.getTime();
-      eventLog["date"] = date.toDateString();
-      eventLog["time"] = date.toTimeString();
-      var newEventLog = {};
-      newEventLog[eventName] = eventLog;
-      dbRef.update(newEventLog);
-      console.log(newEventLog);
+      var sessionInfo = {};
+      Database.insertTime(sessionInfo);
+      Database.sid = dbRef.push(sessionInfo).key;
+      console.log("Session Started", sessionInfo);
+    }
+  }
+
+  Database.logCycleStart = function(targetPose) {
+    if (Database.isLogging) {
+      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/";
+      var dbRef = firebase.database().ref(dir);
+      var cycleInfo = {
+        targetPose: {
+          x: targetPose.x,
+          y: targetPose.y,
+          theta: targetPose.theta
+        },
+        startTime: {},
+        status: "incomplete"
+      }
+      Database.insertTime(cycleInfo.startTime);
+      Database.cid = dbRef.push(cycleInfo).key;
+      console.log("Cycle Started", cycleInfo);
+    }
+  }
+
+  Database.logCycleFinish = function() {
+    if (Database.isLogging) {
+      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid;
+      var dbRef = firebase.database().ref(dir);
+      var cycleEndInfo = {
+        endTime: {},
+        status: "complete"
+      }
+      Database.insertTime(cycleEndInfo.endTime);
+      dbRef.update(cycleEndInfo);
+      console.log("Cycle Complete", cycleEndInfo);
+      Database.cid = null;
+    }
+  }
+  
+  Database.logEvent = function(eventLog) {
+    if (Database.isLogging) {
+      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/actions";
+      var dbRef = firebase.database().ref(dir);
+      Database.insertTime(eventLog);
+      dbRef.push(eventLog);
+      console.log(eventLog);
     }
   }
 }

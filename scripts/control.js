@@ -22,11 +22,11 @@ function Control(name, ee, target, transitionType) {
   * Utility function to check if the end effector has reached the target
   */
 
-  Control.checkEEatTarget = function() {
+  Control.checkEEatTarget = function () {
     Control.checkAtTarget(Control.ee);
   }
 
-  Control.checkAtTarget = function(se2) {
+  Control.checkAtTarget = function (se2) {
     var targetSuccessColor = "#393";
 
     if (se2.isSame(Control.target))
@@ -35,7 +35,7 @@ function Control(name, ee, target, transitionType) {
       se2.resetColor();
   }
 
-  Control.checkSuccess = function() {
+  Control.checkSuccess = function () {
     if (Control.ee.isSame(Control.target)) success();
   }
 
@@ -43,23 +43,23 @@ function Control(name, ee, target, transitionType) {
     var newClickPoint = getMousePosition(event);
     var centerPoint = Control.ee.getPosition();
     var a = newClickPoint.diff(Control.firstClickPoint);
-    var aUnit = new Position(a.x/a.length(),a.y/a.length());
+    var aUnit = new Position(a.x / a.length(), a.y / a.length());
     var b = newClickPoint.diff(centerPoint);
     var c = Control.firstClickPoint.diff(centerPoint);
-    var cUnitOrth = new Position(c.y/c.length(), -c.x/c.length());
+    var cUnitOrth = new Position(c.y / c.length(), -c.x / c.length());
     var alphaSign = -Math.sign(cUnitOrth.dot(b));
     var dist = aUnit.dot(b);
-    var alpha1 = Math.asin(dist/b.length());
-    var alpha2 = Math.asin((a.length()-dist)/c.length());
-    var alpha = alphaSign*(alpha1+alpha2);
-    var alphaDeg = Math.round(180.0*alpha/Math.PI);
+    var alpha1 = Math.asin(dist / b.length());
+    var alpha2 = Math.asin((a.length() - dist) / c.length());
+    var alpha = alphaSign * (alpha1 + alpha2);
+    var alphaDeg = Math.round(180.0 * alpha / Math.PI);
 
     if (!isNaN(alpha)) {
       Control.ee.rotateBy(alphaDeg);
       Control.ee.moveNow();
       Control.checkEEatTarget();
-    }    
-  }  
+    }
+  }
 
 }
 
@@ -71,19 +71,22 @@ function FSM(states, transitions) {
   this.currentState = "cursor-free";
   this.states = states;
   this.transitions = transitions;
-  
-  this.emitEvent = function(eventName) {
+
+  this.emitEvent = function (eventName) {
     console.log("EVENT: " + eventName);
-    for(var i=0; i<this.transitions.length; i++) {
+    for (var i = 0; i < this.transitions.length; i++) {
       if (transitions[i].event == eventName) {
         if (transitions[i].s0 == this.currentState) {
           var s0 = this.currentState;
           this.currentState = transitions[i].s1;
-          console.log(s0 + " >> "+ this.currentState);
+          console.log(s0 + " >> " + this.currentState);
           if (!offline)
-            Database.logEvent("StateTransition",{prevState:s0,
-                                                eventName:eventName,
-                                                newState:this.currentState});
+            Database.logEvent({
+              eventType: "StateTransition",
+              prevState: s0,
+              eventName: eventName,
+              newState: this.currentState
+            });
         }
       }
     }
@@ -100,11 +103,11 @@ function Transition(s0, event, s1) {
 * Utility function to get mouse coordiantes from a mouse event
 */
 function getMousePosition(event) {
-    var ws = document.getElementById("workspace");
-    var rect = ws.getBoundingClientRect();
-    var mouseX = event.clientX - rect.left;
-    var mouseY = event.clientY - rect.top;
-    return new Position(mouseX, mouseY);
+  var ws = document.getElementById("workspace");
+  var rect = ws.getBoundingClientRect();
+  var mouseX = event.clientX - rect.left;
+  var mouseY = event.clientY - rect.top;
+  return new Position(mouseX, mouseY);
 }
 
 /*
@@ -113,24 +116,24 @@ function getMousePosition(event) {
 function Ring() {
   Ring.innerR = 40;
   Ring.ringRadius = 18;
-  
+
   this.group = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   this.group.setAttribute("id", "ring");
-  this.group.setAttribute("r", Ring.innerR + Ring.ringRadius/2);
+  this.group.setAttribute("r", Ring.innerR + Ring.ringRadius / 2);
   this.group.setAttribute("stroke-width", Ring.ringRadius);
   this.group.style.fill = "none";
   this.group.style.opacity = 0.75;
   this.group.setAttribute("stroke-dasharray", "30, 0.3");
-  
-  this.setPose = function(pose) {
+
+  this.setPose = function (pose) {
     moveObject(this.group, pose.x, pose.y, pose.theta);
   }
 
-  this.resetColor = function() {
+  this.resetColor = function () {
     this.group.style.stroke = "#AAC";
   }
 
-  this.highlight = function() {
+  this.highlight = function () {
     this.group.style.stroke = "#BBD";
   }
 
@@ -143,23 +146,23 @@ function Ring() {
 */
 function Handle() {
 
-  this.group = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   this.group.setAttribute("id", "handle");
   this.group.setAttribute('x', 0);
   this.group.setAttribute('y', 0);
   this.group.setAttribute('r', SE2.lineLength + SE2.lineWidth);
   this.group.setAttribute('stroke-width', 0);
   this.group.setAttribute("fill-opacity", 0.5);
-  
-  this.setPose = function(pose) {
+
+  this.setPose = function (pose) {
     moveObject(this.group, pose.x, pose.y, pose.theta);
   }
 
-  this.resetColor = function() {
+  this.resetColor = function () {
     this.group.setAttribute("fill", "#edb9d7");
   }
 
-  this.highlight = function() {
+  this.highlight = function () {
     this.group.setAttribute("fill", "#fdc9e7");
   }
 
@@ -173,7 +176,7 @@ function Panel() {
 
   Panel.width = 150;
   Panel.height = 150;
-  this.group = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   this.group.setAttribute("id", "handle");
   this.group.setAttribute('x', 0); //ws.width-width
   this.group.setAttribute('y', 0);
@@ -182,8 +185,8 @@ function Panel() {
   this.group.setAttribute('stroke-width', 0);
   this.group.setAttribute("fill", "#DDD");
 
-  Panel.getCenterPose = function() {
-    return new Pose(Panel.width/2, Panel.height/2, 0);
+  Panel.getCenterPose = function () {
+    return new Pose(Panel.width / 2, Panel.height / 2, 0);
   }
 }
 
@@ -194,9 +197,9 @@ function Ghost() {
   Ghost.color = "#edb9d7";
   SE2.call(this, "ghost", null, Ghost.color);
 
-  this.setVisible = function(isVisible) {
+  this.setVisible = function (isVisible) {
     var ws = document.getElementById("workspace");
-    if(isVisible)
+    if (isVisible)
       ws.appendChild(this.group);
     else if (ws.contains(this.group))
       ws.removeChild(this.group);
@@ -211,41 +214,41 @@ function Arrow(id) {
   Arrow.arrowLengthTot = Arrow.arrowShaftLength + Arrow.arrowheadLength;
   Arrow.arrowWidth = 20;
 
-  Arrow.createArrow = function(arrow) {
-    arrow.setAttribute("d", "M0,"+(0)+" h"+Arrow.arrowShaftLength+
-      "v"+(-Arrow.lipHeight)+"l"+Arrow.arrowheadLength+","+(Arrow.lipHeight + (Arrow.arrowWidth /2))+
-      "l"+ (-Arrow.arrowheadLength)+","+(Arrow.lipHeight + (Arrow.arrowWidth /2)) +
-      "v"+(-Arrow.lipHeight)+"h"+(-Arrow.arrowShaftLength)+"z");
+  Arrow.createArrow = function (arrow) {
+    arrow.setAttribute("d", "M0," + (0) + " h" + Arrow.arrowShaftLength +
+      "v" + (-Arrow.lipHeight) + "l" + Arrow.arrowheadLength + "," + (Arrow.lipHeight + (Arrow.arrowWidth / 2)) +
+      "l" + (-Arrow.arrowheadLength) + "," + (Arrow.lipHeight + (Arrow.arrowWidth / 2)) +
+      "v" + (-Arrow.lipHeight) + "h" + (-Arrow.arrowShaftLength) + "z");
   }
 
-  Arrow.createRotationArrow = function(arrow) {
-    let r1 = Arrow.arrowShaftLength*2.5;
-    let r2 = Arrow.arrowShaftLength*2.5 - 2*Arrow.arrowheadLength 
-    + 3*Arrow.lipHeight;
-    arrow.setAttribute("d", 
-      "M 0 0 "+
-      "a "+ r1 + " " + r1 +" 3 0 1 "
+  Arrow.createRotationArrow = function (arrow) {
+    let r1 = Arrow.arrowShaftLength * 2.5;
+    let r2 = Arrow.arrowShaftLength * 2.5 - 2 * Arrow.arrowheadLength
+      + 3 * Arrow.lipHeight;
+    arrow.setAttribute("d",
+      "M 0 0 " +
+      "a " + r1 + " " + r1 + " 3 0 1 "
       + r1 + " " + r1 + " " +
-      "l " + 1.5*Arrow.lipHeight + " 0 " + 
-      "l -"+ Arrow.arrowheadLength +" "+Arrow.arrowheadLength+" " +
-      "l -"+ Arrow.arrowheadLength +" -"+Arrow.arrowheadLength+" " +
-      "l " + 1.5*Arrow.lipHeight + " 0" +
-      "a "+ r2 + " " + r2 +" 0 0 0 -"
+      "l " + 1.5 * Arrow.lipHeight + " 0 " +
+      "l -" + Arrow.arrowheadLength + " " + Arrow.arrowheadLength + " " +
+      "l -" + Arrow.arrowheadLength + " -" + Arrow.arrowheadLength + " " +
+      "l " + 1.5 * Arrow.lipHeight + " 0" +
+      "a " + r2 + " " + r2 + " 0 0 0 -"
       + r2 + " -" + r2 + " " +
       "l 0 -" + Arrow.arrowheadLength);
   }
 
-  this.group = document.createElementNS('http://www.w3.org/2000/svg','g');
+  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   this.group.setAttribute('shape-rendering', 'inherit');
   this.group.setAttribute('pointer-events', 'all');
   this.group.setAttribute("id", id);
   this.group.style.opacity = 0.75;
 
-  this.setPose = function(pose) {
+  this.setPose = function (pose) {
     moveObject(this.group, pose.x, pose.y, pose.theta);
   }
 
-  this.setPosition = function(pose) {
+  this.setPosition = function (pose) {
     moveObject(this.group, pose.x, pose.y, 0);
   }
 }
@@ -257,9 +260,9 @@ function VerticalArrows(arrowOffset) {
   Arrow.call(this, "yArrows");
 
   this.arrowUp = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
   this.arrowDown = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
 
   let arrows = [this.arrowUp, this.arrowDown];
 
@@ -268,21 +271,21 @@ function VerticalArrows(arrowOffset) {
     this.group.appendChild(arrow);
   }
 
-  moveObject(this.arrowUp, Arrow.arrowWidth /2, arrowOffset, 90);
-  moveObject(this.arrowDown, -Arrow.arrowWidth /2, -arrowOffset, -90);
+  moveObject(this.arrowUp, Arrow.arrowWidth / 2, arrowOffset, 90);
+  moveObject(this.arrowDown, -Arrow.arrowWidth / 2, -arrowOffset, -90);
 
   this.arrowUp.setAttribute("id", "arrowUp");
   this.arrowDown.setAttribute("id", "arrowDown");
 
-  this.resetColor = function() {
+  this.resetColor = function () {
     this.arrowUp.style.fill = "#cc070e";
     this.arrowDown.style.fill = "#cc070e";
   }
 
-  this.highlight = function(element) {
+  this.highlight = function (element) {
     if (element == undefined) {
       this.arrowUp.style.fill = "#ed272e";
-      this.arrowDown.style.fill = "#ed272e";      
+      this.arrowDown.style.fill = "#ed272e";
     }
     else {
       element.style.fill = "#ed272e";
@@ -297,9 +300,9 @@ function RotateArrows(arrowOffset) {
   Arrow.call(this, "thetaArrows");
 
   this.arrowCW = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
   this.arrowCCW = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
 
   let arrows = [this.arrowCW, this.arrowCCW];
 
@@ -310,22 +313,22 @@ function RotateArrows(arrowOffset) {
 
   let arrowYOffset = Ring.innerR + Ring.ringRadius;
 
-  moveObject(this.arrowCW, Panel.height/6, -Panel.height/2.2, 0);
-  moveObject(this.arrowCCW, -Panel.height/6, -Panel.height/2.2, 0, true);
+  moveObject(this.arrowCW, Panel.height / 6, -Panel.height / 2.2, 0);
+  moveObject(this.arrowCCW, -Panel.height / 6, -Panel.height / 2.2, 0, true);
 
   this.arrowCW.setAttribute("id", "arrowCW");
   this.arrowCCW.setAttribute("id", "arrowCCW");
 
-  this.resetColor = function() {
+  this.resetColor = function () {
     this.arrowCW.style.fill = "#07cc0e";
     this.arrowCCW.style.fill = "#07cc0e";
   }
 
-  this.highlight = function(element) {
+  this.highlight = function (element) {
     if (element == undefined) {
       this.arrowCW.style.fill = "#27ed2e";
       this.arrowCCW.style.fill = "#27ed2e";
-    } 
+    }
     else
       element.style.fill = "#27ed2e";
   }
@@ -338,9 +341,9 @@ function HorizontalArrows(arrowOffset) {
   Arrow.call(this, "xArrows");
 
   this.arrowLeft = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
   this.arrowRight = document.createElementNS(
-    'http://www.w3.org/2000/svg','path');
+    'http://www.w3.org/2000/svg', 'path');
 
   let arrows = [this.arrowLeft, this.arrowRight];
 
@@ -349,18 +352,18 @@ function HorizontalArrows(arrowOffset) {
     this.group.appendChild(arrow);
   }
 
-  moveObject(this.arrowLeft, arrowOffset, -Arrow.arrowWidth /2, 0);
-  moveObject(this.arrowRight, -arrowOffset, Arrow.arrowWidth /2, 180);
+  moveObject(this.arrowLeft, arrowOffset, -Arrow.arrowWidth / 2, 0);
+  moveObject(this.arrowRight, -arrowOffset, Arrow.arrowWidth / 2, 180);
 
   this.arrowLeft.setAttribute("id", "arrowLeft");
   this.arrowRight.setAttribute("id", "arrowRight");
 
-  this.resetColor = function() {
+  this.resetColor = function () {
     this.arrowLeft.style.fill = "#181acc";
     this.arrowRight.style.fill = "#181acc";
   }
 
-  this.highlight = function(element) {
+  this.highlight = function (element) {
     if (element == undefined) {
       this.arrowLeft.style.fill = "#383aec";
       this.arrowRight.style.fill = "#383aec";
@@ -399,308 +402,308 @@ function HorizontalArrows(arrowOffset) {
 ////////////////////////////////////////////////////////////
 
 function setupControlInterface() {
-    var ws = document.getElementById("workspace");
-    arrowsSix = null;
+  var ws = document.getElementById("workspace");
+  arrowsSix = null;
 
-    if (controlTypes[control] === "drag") {
-        // if (isOneTouch)
-        //     ee.group.setAttributeNS(null, "onclick", "startDrag(event)");
-        // else
-            //ee.group.setAttributeNS(null, "onmousedown", "startDrag(event)");
+  if (controlTypes[control] === "drag") {
+    // if (isOneTouch)
+    //     ee.group.setAttributeNS(null, "onclick", "startDrag(event)");
+    // else
+    //ee.group.setAttributeNS(null, "onmousedown", "startDrag(event)");
 
 
+  }
+  else if (controlTypes[control] === "arrows") {
+    createRing();
+    createArrows();
+    if (isOneTouch) {
+      arrowRight.setAttribute("onclick", "startDrag(event, RIGHT)");
+      arrowLeft.setAttribute("onclick", "startDrag(event, LEFT)");
+      arrowUp.setAttribute("onclick", "startDrag(event, UP)");
+      arrowDown.setAttribute("onclick", "startDrag(event, DOWN)");
     }
-    else if (controlTypes[control] === "arrows") {
-        createRing();
-        createArrows();
-        if (isOneTouch) {
-            arrowRight.setAttribute("onclick", "startDrag(event, RIGHT)");
-            arrowLeft.setAttribute("onclick", "startDrag(event, LEFT)");
-            arrowUp.setAttribute("onclick", "startDrag(event, UP)");
-            arrowDown.setAttribute("onclick", "startDrag(event, DOWN)");
-        }
-        else {
-            arrowRight.setAttribute("onmousedown", "startDrag(event, RIGHT)");
-            arrowLeft.setAttribute("onmousedown", "startDrag(event, LEFT)");
-            arrowUp.setAttribute("onmousedown", "startDrag(event, UP)");
-            arrowDown.setAttribute("onmousedown", "startDrag(event, DOWN)");
-        }
-    }
-    else if (controlTypes[control] === "arrowsClick") {
-      // no case for OneTouch at the moment
-      createSixArrows();
+    else {
       arrowRight.setAttribute("onmousedown", "startDrag(event, RIGHT)");
       arrowLeft.setAttribute("onmousedown", "startDrag(event, LEFT)");
       arrowUp.setAttribute("onmousedown", "startDrag(event, UP)");
       arrowDown.setAttribute("onmousedown", "startDrag(event, DOWN)");
-      arrowCW.setAttribute("onmousedown", "startRotate2(event,CW)");
-      arrowCCW.setAttribute("onmousedown", "startRotate2(event,CCW)");
     }
-    else if (controlTypes[control] === "arrowsHover") {
-      // no case for OneTouch
-      createSixArrows();
-      arrowRight.setAttribute("onmouseover", "startDrag(event, RIGHT)");
-      arrowLeft.setAttribute("onmouseover", "startDrag(event, LEFT)");
-      arrowUp.setAttribute("onmouseover", "startDrag(event, UP)");
-      arrowDown.setAttribute("onmouseover", "startDrag(event, DOWN)");
-      arrowCW.setAttribute("onmouseover", "startDrag(event,CW)");
-      arrowCCW.setAttribute("onmouseover", "startDrag(event,CCW)");
-    }
-    else if (controlTypes[control] === "target") {
-      createGhost();
-      if(isOneTouch) {
-          ws.setAttribute("onclick", "startGhost(event)");
-      }
-      else {
-          ws.setAttribute("onmousedown", "startGhost(event)");
-      }
+  }
+  else if (controlTypes[control] === "arrowsClick") {
+    // no case for OneTouch at the moment
+    createSixArrows();
+    arrowRight.setAttribute("onmousedown", "startDrag(event, RIGHT)");
+    arrowLeft.setAttribute("onmousedown", "startDrag(event, LEFT)");
+    arrowUp.setAttribute("onmousedown", "startDrag(event, UP)");
+    arrowDown.setAttribute("onmousedown", "startDrag(event, DOWN)");
+    arrowCW.setAttribute("onmousedown", "startRotate2(event,CW)");
+    arrowCCW.setAttribute("onmousedown", "startRotate2(event,CCW)");
+  }
+  else if (controlTypes[control] === "arrowsHover") {
+    // no case for OneTouch
+    createSixArrows();
+    arrowRight.setAttribute("onmouseover", "startDrag(event, RIGHT)");
+    arrowLeft.setAttribute("onmouseover", "startDrag(event, LEFT)");
+    arrowUp.setAttribute("onmouseover", "startDrag(event, UP)");
+    arrowDown.setAttribute("onmouseover", "startDrag(event, DOWN)");
+    arrowCW.setAttribute("onmouseover", "startDrag(event,CW)");
+    arrowCCW.setAttribute("onmouseover", "startDrag(event,CCW)");
+  }
+  else if (controlTypes[control] === "target") {
+    createGhost();
+    if (isOneTouch) {
+      ws.setAttribute("onclick", "startGhost(event)");
     }
     else {
-        console.error("Please select a valid control");
+      ws.setAttribute("onmousedown", "startGhost(event)");
     }
+  }
+  else {
+    console.error("Please select a valid control");
+  }
 }
 
 function createTrajectoryArrows() {
-    var ws = document.getElementById("workspace");
-    trajArrows = [];
-    trajNums = [];
-    for(var i = 0; i < numTrajArrows; i++){
-        var angle = ((2 * Math.PI) / numTrajArrows) * i;
-        var unitX = Math.cos(angle);
-        var unitY = Math.sin(angle);
-        var x = unitX * trajArrowLength;
-        var y = unitY * trajArrowLength;
+  var ws = document.getElementById("workspace");
+  trajArrows = [];
+  trajNums = [];
+  for (var i = 0; i < numTrajArrows; i++) {
+    var angle = ((2 * Math.PI) / numTrajArrows) * i;
+    var unitX = Math.cos(angle);
+    var unitY = Math.sin(angle);
+    var x = unitX * trajArrowLength;
+    var y = unitY * trajArrowLength;
 
-        var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        arrow.setAttribute('x1', 0);
-        arrow.setAttribute('y1', 0);
-        arrow.setAttribute('x2', x);
-        arrow.setAttribute('y2', y);
-        arrow.setAttribute('stroke', "red");
-        arrow.setAttribute('stroke-width', lineThickness);
-        arrow.setAttribute('id', (i + 1));
-        arrow.setAttribute('value', String(unitX + "," + unitY));
-        moveObject(arrow, ee.pose.x, ee.pose.y, ee.pose.theta);
-        trajArrows.push(arrow);
-        ws.appendChild(arrow);
+    var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    arrow.setAttribute('x1', 0);
+    arrow.setAttribute('y1', 0);
+    arrow.setAttribute('x2', x);
+    arrow.setAttribute('y2', y);
+    arrow.setAttribute('stroke', "red");
+    arrow.setAttribute('stroke-width', lineThickness);
+    arrow.setAttribute('id', (i + 1));
+    arrow.setAttribute('value', String(unitX + "," + unitY));
+    moveObject(arrow, ee.pose.x, ee.pose.y, ee.pose.theta);
+    trajArrows.push(arrow);
+    ws.appendChild(arrow);
 
-        var num = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        num.setAttribute('x', x * 1.2);
-        num.setAttribute('y', y * 1.2);
-        num.style.fontSize = trajFontSize + "px";
-        num.innerHTML = i;
-        trajNums.push(num);
-        ws.appendChild(num);
-    }
+    var num = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    num.setAttribute('x', x * 1.2);
+    num.setAttribute('y', y * 1.2);
+    num.style.fontSize = trajFontSize + "px";
+    num.innerHTML = i;
+    trajNums.push(num);
+    ws.appendChild(num);
+  }
 }
 
-function createGhost(){
-    var ws = document.getElementById("workspace");
-    ghost = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    ghost.setAttribute('x1', 0);
-    ghost.setAttribute('y1', 0);
-    ghost.setAttribute('x2', 0);
-    ghost.setAttribute('y2', 0);
-    ghost.setAttribute('stroke', "red");
-    ghost.setAttribute('stroke-width', lineThickness);
-    ws.appendChild(ghost);
+function createGhost() {
+  var ws = document.getElementById("workspace");
+  ghost = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  ghost.setAttribute('x1', 0);
+  ghost.setAttribute('y1', 0);
+  ghost.setAttribute('x2', 0);
+  ghost.setAttribute('y2', 0);
+  ghost.setAttribute('stroke', "red");
+  ghost.setAttribute('stroke-width', lineThickness);
+  ws.appendChild(ghost);
 }
 
 
 
 
 function createArrows() {
-    var ws = document.getElementById("workspace");
+  var ws = document.getElementById("workspace");
 
-    arrowRight = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowLeft = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowUp = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowDown = document.createElementNS('http://www.w3.org/2000/svg','path');
+  arrowRight = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowLeft = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowUp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowDown = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-    arrows = [arrowRight, arrowLeft, arrowUp, arrowDown];
+  arrows = [arrowRight, arrowLeft, arrowUp, arrowDown];
 
-    arrows.forEach(function(arrow) {
-        arrow.setAttribute("d", "M0,"+(0)+" h"+arrowShaftLength+"v"+(-lipHeight)+"l"+arrowheadLength+","+(lipHeight +
-            (arrowWidth /2)) +"l"+ (-arrowheadLength)+","+
-            (lipHeight + (arrowWidth /2)) +"v"+(-lipHeight)+"h"+(-arrowShaftLength)+"z");
-    });
+  arrows.forEach(function (arrow) {
+    arrow.setAttribute("d", "M0," + (0) + " h" + arrowShaftLength + "v" + (-lipHeight) + "l" + arrowheadLength + "," + (lipHeight +
+      (arrowWidth / 2)) + "l" + (-arrowheadLength) + "," +
+      (lipHeight + (arrowWidth / 2)) + "v" + (-lipHeight) + "h" + (-arrowShaftLength) + "z");
+  });
 
-    arrowRight.style.fill = "#181acc";
-    arrowLeft.style.fill = "#181acc";
-    arrowUp.style.fill = "#cc070e";
-    arrowDown.style.fill = "#cc070e";
+  arrowRight.style.fill = "#181acc";
+  arrowLeft.style.fill = "#181acc";
+  arrowUp.style.fill = "#cc070e";
+  arrowDown.style.fill = "#cc070e";
 
-    arrows.forEach(function(arrow) {
-        ws.appendChild(arrow);
-    });
+  arrows.forEach(function (arrow) {
+    ws.appendChild(arrow);
+  });
 
-    arrowRightXOffset = innerR + ringWidth;
-    arrowRightYOffset = - arrowWidth / 2;
-    arrowLeftXOffset = - (innerR + ringWidth);
-    arrowLeftYOffset =  arrowWidth / 2;
-    arrowUpXOffset = - arrowWidth / 2;
-    arrowUpYOffset =  - (innerR + ringWidth);
-    arrowDownXOffset = arrowWidth / 2;
-    arrowDownYOffset = (innerR + ringWidth);
+  arrowRightXOffset = innerR + ringWidth;
+  arrowRightYOffset = - arrowWidth / 2;
+  arrowLeftXOffset = - (innerR + ringWidth);
+  arrowLeftYOffset = arrowWidth / 2;
+  arrowUpXOffset = - arrowWidth / 2;
+  arrowUpYOffset = - (innerR + ringWidth);
+  arrowDownXOffset = arrowWidth / 2;
+  arrowDownYOffset = (innerR + ringWidth);
 
-    // The transform attribute gets set in resetPose()
+  // The transform attribute gets set in resetPose()
 }
 
 function createSixArrows() {
-    var ws = document.getElementById("workspace");
+  var ws = document.getElementById("workspace");
 
-    arrowRight = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowLeft = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowUp = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowDown = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowCW = document.createElementNS('http://www.w3.org/2000/svg','path');
-    arrowCCW = document.createElementNS('http://www.w3.org/2000/svg','path');
+  arrowRight = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowLeft = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowUp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowDown = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowCW = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrowCCW = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-    arrowsSix = [arrowRight, arrowLeft, arrowUp, arrowDown, arrowCW, arrowCCW];
+  arrowsSix = [arrowRight, arrowLeft, arrowUp, arrowDown, arrowCW, arrowCCW];
 
-    arrowsSix.forEach(function(arrow) {
-        arrow.setAttribute("d", "M0,"+(0)+" h"+arrowShaftLength+"v"+(-lipHeight)+"l"+arrowheadLength+","+(lipHeight +
-            (arrowWidth /2)) +"l"+ (-arrowheadLength)+","+
-            (lipHeight + (arrowWidth /2)) +"v"+(-lipHeight)+"h"+(-arrowShaftLength)+"z");
-    });
+  arrowsSix.forEach(function (arrow) {
+    arrow.setAttribute("d", "M0," + (0) + " h" + arrowShaftLength + "v" + (-lipHeight) + "l" + arrowheadLength + "," + (lipHeight +
+      (arrowWidth / 2)) + "l" + (-arrowheadLength) + "," +
+      (lipHeight + (arrowWidth / 2)) + "v" + (-lipHeight) + "h" + (-arrowShaftLength) + "z");
+  });
 
-    arrowRight.style.fill = "#181acc";
-    arrowLeft.style.fill = "#181acc";
-    arrowUp.style.fill = "#cc070e";
-    arrowDown.style.fill = "#cc070e";
-    arrowCW.style.fill = "#a442f4"; // when clicked = #bf42f4
-    arrowCCW.style.fill = "#36bc3d";// for now when clicked = #4cef23
+  arrowRight.style.fill = "#181acc";
+  arrowLeft.style.fill = "#181acc";
+  arrowUp.style.fill = "#cc070e";
+  arrowDown.style.fill = "#cc070e";
+  arrowCW.style.fill = "#a442f4"; // when clicked = #bf42f4
+  arrowCCW.style.fill = "#36bc3d";// for now when clicked = #4cef23
 
-    arrowRightXOffset = innerR + 
-      Width;
-    arrowRightYOffset = - arrowWidth / 2;
-    arrowLeftXOffset = - (innerR + ringWidth);
-    arrowLeftYOffset =  arrowWidth / 2;
-    arrowUpXOffset = - arrowWidth / 2;
-    arrowUpYOffset =  - (innerR + ringWidth);
-    arrowDownXOffset = arrowWidth / 2;
-    arrowDownYOffset = (innerR + ringWidth);
-    arrowCWXOffset = Math.round((innerR + ringWidth - arrowWidth / 2)*0.707) + arrowWidth /2;
-    arrowCWYOffset = - Math.round((innerR + ringWidth + arrowWidth / 2)*0.707) - arrowWidth;
-    arrowCCWXOffset = - Math.round((innerR + ringWidth + arrowWidth / 2)*0.707) + arrowWidth /2;
-    arrowCCWYOffset = - Math.round((innerR + ringWidth - arrowWidth / 2)*0.707) - arrowWidth;
+  arrowRightXOffset = innerR +
+    Width;
+  arrowRightYOffset = - arrowWidth / 2;
+  arrowLeftXOffset = - (innerR + ringWidth);
+  arrowLeftYOffset = arrowWidth / 2;
+  arrowUpXOffset = - arrowWidth / 2;
+  arrowUpYOffset = - (innerR + ringWidth);
+  arrowDownXOffset = arrowWidth / 2;
+  arrowDownYOffset = (innerR + ringWidth);
+  arrowCWXOffset = Math.round((innerR + ringWidth - arrowWidth / 2) * 0.707) + arrowWidth / 2;
+  arrowCWYOffset = - Math.round((innerR + ringWidth + arrowWidth / 2) * 0.707) - arrowWidth;
+  arrowCCWXOffset = - Math.round((innerR + ringWidth + arrowWidth / 2) * 0.707) + arrowWidth / 2;
+  arrowCCWYOffset = - Math.round((innerR + ringWidth - arrowWidth / 2) * 0.707) - arrowWidth;
 
-    arrowsSix.forEach(function(arrow) {
-        ws.appendChild(arrow);
-    });
+  arrowsSix.forEach(function (arrow) {
+    ws.appendChild(arrow);
+  });
 
-    // The transform attribute gets set in resetPose()
+  // The transform attribute gets set in resetPose()
 }
 
 
 function startGhost(event) {
-    var ws = document.getElementById("workspace");
-    ghost.setAttribute("x1",0);
-    ghost.setAttribute("x2",0);
-    ghost.setAttribute("y1",0);
-    ghost.setAttribute("y2",0);
-    targetFixedX = e.offsetX;
-    targetFixedY = e.offsetY;
-    ws.setAttribute("onmousemove", "drawGhost(event)");
-    if (isOneTouch) {
-        ws.setAttribute("onclick", "targetMoveEE(event)");
-    }
-    else {
-        ws.setAttribute("onmouseup", "targetMoveEE(event)");
-    }
+  var ws = document.getElementById("workspace");
+  ghost.setAttribute("x1", 0);
+  ghost.setAttribute("x2", 0);
+  ghost.setAttribute("y1", 0);
+  ghost.setAttribute("y2", 0);
+  targetFixedX = e.offsetX;
+  targetFixedY = e.offsetY;
+  ws.setAttribute("onmousemove", "drawGhost(event)");
+  if (isOneTouch) {
+    ws.setAttribute("onclick", "targetMoveEE(event)");
+  }
+  else {
+    ws.setAttribute("onmouseup", "targetMoveEE(event)");
+  }
 }
 
 
 function drawGhost(event) {
-    ghost.setAttribute('x1', targetFixedX);
-    ghost.setAttribute('y1', targetFixedY);
-    ghost.setAttribute('x2', e.offsetX);
-    ghost.setAttribute('y2', e.offsetY);
+  ghost.setAttribute('x1', targetFixedX);
+  ghost.setAttribute('y1', targetFixedY);
+  ghost.setAttribute('x2', e.offsetX);
+  ghost.setAttribute('y2', e.offsetY);
 
-    var deltaX = e.offsetX - targetFixedX;
-    var deltaY = e.offsetY - targetFixedY;
-    var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-    angle -= 90;
-    if (angle > 180)
-        angle -= 360;
-    if (angle < -180)
-        angle += 360;
+  var deltaX = e.offsetX - targetFixedX;
+  var deltaY = e.offsetY - targetFixedY;
+  var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+  angle -= 90;
+  if (angle > 180)
+    angle -= 360;
+  if (angle < -180)
+    angle += 360;
 
-    if(checkGoal(targetFixedX, targetFixedY, targetPos[0], targetPos[1], angle, targetRot)){
-        target.setAttribute("stroke-dasharray", "10, 5");
-        target.style.stroke = targetSuccessColor;
-    }
-    else {
-        target.removeAttribute("stroke-dasharray");
-        target.style.stroke = targetColor;
-    }
+  if (checkGoal(targetFixedX, targetFixedY, targetPos[0], targetPos[1], angle, targetRot)) {
+    target.setAttribute("stroke-dasharray", "10, 5");
+    target.style.stroke = targetSuccessColor;
+  }
+  else {
+    target.removeAttribute("stroke-dasharray");
+    target.style.stroke = targetColor;
+  }
 }
 
 function targetMoveEE(event) {
-    var ws = document.getElementById("workspace");
-    ws.removeAttribute("onmousemove");
-    target.removeAttribute("stroke-dasharray");
-    pos = [targetFixedX, targetFixedY];
-    var deltaX = e.offsetX - targetFixedX;
-    var deltaY = e.offsetY - targetFixedY;
-    var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
-    angle -= 90;
-    rot = angle;
-    if (rot > 180)
-        rot -= 360;
-    if (rot < -180)
-        rot += 360;
+  var ws = document.getElementById("workspace");
+  ws.removeAttribute("onmousemove");
+  target.removeAttribute("stroke-dasharray");
+  pos = [targetFixedX, targetFixedY];
+  var deltaX = e.offsetX - targetFixedX;
+  var deltaY = e.offsetY - targetFixedY;
+  var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+  angle -= 90;
+  rot = angle;
+  if (rot > 180)
+    rot -= 360;
+  if (rot < -180)
+    rot += 360;
 
-    updatePose();
-  
-    if (ee.isSame(target))
-      success();
-  
-    // if(checkGoal(pos[0], pos[1], targetPos[0], targetPos[1], rot, targetRot)){
-    //     success();
-    // }
+  updatePose();
+
+  if (ee.isSame(target))
+    success();
+
+  // if(checkGoal(pos[0], pos[1], targetPos[0], targetPos[1], rot, targetRot)){
+  //     success();
+  // }
 
 
-    if (isOneTouch)
-        ws.setAttribute("onclick", "startGhost(event)");
+  if (isOneTouch)
+    ws.setAttribute("onclick", "startGhost(event)");
 }
 
 function updatePose() {
-    // Place the controllable end effector at the center of the workspace
-  
-    if(ring) {
-        moveObject(ring, ee.pose.x, ee.pose.y, ee.pose.theta);
-    }
+  // Place the controllable end effector at the center of the workspace
 
-    if(arrows){
-        moveObjectAndScale(arrowRight, pos[0] + arrowRightXOffset, pos[1] + arrowRightYOffset, 0, scale);
-        moveObjectAndScale(arrowLeft, pos[0] + arrowLeftXOffset, pos[1] + arrowLeftYOffset, 180, scale);
-        moveObjectAndScale(arrowUp, pos[0] + arrowUpXOffset, pos[1] + arrowUpYOffset, -90, scale);
-        moveObjectAndScale(arrowDown, pos[0] + arrowDownXOffset, pos[1] + arrowDownYOffset, 90, scale);
-    }
-  
-    if(arrowsSix){
-      var center = [105,105];
-      moveObjectAndScale(arrowRight, center[0] + arrowRightXOffset, center[1] + arrowRightYOffset, 0, scale);
-      moveObjectAndScale(arrowLeft, center[0] + arrowLeftXOffset, center[1] + arrowLeftYOffset, 180, scale);
-      moveObjectAndScale(arrowUp, center[0] + arrowUpXOffset, center[1] + arrowUpYOffset, -90, scale);
-      moveObjectAndScale(arrowDown, center[0] + arrowDownXOffset, center[1] + arrowDownYOffset, 90, scale);
-      arrowCCW.setAttribute("transform", "translate(" + (center[0] + arrowCCWXOffset) + " " + (center[1] + arrowCCWYOffset) + ") rotate(" + (135) + " " + 0 + " " + 0 + ") scale(" + scale + ")" );
-      arrowCW.setAttribute("transform", "translate(" + (center[0] + arrowCWXOffset) + " " + (center[1] + arrowCWYOffset) +") rotate(" + (45) + " " + 0 + " " + 0 + ") scale(" + scale + ")" );
-    }
-    /*
-    if(trajArrows){
-        trajArrows.forEach(function (arrow) {
-            moveObject(arrow, pos[0], pos[1], 0);
+  if (ring) {
+    moveObject(ring, ee.pose.x, ee.pose.y, ee.pose.theta);
+  }
 
-        });
-    }
+  if (arrows) {
+    moveObjectAndScale(arrowRight, pos[0] + arrowRightXOffset, pos[1] + arrowRightYOffset, 0, scale);
+    moveObjectAndScale(arrowLeft, pos[0] + arrowLeftXOffset, pos[1] + arrowLeftYOffset, 180, scale);
+    moveObjectAndScale(arrowUp, pos[0] + arrowUpXOffset, pos[1] + arrowUpYOffset, -90, scale);
+    moveObjectAndScale(arrowDown, pos[0] + arrowDownXOffset, pos[1] + arrowDownYOffset, 90, scale);
+  }
 
-    if(trajNums){
-        trajNums.forEach(function (num) {
-            moveObject(num, pos[0], pos[1], 0);
-        });
-    }*/
+  if (arrowsSix) {
+    var center = [105, 105];
+    moveObjectAndScale(arrowRight, center[0] + arrowRightXOffset, center[1] + arrowRightYOffset, 0, scale);
+    moveObjectAndScale(arrowLeft, center[0] + arrowLeftXOffset, center[1] + arrowLeftYOffset, 180, scale);
+    moveObjectAndScale(arrowUp, center[0] + arrowUpXOffset, center[1] + arrowUpYOffset, -90, scale);
+    moveObjectAndScale(arrowDown, center[0] + arrowDownXOffset, center[1] + arrowDownYOffset, 90, scale);
+    arrowCCW.setAttribute("transform", "translate(" + (center[0] + arrowCCWXOffset) + " " + (center[1] + arrowCCWYOffset) + ") rotate(" + (135) + " " + 0 + " " + 0 + ") scale(" + scale + ")");
+    arrowCW.setAttribute("transform", "translate(" + (center[0] + arrowCWXOffset) + " " + (center[1] + arrowCWYOffset) + ") rotate(" + (45) + " " + 0 + " " + 0 + ") scale(" + scale + ")");
+  }
+  /*
+  if(trajArrows){
+      trajArrows.forEach(function (arrow) {
+          moveObject(arrow, pos[0], pos[1], 0);
+
+      });
+  }
+
+  if(trajNums){
+      trajNums.forEach(function (num) {
+          moveObject(num, pos[0], pos[1], 0);
+      });
+  }*/
 
 
 }
@@ -713,57 +716,57 @@ function startDrag(event, direction) {
   var ws = document.getElementById("workspace");
 
 
-    // this is for controlType = "drag"
-    if (direction == undefined ) {
-//         ws.setAttributeNS(null, "onmousemove", "drag(event)");
+  // this is for controlType = "drag"
+  if (direction == undefined) {
+    //         ws.setAttributeNS(null, "onmousemove", "drag(event)");
 
-//         if (isOneTouch)
-//             ee.group.setAttributeNS(null, "onclick", "stopDrag(event)");
-//         else
-//             ws.setAttributeNS(null, "onmouseup", "stopDrag(event)");
-      
-        //ee.group.style.fill = "#9EE";
+    //         if (isOneTouch)
+    //             ee.group.setAttributeNS(null, "onclick", "stopDrag(event)");
+    //         else
+    //             ws.setAttributeNS(null, "onmouseup", "stopDrag(event)");
+
+    //ee.group.style.fill = "#9EE";
+  }
+  // This is for controlTypes involving arrows
+  else {
+    if (controlTypes[control] == "arrowsClick") {
+      ws.setAttributeNS(null, "onmousedown", "drag(event, " + direction + ")");
     }
-    // This is for controlTypes involving arrows
+    if (controlTypes[control] == "arrowsHover") {
+      ws.setAttributeNS(null, "onmouseover", "drag(event, " + direction + ")");
+    }
     else {
-        if(controlTypes[control] == "arrowsClick"){
-          ws.setAttributeNS(null, "onmousedown", "drag(event, " + direction + ")");
-        }
-        if(controlTypes[control] == "arrowsHover"){
-          ws.setAttributeNS(null, "onmouseover", "drag(event, " + direction + ")");
-        }
-        else{
-          ws.setAttributeNS(null, "onmousemove", "drag(event, " + direction + ")");
-        }
-        if(direction == LEFT || direction == RIGHT){
-          event.target.style.fill = "#4a4aff"
-        }
-        else if(direction == UP || direction == DOWN){
-          event.target.style.fill = "#ff070e"
-        }
-        else if(direction == CW){
-          event.target.style.fill = "#bf42f4"
-        }
-        else if(direction == CCW){
-          event.target.style.fill = "#4cef23"
-        }
-        if (isOneTouch) {
-            arrows.forEach(function(arrow) {
-               arrow.setAttributeNS(null, "onclick", "stopDrag(event, " + direction + ")");
-            });
-            ws.setAttribute("onclick", "stopDrag(event, " + direction + ")");
-            event.stopPropagation();
-        }
-        else{
-          if(controlTypes[control] == "arrowsClick"){
-            ws.setAttributeNS(null, "onmouseup", "stopDrag(event, " + direction + ")");
-          }
-          if(controlTypes[control] == "arrowsHover"){
-            ws.setAttributeNS(null, "onmouseout", "stopDrag(event, " + direction + ")");
-          }
-          ws.setAttributeNS(null, "onmouseup", "stopDrag(event, " + direction + ")");
-        }
+      ws.setAttributeNS(null, "onmousemove", "drag(event, " + direction + ")");
     }
+    if (direction == LEFT || direction == RIGHT) {
+      event.target.style.fill = "#4a4aff"
+    }
+    else if (direction == UP || direction == DOWN) {
+      event.target.style.fill = "#ff070e"
+    }
+    else if (direction == CW) {
+      event.target.style.fill = "#bf42f4"
+    }
+    else if (direction == CCW) {
+      event.target.style.fill = "#4cef23"
+    }
+    if (isOneTouch) {
+      arrows.forEach(function (arrow) {
+        arrow.setAttributeNS(null, "onclick", "stopDrag(event, " + direction + ")");
+      });
+      ws.setAttribute("onclick", "stopDrag(event, " + direction + ")");
+      event.stopPropagation();
+    }
+    else {
+      if (controlTypes[control] == "arrowsClick") {
+        ws.setAttributeNS(null, "onmouseup", "stopDrag(event, " + direction + ")");
+      }
+      if (controlTypes[control] == "arrowsHover") {
+        ws.setAttributeNS(null, "onmouseout", "stopDrag(event, " + direction + ")");
+      }
+      ws.setAttributeNS(null, "onmouseup", "stopDrag(event, " + direction + ")");
+    }
+  }
 
 }
 
@@ -774,129 +777,129 @@ function startRotate(event) {
   var ws = document.getElementById("workspace");
   ws.setAttributeNS(null, "onmousemove", "rotate(event)");
 
-    if (isOneTouch) {
-        ring.setAttributeNS(null, "onclick", "stopRotate(event)");
-        ws.setAttribute("onclick","stopRotate(event)");
-        event.stopPropagation();
-    }
-    else
-        ws.setAttributeNS(null, "onmouseup", "stopRotate(event)");
-    ring.style.stroke = "#99E";
+  if (isOneTouch) {
+    ring.setAttributeNS(null, "onclick", "stopRotate(event)");
+    ws.setAttribute("onclick", "stopRotate(event)");
+    event.stopPropagation();
+  }
+  else
+    ws.setAttributeNS(null, "onmouseup", "stopRotate(event)");
+  ring.style.stroke = "#99E";
 }
 
 
 function drag(event, direction) {
-    var newPoint = getMousePosition(event);
-    var a = newPoint.diff(refPoint);
-  
-    if(controlTypes[control] == "arrowsClick" || controlTypes[control] == "arrowsHover"){
-      var delta = 3;
-      if(direction == LEFT || direction == UP){
-        a = new Position(-delta,-delta);
-      }
-      else{
-        a = new Position(delta,delta);
-      }
+  var newPoint = getMousePosition(event);
+  var a = newPoint.diff(refPoint);
+
+  if (controlTypes[control] == "arrowsClick" || controlTypes[control] == "arrowsHover") {
+    var delta = 3;
+    if (direction == LEFT || direction == UP) {
+      a = new Position(-delta, -delta);
     }
-  
-    if(direction == undefined) {
-      ee.translateBy(a);
+    else {
+      a = new Position(delta, delta);
     }
-    else if(direction == RIGHT || direction == LEFT){
-        pos = [startPos[0] + a[0], startPos[1]];
-    }else if(direction == UP || direction == DOWN){
-        pos = [startPos[0], startPos[1] + a[1]];
-    }else {
-        console.error("Bad direction");
-    }
-    //updatePose();
+  }
+
+  if (direction == undefined) {
+    ee.translateBy(a);
+  }
+  else if (direction == RIGHT || direction == LEFT) {
+    pos = [startPos[0] + a[0], startPos[1]];
+  } else if (direction == UP || direction == DOWN) {
+    pos = [startPos[0], startPos[1] + a[1]];
+  } else {
+    console.error("Bad direction");
+  }
+  //updatePose();
 }
 
 // Check if target is reached
 function checkGoal(currPoseX, currPoseY, goalPoseX, goalPoseY, currRot, goalRot) {
-    var xErr = Math.abs(currPoseX-goalPoseX);
-    var yErr = Math.abs(currPoseY-goalPoseY);
-    var rotErr = Math.abs(currRot-goalRot);
+  var xErr = Math.abs(currPoseX - goalPoseX);
+  var yErr = Math.abs(currPoseY - goalPoseY);
+  var rotErr = Math.abs(currRot - goalRot);
 
-    return (xErr < threshold && yErr < threshold && rotErr < threshold);
+  return (xErr < threshold && yErr < threshold && rotErr < threshold);
 }
 
 function rotate(event, direction) {
-    var newPoint = null;
-    var delta = 3;
-    if(direction == undefined){
-      newPoint = getMousePosition(event);
-    }
-    else if(direction == CW){
-      newPoint = new Position(ee.pose.x + 2*delta, ee.pose.y - delta);
-      refPoint = new Position(ee.pose.x + 1, ee.pose.y - 1);
-    }
-    else if(direction == CCW){
-      newPoint = [ee.pose.x + 2*delta, ee.pose.y + delta];
-      refPoint = new Position(ee.pose.x + 1, ee.pose.y + 1);
-    }
-    // This was the original rotate method with the undefined direction part
+  var newPoint = null;
+  var delta = 3;
+  if (direction == undefined) {
+    newPoint = getMousePosition(event);
+  }
+  else if (direction == CW) {
+    newPoint = new Position(ee.pose.x + 2 * delta, ee.pose.y - delta);
+    refPoint = new Position(ee.pose.x + 1, ee.pose.y - 1);
+  }
+  else if (direction == CCW) {
+    newPoint = [ee.pose.x + 2 * delta, ee.pose.y + delta];
+    refPoint = new Position(ee.pose.x + 1, ee.pose.y + 1);
+  }
+  // This was the original rotate method with the undefined direction part
 
 }
 
 
 function stopDrag(event, direction) {
-    if (ee.isTranslating) {
-        var ws = document.getElementById("workspace");
-        ws.removeAttributeNS(null, "onmousemove");
+  if (ee.isTranslating) {
+    var ws = document.getElementById("workspace");
+    ws.removeAttributeNS(null, "onmousemove");
 
-        if (direction == undefined) {
-            if (isOneTouch) {
-                ee.group.setAttributeNS(null, "onclick", "startDrag(event)");
-            }
-            else {
-                ws.removeAttributeNS(null, "onmouseup");
-            }
-        } else {
+    if (direction == undefined) {
+      if (isOneTouch) {
+        ee.group.setAttributeNS(null, "onclick", "startDrag(event)");
+      }
+      else {
+        ws.removeAttributeNS(null, "onmouseup");
+      }
+    } else {
 
-            if (isOneTouch) {
-                arrowRight.setAttributeNS(null, "onclick", "startDrag(event, RIGHT)");
-                arrowLeft.setAttributeNS(null, "onclick", "startDrag(event, LEFT)");
-                arrowUp.setAttributeNS(null, "onclick", "startDrag(event, UP)");
-                arrowDown.setAttributeNS(null, "onclick", "startDrag(event, DOWN)");
-            }
-            else {
-                ws.removeAttributeNS(null, "onmouseup");
-            }
-            arrowRight.style.fill = "#181acc";
-            arrowLeft.style.fill = "#181acc";
-            arrowUp.style.fill = "#cc070e";
-            arrowDown.style.fill = "#cc070e";
-        }
-
-        if (ee.isSame(target))
-            success(); 
-        // ee.group.style.fill = "#ACC";
-        ee.stopMoving();
+      if (isOneTouch) {
+        arrowRight.setAttributeNS(null, "onclick", "startDrag(event, RIGHT)");
+        arrowLeft.setAttributeNS(null, "onclick", "startDrag(event, LEFT)");
+        arrowUp.setAttributeNS(null, "onclick", "startDrag(event, UP)");
+        arrowDown.setAttributeNS(null, "onclick", "startDrag(event, DOWN)");
+      }
+      else {
+        ws.removeAttributeNS(null, "onmouseup");
+      }
+      arrowRight.style.fill = "#181acc";
+      arrowLeft.style.fill = "#181acc";
+      arrowUp.style.fill = "#cc070e";
+      arrowDown.style.fill = "#cc070e";
     }
+
+    if (ee.isSame(target))
+      success();
+    // ee.group.style.fill = "#ACC";
+    ee.stopMoving();
+  }
 }
 
 function stopRotate(event, direction) {
-    if (ee.isRotating) {
-        var ws = document.getElementById("workspace");
-        ws.removeAttributeNS(null, "onmousemove");
-        if (isOneTouch) {
-            ring.setAttributeNS(null, "onclick", "startRotate(event)");
-            ws.removeAttributeNS(null, "onclick");
-        }
-        else
-            ws.removeAttributeNS(null, "onmouseup");
-        ee.stopMoving();
-        // arrowCW.style.fill = "#a442f4";
-        // arrowCCW.style.fill = "#36bc3d";
-        ring.style.stroke = "#AAC";
-        if (ee.isSame(target))
-            success();
+  if (ee.isRotating) {
+    var ws = document.getElementById("workspace");
+    ws.removeAttributeNS(null, "onmousemove");
+    if (isOneTouch) {
+      ring.setAttributeNS(null, "onclick", "startRotate(event)");
+      ws.removeAttributeNS(null, "onclick");
     }
+    else
+      ws.removeAttributeNS(null, "onmouseup");
+    ee.stopMoving();
+    // arrowCW.style.fill = "#a442f4";
+    // arrowCCW.style.fill = "#36bc3d";
+    ring.style.stroke = "#AAC";
+    if (ee.isSame(target))
+      success();
+  }
 }
 
 function moveObjectAndScale(object, x, y, theta, scale) {
-    object.setAttribute("transform", "translate(" + x + " " + y + ") rotate(" + theta + " " + 0 + " " + 0 + ") scale(" + scale + ")" );
-    // This is where you can log the object, and how it is moving
+  object.setAttribute("transform", "translate(" + x + " " + y + ") rotate(" + theta + " " + 0 + " " + 0 + ") scale(" + scale + ")");
+  // This is where you can log the object, and how it is moving
 }
 
