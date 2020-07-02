@@ -19,13 +19,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 </head>
 
-<body onload="init()">
+<body>
   <h1>Simple URDF Example</h1>
   <div id="urdf"></div>
-  <script>
-    /**
-     * Setup all visualization elements when the page is loaded.
-     */
+  <script onload="init()">
     function init(ws_port) {
       // Connect to ROS.
       var ros = new ROSLIB.Ros({

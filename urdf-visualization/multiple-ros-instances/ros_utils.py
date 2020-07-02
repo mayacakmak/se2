@@ -38,6 +38,9 @@ class ROSInstanceManager:
                 if instance.uid == uid:
                     instance.uid = None
                     break
+    
+    def shutdown(self):
+        print("\n")
 
 class ROSWebVis:
     def __init__(self, ros_port, ws_port, uid):

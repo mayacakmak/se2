@@ -37,4 +37,7 @@ def test_disconnect():
 
 
 if __name__ == "__main__":
-    app.run()
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        manager.shutdown()
