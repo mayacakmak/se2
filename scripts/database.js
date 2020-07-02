@@ -99,11 +99,13 @@ function Database() {
     }
   }
 
-  Database.logCycleStart = function(targetPose) {
+  Database.logCycleStart = function(control, transitionType, targetPose) {
     if (Database.isLogging) {
       var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/";
       var dbRef = firebase.database().ref(dir);
       var cycleInfo = {
+        control: control,
+        transitionType: transitionType,
         targetPose: {
           x: targetPose.x,
           y: targetPose.y,
