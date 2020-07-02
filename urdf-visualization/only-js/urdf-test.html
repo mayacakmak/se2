@@ -26,8 +26,7 @@
     <div class="center">
         <h1>Simple URDF Display Example</h1>
         <p>This is all pure javascript, no ROS backend is needed. <br>
-        Currently, the angles are generated from a sine function, but that can easily be replaced with an IK solver <br><br>
-        Click and drag to move the camera to the</p>
+        Currently, the angles are generated from a sine function, but that can easily be replaced with an IK solver</p>
         <div id="ThreeJS"></div>
     </div>
     <script>
@@ -48,38 +47,43 @@
             var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
             camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
             scene.add(camera);
-            camera.position.set(0, 10, 10);
-            camera.lookAt(scene.position);
+            camera.position.set(0.5, 0.7, 2);
+            //camera.lookAt(scene.position);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
             container = document.getElementById('ThreeJS');
             container.appendChild(renderer.domElement);
 
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            // controls = new THREE.OrbitControls(camera, renderer.domElement);
+            // controls.reset();
 
             var light = new THREE.PointLight(0xffffff);
             light.position.set(-100, 200, 100);
             scene.add(light);
 
+            var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+            scene.add(ambientLight);
+
+
             var skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
             var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
             var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
             //scene.add(skyBox);
-            scene.fog = new THREE.FogExp2(0x9999ff, 0.00025);
+            //scene.fog = new THREE.FogExp2(0x9999ff, 0.00025);
 
             var loader = new URDFLoader();
             loader.packages = {
-                packageName: './package/dir/'            // The equivalent of a (list of) ROS package(s):// directory
+                pr2_description: '../multiple-ros-instances/pr2_description' // The equivalent of a (list of) ROS package(s):// directory
             };
             loader.load(
-                'src/urdf/T12/urdf/T12.URDF',                    // The path to the URDF within the package OR absolute
+                '../multiple-ros-instances/pr2_description/pr2.urdf',
                 robot => {
 
-                    // The robot is loaded!  
+                    // The robot is loaded!
                     scene.add(robot);
                     urdf_robot = robot;
-                    urdf_robot.rotation.x = Math.PI / 2;
+                    urdf_robot.rotation.x = -Math.PI / 2;
 
                 }
             );
@@ -109,12 +113,12 @@
 
 
         function update() {
-            controls.update();
+            //controls.update();
             var curr_time = ((new Date).getTime() - start_time) / 1400;
             if (urdf_robot) {
                 Object.keys(urdf_robot.joints).forEach(function (jointName) {
                     joint = urdf_robot.joints[jointName];
-                    joint.setAngle(map_range(Math.sin(curr_time + (stringToNumber(jointName) - 200)), 0, 1, joint.limit.lower, joint.limit.upper));
+                    joint.setAngle(map_range(Math.sin(curr_time + (stringToNumber(jointName) - 200)), -1, 1, joint.limit.lower, joint.limit.upper));
                 });
             }
         }
