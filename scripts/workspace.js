@@ -82,7 +82,7 @@ function initializeTest() {
     window.setInterval(Control.clockUpdate, 100);
   }
 
-  Database.logCycleStart(control, transitionType, target.pose);
+  Database.logCycleStart(currentControl, currentTransitionType, target.pose);
 
 }
 
