@@ -15,9 +15,22 @@
     <script src="src/lib/threejs/loaders/ColladaLoader.js"></script>
     <script src="src/lib/urdf/URDFLoader.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <style>
         .center {
-            text-align:center;
+            text-align: left;
+        }
+
+        #sliders {
+            overflow: scroll;
+            height: 600px;
+            margin-left: 10px;
+        }
+
+        #sliders,
+        #ThreeJS {
+            float: left;
         }
     </style>
 </head>
@@ -26,15 +39,34 @@
     <div class="center">
         <h1>Simple URDF Display Example</h1>
         <p>This is all pure javascript, no ROS backend is needed. <br>
-        Currently, the angles are generated from a sine function, but that can easily be replaced with an IK solver</p>
+            Currently, the angles are generated from a sine function, but that can easily be replaced with an IK solver
+        </p>
         <div id="ThreeJS"></div>
+        <div id="sliders"></div>
     </div>
     <script>
         var container, scene, camera, renderer, controls;
 
         var urdf_robot;
 
-        var start_time = (new Date()).getTime();
+        var pr2_missing_joints = {
+            l_forearm_roll_joint: {
+                max: Math.PI,
+                min: -Math.PI
+            },
+            r_forearm_roll_joint: {
+                max: Math.PI,
+                min: -Math.PI
+            },
+            l_wrist_roll_joint: {
+                max: Math.PI,
+                min: -Math.PI
+            },
+            r_wrist_roll_joint: {
+                max: Math.PI,
+                min: -Math.PI
+            }
+        }
 
         init();
         animate();
@@ -55,8 +87,8 @@
             container = document.getElementById('ThreeJS');
             container.appendChild(renderer.domElement);
 
-            // controls = new THREE.OrbitControls(camera, renderer.domElement);
-            // controls.reset();
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.reset();
 
             var light = new THREE.PointLight(0xffffff);
             light.position.set(-100, 200, 100);
@@ -83,6 +115,13 @@
                     // The robot is loaded!
                     scene.add(robot);
                     urdf_robot = robot;
+                    Object.keys(urdf_robot.joints).forEach(function (jointName) {
+                        joint = urdf_robot.joints[jointName];
+                        if (joint.limit.lower !== 0 || joint.limit.upper !== 0 || pr2_missing_joints[jointName] !== undefined) {
+                            $("#sliders").append(`<p>${jointName}: <input type="range" min="0" max="1" value="0" step="0.001" class="slider" id="${jointName}"><p>`);
+
+                        }
+                    });
                     urdf_robot.rotation.x = -Math.PI / 2;
 
                 }
@@ -113,12 +152,15 @@
 
 
         function update() {
-            //controls.update();
-            var curr_time = ((new Date).getTime() - start_time) / 1400;
+            controls.update();
             if (urdf_robot) {
                 Object.keys(urdf_robot.joints).forEach(function (jointName) {
                     joint = urdf_robot.joints[jointName];
-                    joint.setAngle(map_range(Math.sin(curr_time + (stringToNumber(jointName) - 200)), -1, 1, joint.limit.lower, joint.limit.upper));
+                    if (joint.limit.lower !== 0 || joint.limit.upper !== 0) {
+                        joint.setAngle(map_range($(`#${jointName}`).val(), 0, 1, joint.limit.lower, joint.limit.upper));
+                    } else if (pr2_missing_joints[jointName] !== undefined) {
+                        joint.setAngle(map_range($(`#${jointName}`).val(), 0, 1, pr2_missing_joints[jointName].min, pr2_missing_joints[jointName].max));
+                    }
                 });
             }
         }
