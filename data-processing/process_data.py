@@ -25,6 +25,13 @@ def fit_line(x, y):
     '''
     return np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x))
 
+def pad_with_zeros(a, new_length):
+    a = np.array(a)
+    if a.shape[0] >= new_length:
+        return a
+    else:
+        return np.pad(a, (0, new_length-a.shape[0]), mode='constant', constant_values=0)
+
 # %% [markdown]
 ## Firebase snapshot and other inputs
 
@@ -94,15 +101,18 @@ for uid in json_snapshot:
             if 'actions' in cycle: # Sometimes the last cycle of a session has no action so we skip it
                 actions = []
                 for aid in cycle['actions']:
-                    actions.append(cycle['actions'][aid])
+
+                    # We want to remove any actions that are just a release of the cursor
+                    action_type = cycle['actions'][aid]['newState']
+                    if action_type != "cursor-free":
+                        actions.append(action_type)
+                    elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
+                        actions.append(action_type)
                 
                 if interfaceID in action_list:
                     action_list[interfaceID].append(actions)
                 else:
-                    action_list[interfaceID] = actions
-
-# %% [markdown]
-## cycles_df
+                    action_list[interfaceID] = [actions]
 
 # %%
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
@@ -119,6 +129,7 @@ cycles_df.head()
 
 # %% [markdown]
 ## Time stats per interface
+
 # %%
 for interfaceID in interface_dfs:
     interface_df = interface_dfs[interfaceID]
@@ -131,20 +142,23 @@ for interfaceID in interface_dfs:
     print()
 
 
+# %% [markdown]
+## Time vs. Distance (Euclidean, Orientation, and Combined)
+
 # %%
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
-fig.suptitle("Eucleadean Distance vs Time", fontsize=16)
+fig.suptitle("Euclidean Distance vs Time", fontsize=16)
 
 for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("42"+str(i+1))
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], interface_df['targetDistance'])
+    ax.scatter(interface_df['cycleLength'], interface_df['targetDistance'], c="tab:blue")
     
     line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="red")
+    ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance to Target')
@@ -159,10 +173,10 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
+    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']), c="tab:blue")
     
     line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
-    ax.plot(line[0], line[1], c="red")
+    ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Target Rotation')
@@ -178,12 +192,50 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
+    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], c="tab:blue")
     
     line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="red")
+    ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance + Orientation')
+
+# %% [markdown]
+## Action stats per interface
+
+# %%
+fig = plt.figure(figsize=(16,10))
+fig.subplots_adjust(hspace=0.6, wspace=0.3)
+fig.suptitle("Action Type vs Time", fontsize=16)
+
+action_types = set()
+
+for i, interfaceID in enumerate(action_list):
+    rotation = np.array([])
+    translation = np.array([])
+    click = np.array([])
+    for cycle in action_list[interfaceID]:
+        for j, action in enumerate(cycle):
+            action_types.add(action)
+            
+            if "rotating" in action:
+                rotation = pad_with_zeros(rotation, j+1)
+                rotation[j] += 1
+            elif "translating" in action or "moving" in action:
+                translation = pad_with_zeros(translation, j+1)
+                translation[j] += 1
+            elif "cursor" in action:
+                click = pad_with_zeros(click, j+1)
+                click[j] += 1
+
+    ax = plt.subplot("42"+str(i+1))
+    ax.set_title(interfaceID)
+    
+    ax.plot(rotation, c="tab:purple")
+    ax.plot(translation, c="tab:red")
+    ax.plot(click, c="tab:blue")
+
+    ax.set_xlabel('Time (based on action number)')
+    ax.set_ylabel('Action Frequency')
 
 # %%
