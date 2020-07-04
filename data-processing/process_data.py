@@ -5,12 +5,15 @@
 # Data Processing
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+from scipy import interpolate
 import numpy as np
 
 # General
 import os
 import simplejson as json
 import time
+import copy
 
 # %%
 # Custom tools
@@ -26,11 +29,29 @@ def fit_line(x, y):
     return np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x))
 
 def pad_with_zeros(a, new_length):
+    '''
+    Pads a 1D array with zeros
+
+    If the array is less than the input length it will not be changed
+    '''
     a = np.array(a)
     if a.shape[0] >= new_length:
         return a
     else:
         return np.pad(a, (0, new_length-a.shape[0]), mode='constant', constant_values=0)
+
+def remap_array(a, low1, high1, low2, high2):
+    '''
+    Remaps a numpy array to a specific range
+    '''
+    return low2 + (high2 - low2) * (a - low1) / (high1 - low1)
+
+def resample(x, n, kind='linear'):
+    x = np.array(x)
+    f = interpolate.interp1d(np.linspace(0, 1, x.size), x, kind)
+    return f(np.linspace(0, 1, n))
+
+    
 
 # %% [markdown]
 ## Firebase snapshot and other inputs
@@ -144,11 +165,11 @@ for interfaceID in interface_dfs:
 
 # %% [markdown]
 ## Time vs. Distance (Euclidean, Orientation, and Combined)
+### Euclidean Distance vs Time
 
 # %%
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
-fig.suptitle("Euclidean Distance vs Time", fontsize=16)
 
 for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("42"+str(i+1))
@@ -163,10 +184,12 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance to Target')
 
+# %% [markdown]
+### Orientation vs Time
+
 # %%
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
-fig.suptitle("Orientation vs Time", fontsize=16)
 
 for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("42"+str(i+1))
@@ -181,11 +204,13 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Target Rotation')
 
+# %% [markdown]
+### Distance + Orientation vs Time
+
 # %%
 
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
-fig.suptitle("Distance + Orientation vs Time", fontsize=16)
 
 for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("42"+str(i+1))
@@ -202,13 +227,13 @@ for i, interfaceID in enumerate(interface_dfs):
 
 # %% [markdown]
 ## Action stats per interface
+### Action Type vs Time
 
 # %%
-fig = plt.figure(figsize=(16,10))
-fig.subplots_adjust(hspace=0.6, wspace=0.3)
-fig.suptitle("Action Type vs Time", fontsize=16)
+sample_num = 1000
 
-action_types = set()
+fig = plt.figure(figsize=(16,20))
+fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
 for i, interfaceID in enumerate(action_list):
     rotation = np.array([])
@@ -216,7 +241,6 @@ for i, interfaceID in enumerate(action_list):
     click = np.array([])
     for cycle in action_list[interfaceID]:
         for j, action in enumerate(cycle):
-            action_types.add(action)
             
             if "rotating" in action:
                 rotation = pad_with_zeros(rotation, j+1)
@@ -227,15 +251,67 @@ for i, interfaceID in enumerate(action_list):
             elif "cursor" in action:
                 click = pad_with_zeros(click, j+1)
                 click[j] += 1
+    
+    if rotation.shape[0] != 0:
+        rotation = remap_array(rotation, np.min(rotation), np.max(rotation), 2, 10)
+    if translation.shape[0] != 0:
+        translation = remap_array(translation, np.min(translation), np.max(translation), 2, 10)
+    if click.shape[0] != 0:
+        click = remap_array(click, np.min(click), np.max(click), 1, 5)
 
     ax = plt.subplot("42"+str(i+1))
     ax.set_title(interfaceID)
-    
-    ax.plot(rotation, c="tab:purple")
-    ax.plot(translation, c="tab:red")
-    ax.plot(click, c="tab:blue")
+
+    drawn_lines = []
+
+    for cycle in action_list[interfaceID]:
+        numbered_cycle = []
+        cycle_width = []
+        for i, action in enumerate(cycle):
+            if "rotating" in action:
+                numbered_cycle.append(1)
+                cycle_width.append(rotation[i])
+            elif "translating" in action or "moving" in action:
+                numbered_cycle.append(2)
+                cycle_width.append(translation[i])
+            elif "cursor" in action:
+                numbered_cycle.append(3)
+                cycle_width.append(click[i])
+        
+        drawn = False
+        for line in drawn_lines:
+            drawn = np.array_equal(numbered_cycle, line)
+            if drawn: break
+        if drawn: continue
+        drawn_lines.append(copy.copy(numbered_cycle))
+        
+        numbered_cycle.append(0)
+        cycle_width.append(0)
+
+        color = np.array([])
+        alpha = 100
+        if numbered_cycle[0] == 1:
+            color = np.array([214, 33, 79, alpha])
+        elif numbered_cycle[0] == 2:
+            color = np.array([73, 39, 230, alpha])
+        elif numbered_cycle[0] == 3:
+            color = np.array([193, 24, 237, alpha])
+        
+        cycle_len = len(numbered_cycle)
+        y = resample(numbered_cycle, sample_num, kind='slinear')
+        lwidths = resample(cycle_width, sample_num, kind='slinear')
+
+        x = np.linspace(0, cycle_len, sample_num)
+        points = np.array([x, y]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        lc = LineCollection(segments, linewidths=lwidths, color=color/255)
+        ax.add_collection(lc)
 
     ax.set_xlabel('Time (based on action number)')
     ax.set_ylabel('Action Frequency')
+
+    ax.set_ylim([0, 4])
+    ax.set_xlim([0, max(rotation.shape[0], translation.shape[0], click.shape[0])+1])
+
 
 # %%
