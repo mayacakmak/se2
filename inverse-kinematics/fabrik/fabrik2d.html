@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FABRIK 2D</title>
+    <script src="ik.js"></script>
+</head>
+<body>
+    <h1>FABRIK 2D Inverse Kinematics</h1>
+    <canvas id="arm_canvas" onmousemove="getMousePos(event)" width="600" height="600"></canvas>
+    <script>
+        var mousePos = { x: 0, y: 0};
+        // get the canvas element using the DOM
+        var canvas = document.getElementById('arm_canvas');
+        // use getContext to use the canvas for drawing
+        var ctx = canvas.getContext('2d');
+
+        var canvas_scale = 10
+
+        var chain = new Chain(new Position(10, 10), canvas_scale);
+        var solver = new IKSolver();
+
+        chain.addBone(new Position(10, 10), new Position(20, 10));
+        chain.addBone(new Position(20, 10), new Position(30, 10));
+        chain.addBone(new Position(30, 10), new Position(40, 10));
+        chain.addBone(new Position(40, 10), new Position(50, 10));
+        chain.addBone(new Position(50, 10), new Position(60, 10));
+
+        chain.setTarget(new Position(100, 300));
+
+        solver.solve(chain);
+        chain.draw(ctx);
+
+        // Get mouse position on canvas
+        function getMousePos(evt) {
+            var rect = canvas.getBoundingClientRect();
+            mousePos = {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        update()
+
+        function update() {
+            chain.setTarget(mousePos);
+            solver.solve(chain);
+
+            chain.draw(ctx);
+
+            requestAnimationFrame(update);
+        }
+    </script>
+</body>
+
+</html>
