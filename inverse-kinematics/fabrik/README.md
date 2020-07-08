@@ -9,11 +9,11 @@ This is a modified version of the FABRIK algorithm. It allows the user to specif
 While the website itself is pure HTML/JS/CSS, it needs somekind of backed to run. I used the server built into python.
 
 Python 2:
-1. `cd` into `only-js`
+1. `cd` into `fabrik`
 2. Run `python -m SimpleHTTPServer 8000`
 3. Visit http://127.0.0.1:8000/fabrik2d.html
 
 Python 3:
-1. `cd` into `only-js`
+1. `cd` into `fabrik`
 2. Run `python3 -m http.server 8000 --bind 127.0.0.1`
 3. Visit http://127.0.0.1:8000/fabrik2d.html
