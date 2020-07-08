@@ -213,7 +213,7 @@ class IKSolver {
             if (start_index < 0) {
                 start = chain.root;
             } else {
-                start = chain.bones[start_index].start;
+                start = chain.bones[start_index].end;
             }
 
             // Get the location of the point that this bone should align with
@@ -221,7 +221,7 @@ class IKSolver {
             if (target_index >= chain.bones.length) {
                 target = chain.target;
             } else {
-                target = chain.bones[target_index].end;
+                target = chain.bones[target_index].start;
             }
 
             this.updateBone(chain.bones[i], start, target, "forwards");
@@ -232,6 +232,6 @@ class IKSolver {
             console.log("Out of range:", chain.target);
         }
         this.backwards(chain);
-        //this.forwards(chain);
+        this.forwards(chain);
     }
 }
