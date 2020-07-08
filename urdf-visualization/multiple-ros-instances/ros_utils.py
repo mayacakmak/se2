@@ -1,7 +1,6 @@
 from time import sleep
 import shlex
 from psutil import Popen
-import os
 import threading
 
 class ROSInstanceManager:
@@ -12,10 +11,6 @@ class ROSInstanceManager:
         self._lock = threading.Lock()
 
         for i in range(0, num_instances*2, 2):
-            # Kill anything using needed ports
-            os.system("sudo kill -9 $(sudo lsof -t -i:{})".format(self.starting_port+i))
-            os.system("sudo kill -9 $(sudo lsof -t -i:{})".format(self.starting_port+i+1))
-
             # Create instances
             self.instances.append(ROSWebVis(self.starting_port+i, self.starting_port+i+1, None))
     
