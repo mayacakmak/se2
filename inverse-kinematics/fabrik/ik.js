@@ -71,29 +71,9 @@ class Chain {
     constructor(root, scale) {
         this.root = root;
         this.bones = [];
-        this.target = new Position(0, 0)
+        this.target = { x: 0, y: 0, theta: 0 };
         this.scale = scale;
     }
-
-    /*
-    getJointPosition(joint_num, side = "end") {
-        if (side == "end") {
-            joint_num += 1;
-        }
-
-        var pose = new Position(this.root.x, this.root.y);
-        var curr_angle = 0;
-
-        for (let i = 0; i < joint_num; i++) {
-            this.bones[i].angle += curr_angle;
-            pose._add(this.bones[i].getVector());
-            this.bones[i].angle -= curr_angle;
-            curr_angle += this.bones[i].angle;
-        }
-
-        return pose
-    }
-    */
 
     addBone(bone_start, bone_end) {
         var bone = new Bone(bone_start, bone_end);
@@ -101,7 +81,7 @@ class Chain {
     }
 
     setTarget(target) {
-        this.target = new Position(target.x / this.scale, target.y / this.scale);
+        this.target = { x: target.x / this.scale, y: target.y / this.scale, theta: target.theta };
     }
 
     draw(cxt, clear = true) {
@@ -115,13 +95,20 @@ class Chain {
         ctx.scale(this.scale, this.scale);
 
         // Draw the arm
-
         for (let i = 0; i < this.bones.length; i++) {
+            // Draw the bone
             ctx.beginPath();
             ctx.moveTo(this.bones[i].start.x, this.bones[i].start.y);
             ctx.lineTo(this.bones[i].end.x, this.bones[i].end.y)
             ctx.stroke();
 
+            // Draw the circle and the beginning of the bone
+            ctx.beginPath();
+            ctx.arc(this.bones[i].start.x, this.bones[i].start.y, 1, 0, 2 * Math.PI, false);
+            ctx.fillStyle = "rgb(0, 255, 0)";
+            ctx.fill();
+            
+            // Draw the circle at the end of the bone
             ctx.beginPath();
             ctx.arc(this.bones[i].end.x, this.bones[i].end.y, 1, 0, 2 * Math.PI, false);
             ctx.fillStyle = "rgb(0, 255, 0)";
@@ -158,16 +145,16 @@ class Chain {
 }
 
 class IKSolver {
-    constructor() {
-
+    constructor(tolerance) {
+        this.tolerance = tolerance;
     }
 
     updateBone(bone, start_p, tgt_p, direction) {
         var l = Position.getDistance(bone.start, bone.end);
         if (direction == "backwards") {
-            bone.end = start_p;
+            bone.end = new Position(start_p.x, start_p.y);
         } else {
-            bone.start = start_p;
+            bone.start = new Position(start_p.x, start_p.y);
         }
         var dir = Position.makeUnit(Position.subtract(tgt_p, start_p));
         dir._multiply(l);
@@ -178,15 +165,15 @@ class IKSolver {
         }
     }
 
-    backwards(chain) {
+    backwards(chain, chain_target) {
         // Backwards
-        for (let i = chain.bones.length - 1; i >= 0; i--) {
+        for (let i = chain.bones.length - 2; i >= 0; i--) {
             var start, target;
 
             // Get the location of the point that this bone should move to
             var start_index = i + 1;
-            if (start_index >= chain.bones.length) {
-                start = chain.target;
+            if (start_index >= chain.bones.length - 1) {
+                start = chain_target;
             } else {
                 start = chain.bones[start_index].start;
             }
@@ -203,9 +190,9 @@ class IKSolver {
         }
     }
 
-    forwards(chain) {
+    forwards(chain, chain_target) {
         // Forwards
-        for (let i = 0; i < chain.bones.length; i++) {
+        for (let i = 0; i < chain.bones.length - 1; i++) {
             var start, target;
 
             // Get the location of the point that this bone should move to
@@ -218,8 +205,8 @@ class IKSolver {
 
             // Get the location of the point that this bone should align with
             var target_index = i + 1;
-            if (target_index >= chain.bones.length) {
-                target = chain.target;
+            if (target_index >= chain.bones.length - 1) {
+                target = chain_target;
             } else {
                 target = chain.bones[target_index].start;
             }
@@ -227,11 +214,23 @@ class IKSolver {
             this.updateBone(chain.bones[i], start, target, "forwards");
         }
     }
+
     solve(chain) {
-        if (Position.getDistance(chain.root, chain.target) > chain.getLength()) {
-            console.log("Out of range:", chain.target);
+        // Grab the end bone and update its orientation to match the target
+        var end_bone = chain.bones[chain.bones.length - 1];
+        var end_rotation = new Position(Math.cos(chain.target.theta), Math.sin(chain.target.theta));
+        end_rotation._multiply(Position.getDistance(end_bone.start, end_bone.end) * 1.5);
+        end_rotation._add(chain.target);
+        console.log(chain.target, end_rotation);
+        this.updateBone(end_bone, chain.target, end_rotation, "backwards");
+
+        for (let i = 0; i < 10; i++) {
+            this.backwards(chain, end_bone.start);
+            this.forwards(chain, end_bone.start);
         }
-        this.backwards(chain);
-        this.forwards(chain);
+
+        var offset = Position.subtract(chain.bones[chain.bones.length - 2].end, end_bone.start)
+        end_bone.start._add(offset);    
+        end_bone.end._add(offset);
     }
 }
