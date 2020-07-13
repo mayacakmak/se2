@@ -16,6 +16,12 @@ var target = null;
 var ee = null;
 
 /*
+* End effector pose logger
+*/
+
+var eeLogger = null;
+
+/*
 * Object of type Control representing the interactive interface
 * to control the dend effector. This will have more specific class
 * that inherits from Control (e.g. DragControl)
@@ -30,13 +36,13 @@ function loadInterface() {
     currentControl = controlTypes[controlParam];
   if (transitionParam != undefined)
     currentTransitionType = transitionTypes[transitionParam];
-  
+
   if (offline) {
     initializeTest();
   }
   else {
     Database.readyCallback = initializeTest;
-    db.initialize();    
+    db.initialize();
   }
 }
 
@@ -44,7 +50,7 @@ function loadInterface() {
 * Function to set up one particular test
 */
 function initializeTest() {
-  
+
   // Create target and place it in workspace
   target = new SE2("target", new Pose(), "#AAA");
   target.addToWorkspace();
@@ -54,7 +60,7 @@ function initializeTest() {
   ee.addToWorkspace();
 
   // Create control and initialize to add it to the workspace
-  
+
   if (currentControl == "arrow")
     control = new ArrowControl(ee, target, currentTransitionType);
   else if (currentControl == "drag")
@@ -82,7 +88,10 @@ function initializeTest() {
     window.setInterval(Control.clockUpdate, 100);
   }
 
-  Database.logCycleStart(currentControl, currentTransitionType, target.pose);
+  if (!offline) {
+    Database.logCycleStart(currentControl, currentTransitionType, target.pose);
+    eeLogger = setInterval(Database.logEEPose, 500);
+  }
 
 }
 
@@ -91,23 +100,23 @@ function setRandomTargetPose() {
   var rect = ws.getBoundingClientRect();
   var ringBuffer = Ring.innerR + Ring.ringRadius;
   var edgeBuffer = ringBuffer + (Arrow.arrowLengthTot);
-  var randomW = rect.width/2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
-  var randomH = rect.height/2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
+  var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
+  var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
 
   console.log("ringBuffer:" + ringBuffer);
   console.log("randomW:" + randomW);
   console.log("randomH:" + randomH);
 
   let poseFound = false;
-  while(!poseFound) {
-    var randomX = rect.width/2 + Math.sign(Math.random()-0.5)* (ringBuffer + Math.random()*randomW);
-    var randomY = rect.height/2 + Math.sign(Math.random()-0.5)* (ringBuffer + Math.random()*randomH);
-    var randomTheta = Math.random()*360 - 180;
+  while (!poseFound) {
+    var randomX = rect.width / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomW);
+    var randomY = rect.height / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomH);
+    var randomTheta = Math.random() * 360 - 180;
 
     // If there it a panel, don't let the target fall behind it
-    if (currentControl == "panel" && 
-      randomX<Panel.width+SE2.lineLength 
-      && randomY<Panel.height+SE2.lineLength)
+    if (currentControl == "panel" &&
+      randomX < Panel.width + SE2.lineLength
+      && randomY < Panel.height + SE2.lineLength)
       console.log("pose rejected");
     else
       poseFound = true;
@@ -126,13 +135,13 @@ function setEEPoseAtCenter() {
 }
 
 function clearWorkspace() {
-    var ws = document.getElementById("workspace");
-    while(ws.hasChildNodes()){
-        ws.removeChild(ws.firstChild);
-    }
+  var ws = document.getElementById("workspace");
+  while (ws.hasChildNodes()) {
+    ws.removeChild(ws.firstChild);
+  }
 
-    Control.unregisterEvents();
-    ws.removeEventListener("mousemove", Control.update);
+  Control.unregisterEvents();
+  ws.removeEventListener("mousemove", Control.update);
 }
 
 /*
@@ -140,7 +149,9 @@ function clearWorkspace() {
 * i.e. the EE has reached the target
 */
 function success() {
-  Database.logCycleFinish();
+  if (!offline) {
+    Database.logCycleFinish();
+  }
   console.log("SUCCESS!");
   ee.resetColor();
   clearWorkspace();

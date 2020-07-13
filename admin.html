@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles/style.processed.css">
+</head>
+
+<body>
+  <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+    <div class="container-fixed">
+      <div class="row mx-5 mt-4">
+        <h1 id="title">Replay</h1>
+      </div>
+      <div class="row mx-5">
+        <p id="description">Add start/stop buttons here</p>
+      </div>
+      <div class="row mx-5">
+        <div id="cycleSelector">
+          <div id="browse">
+            <button class="btn btn-success m-3">Browse Interfaces</button>
+            <button class="btn btn-primary m-3" onclick="listUsers()">Browse Users</button>
+            <div class="input-group p-3">
+              <input id="cycle-id-input" type="text" class="form-control" placeholder="Cycle ID">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button"
+                  onclick="selectCycle($('#cycle-id-input').val());">Replay</button>
+              </div>
+            </div>
+          </div>
+          <div id="select" style="height: 500px; width: 700px; overflow-y: auto;"></div>
+        </div>
+        <div id="workspace-container" class="workspace-div border border-secondary rounded-lg">
+          <svg class="workspace" id="workspace"></svg>
+        </div>
+      </div>
+      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
+        <button id="button" class="btn btn-primary" onclick="setMode('browse');">Select New Cycle</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+  <script src="scripts/database.js"></script>
+  <script src="scripts/se2.js"></script>
+  <script src="scripts/control.js"></script>
+  <script src="scripts/drag_control.js"></script>
+  <script src="scripts/target_control.js"></script>
+  <script src="scripts/targetdrag_control.js"></script>
+  <script src="scripts/arrow_control.js"></script>
+  <script src="scripts/panel_control.js"></script>
+  <script>
+    function setMode(mode) {
+      switch (mode) {
+        case "browse":
+          $("#title").text("Browse Cycles");
+          $("#description").text("");
+
+          $("#browse").show();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").show();
+          break;
+        case "select":
+          $("#browse").hide();
+          $("#select").show();
+          $("#workspace-container").hide();
+          $("#cycleSelector").show();
+          break;
+        case "replay":
+          $("#title").text("Replay");
+          $("#description").text("Add start/stop buttons here");
+
+          $("#workspace-container").show();
+          $("#cycleSelector").hide();
+          break;
+      }
+    }
+
+    function listUsers() {
+      $("#select").empty();
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (accessible_teleop_data.users[uid].sessions != undefined) {
+          var num_cycles = 0
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              num_cycles += Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).length;
+            }
+          });
+
+          $('#select').append(`<h3 onclick="listCycles('${uid}')">${uid} Cycles: ${num_cycles}</h3>`)
+        }
+      });
+      setMode("select");
+    }
+
+    function listCycles(userID) {
+      $("#select").empty();
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (userID = uid) {
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+                if (accessible_teleop_data.users[uid].sessions[sid].cycles[cid] != undefined) {
+                  $('#select').append(`<h3 onclick="selectCycle('${cid}')">${cid}</h3>`)
+                }
+              });
+            }
+          });
+
+        }
+      });
+      setMode("select");
+    }
+
+    function selectCycle(inputCycleID) {
+      var cycleData;
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (accessible_teleop_data.users[uid].sessions != undefined) {
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+                if (accessible_teleop_data.users[uid].sessions[sid].cycles[cid] != undefined) {
+                  if (inputCycleID == cid) {
+                    cycleData = accessible_teleop_data.users[uid].sessions[sid].cycles[cid]
+                  }
+                }
+              });
+            }
+          });
+        }
+      });
+      setMode("replay");
+      console.log(cycleData);
+    }
+
+    function setupWorkspace(currentControl, currentTransitionType, targetPose) {
+      // Clear the workspace of any previous elements
+      $('#workspace').empty();
+
+      // Create target and place it in workspace
+      var target = new SE2("target", new Pose(), "#AAA");
+      target.addToWorkspace();
+
+      // Create end effector and place it in workspace
+      var ee = new moveableSE2("ee", new Pose(), "#111");
+      ee.addToWorkspace();
+
+      // Create control and initialize to add it to the workspace
+      var control = null;
+      if (currentControl == "arrow")
+        control = new ArrowControl(ee, target, currentTransitionType);
+      else if (currentControl == "drag")
+        control = new DragControl(ee, target, currentTransitionType);
+      else if (currentControl == "target")
+        control = new TargetControl(ee, target);
+      else if (currentControl == "targetdrag")
+        control = new TargetDragControl(ee, target, currentTransitionType);
+      else if (currentControl == "panel")
+        control = new PanelControl(ee, target, currentTransitionType);
+
+      // Initialize control
+      Control.initialize(ee.pose);
+      Control.unregisterEvents();
+
+      target.setPose(targetPose);
+
+    }
+
+    function handleEvent(state) {
+      Control.ee.setPose(new Pose(100, 100, 20));
+
+      Control.ring.setPose(Control.ee.pose);
+      Control.xArrows.setPosition(Control.ee.getPosition());
+      Control.yArrows.setPosition(Control.ee.getPosition());
+      Control.handle.setPose(Control.ee.pose);
+
+      Control.checkEEatTarget();
+    }
+
+    var accessible_teleop_data;
+
+    $(document).ready(function () {
+      setMode("browse");
+      //setupWorkspace('drag', 'click', new Pose(400, 300, -60))
+      //handleEvent();
+
+      $(document).load("accessible-teleop-export.json", '', function (response) {
+        accessible_teleop_data = JSON.parse(response);
+      });
+    });
+  </script>
+</body>
+
+</html>
