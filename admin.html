@@ -6,6 +6,7 @@
   <title>Accessible Teleoperation Study</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="styles/style.processed.css">
 </head>
 
@@ -16,12 +17,12 @@
         <h1 id="title">Replay</h1>
       </div>
       <div class="row mx-5">
-        <p id="description">Add start/stop buttons here</p>
+        <div id="description" class="mx-auto mb-2">Add start/stop buttons here</div>
       </div>
       <div class="row mx-5">
         <div id="cycleSelector">
           <div id="browse">
-            <button class="btn btn-success m-3">Browse Interfaces</button>
+            <button class="btn btn-success m-3" onclick="listAllCycles()">Browse Interfaces</button>
             <button class="btn btn-primary m-3" onclick="listUsers()">Browse Users</button>
             <div class="input-group p-3">
               <input id="cycle-id-input" type="text" class="form-control" placeholder="Cycle ID">
@@ -38,7 +39,7 @@
         </div>
       </div>
       <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
-        <button id="button" class="btn btn-primary" onclick="setMode('browse');">Select New Cycle</button>
+        <button id="button" class="btn btn-primary" onclick="setMode('browse');">Go Back</button>
       </div>
     </div>
   </div>
@@ -59,7 +60,80 @@
   <script src="scripts/arrow_control.js"></script>
   <script src="scripts/panel_control.js"></script>
   <script>
+    // Pausable timer: https://stackoverflow.com/questions/3969475/javascript-pause-settimeout#3969760
+    var Timer = function (callback, delay) {
+      var timerId, start, remaining = delay;
+
+      this.pause = function () {
+        window.clearTimeout(timerId);
+        remaining -= Date.now() - start;
+      };
+
+      this.resume = function () {
+        start = Date.now();
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(callback, remaining);
+      };
+
+      this.resume();
+    };
+
+    // Class to handle replaying a set of actions
+    class Replay {
+      constructor(action_list) {
+        this.action_list = action_list;
+        this.curr_action = 0;
+        this.timeOut;
+      }
+
+      updateAction(cycle) {
+        var a = [];
+        Object.keys(cycle.events).forEach(function (eid) {
+          a.push(cycle.events[eid]);
+        });
+        this.action_list = a;
+        this.curr_action = 0;
+        this.timeOut = undefined;
+
+        setupWorkspace(cycle.control, cycle.transitionType, cycle.targetPose);
+      }
+
+      resume() {
+        if (this.timeOut) {
+          this.timeOut.resume();
+        }
+        this.step();
+      }
+
+      step() {
+        // Step forward in the action list
+        handleEvent(this.action_list[this.curr_action]);
+
+        if (this.curr_action + 1 < this.action_list.length) {
+          this.timeOut = new Timer(function () {
+            // This is really bad because the we have to hardcode the name of the instace in the class
+            // For some reason, passing the instance in as an input creates an infinite chain of callbacks
+            replayer.step();
+          }, this.action_list[this.curr_action + 1].timestamp - this.action_list[this.curr_action].timestamp);
+          this.curr_action += 1;
+        }
+      }
+
+      pause() {
+        if (this.timeOut) {
+          this.timeOut.pause();
+        }
+      }
+
+      restart() {
+        this.curr_action = 0;
+        this.timeOut = undefined;
+        this.resume();
+      }
+    }
+
     function setMode(mode) {
+      // Update the what is displayed base on the current mode
       switch (mode) {
         case "browse":
           $("#title").text("Browse Cycles");
@@ -78,7 +152,12 @@
           break;
         case "replay":
           $("#title").text("Replay");
-          $("#description").text("Add start/stop buttons here");
+          $("#description").text("");
+
+          // Add Play, Pause, Restart Buttons          
+          $("#description").append(`<button id="play" class="btn btn-success mx-2" onclick="replayer.resume();"><i class="fa fa-play" aria-hidden="true"></i></button>`,
+            `<button id="pause" class="btn btn-warning mx-2" onclick="replayer.pause();"><i class="fa fa-pause" aria-hidden="true"></i></button>`,
+            `<button id="restart" class="btn btn-primary mx-2" onclick="replayer.restart();"><i class="fa fa-repeat" aria-hidden="true"></i></button>`);
 
           $("#workspace-container").show();
           $("#cycleSelector").hide();
@@ -87,7 +166,12 @@
     }
 
     function listUsers() {
+      // Displays all users and how many cycles they have completed
+
+      // Remove anything that might have already been in the select div
       $("#select").empty();
+
+      // Loop through and display all of the users
       Object.keys(accessible_teleop_data.users).forEach(function (uid) {
         if (accessible_teleop_data.users[uid].sessions != undefined) {
           var num_cycles = 0
@@ -97,21 +181,32 @@
             }
           });
 
-          $('#select').append(`<h3 onclick="listCycles('${uid}')">${uid} Cycles: ${num_cycles}</h3>`)
+          $('#select').append(`<h3 style="cursor: pointer;" onclick="listCycles('${uid}')">${uid} Cycles: ${num_cycles}</h3>`)
         }
       });
       setMode("select");
     }
 
     function listCycles(userID) {
+      // Displays all cycles for a specific user, sorted by display type
+
+      // Remove anything that might have already been in the select div
       $("#select").empty();
+
+      // Search through users until the input one is found
       Object.keys(accessible_teleop_data.users).forEach(function (uid) {
         if (userID = uid) {
+          // Loop thorugh all of this users sessions and cycles, appending them to the list
           Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
             if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
               Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
-                if (accessible_teleop_data.users[uid].sessions[sid].cycles[cid] != undefined) {
-                  $('#select').append(`<h3 onclick="selectCycle('${cid}')">${cid}</h3>`)
+                var cycle = accessible_teleop_data.users[uid].sessions[sid].cycles[cid];
+                if (cycle != undefined) {
+                  var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
+                  if (!document.getElementById(interfaceID)) {
+                    $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." +cycle.transitionType}</h1><br>`)
+                  }
+                  $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
                 }
               });
             }
@@ -122,8 +217,37 @@
       setMode("select");
     }
 
+    function listAllCycles() {
+      // Displays all cycles sorted by display type
+
+      // Remove anything that might have already been in the select div
+      $("#select").empty();
+
+      // Loop thourgh all of the users, sessions, and cycles appending them to the corresponding div
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+          if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+            Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+              var cycle = accessible_teleop_data.users[uid].sessions[sid].cycles[cid];
+              if (cycle != undefined) {
+                var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
+                if (!document.getElementById(interfaceID)) {
+                  $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." +cycle.transitionType}</h1><br>`)
+                }
+                $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
+              }
+            });
+          }
+        });
+      });
+      setMode("select");
+    }
+
     function selectCycle(inputCycleID) {
+      // Searches the firebase data for a specific cycle and replays it
       var cycleData;
+
+      // Loop thourgh all of the users, sessions, and cycles until the correct id is found
       Object.keys(accessible_teleop_data.users).forEach(function (uid) {
         if (accessible_teleop_data.users[uid].sessions != undefined) {
           Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
@@ -139,8 +263,12 @@
           });
         }
       });
+
+      // Enter replay mode
       setMode("replay");
-      console.log(cycleData);
+
+      // Update the replayer with the new object
+      replayer.updateAction(cycleData);
     }
 
     function setupWorkspace(currentControl, currentTransitionType, targetPose) {
@@ -172,12 +300,22 @@
       Control.initialize(ee.pose);
       Control.unregisterEvents();
 
+      // Set the position of the target
       target.setPose(targetPose);
+
+      // Move the ee to the center (Code is modified from setEEPoseAtCenter() in workspace.js)
+      var ws = document.getElementById("workspace");
+      var rect = ws.getBoundingClientRect();
+      var centerX = Math.round(rect.width / 2);
+      var centerY = Math.round(rect.height / 2);
+      handleEvent({ eePose: new Pose(centerX, centerY, 0) });
 
     }
 
+    // Updates the state of the display based on an action from Firebase
     function handleEvent(state) {
-      Control.ee.setPose(new Pose(100, 100, 20));
+      var eePose = new Pose(state.eePose.x, state.eePose.y, state.eePose.theta);
+      Control.ee.setPose(eePose);
 
       Control.ring.setPose(Control.ee.pose);
       Control.xArrows.setPosition(Control.ee.getPosition());
@@ -189,10 +327,10 @@
 
     var accessible_teleop_data;
 
+    var replayer = new Replay();
+
     $(document).ready(function () {
       setMode("browse");
-      //setupWorkspace('drag', 'click', new Pose(400, 300, -60))
-      //handleEvent();
 
       $(document).load("accessible-teleop-export.json", '', function (response) {
         accessible_teleop_data = JSON.parse(response);
