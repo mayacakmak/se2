@@ -4,6 +4,14 @@
 <head>
   <meta charset="utf-8">
   <title>Accessible Teleoperation Study</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -12,7 +20,7 @@
 
 <body>
   <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
-    <div class="container-fixed">
+    <div id="container" class="container-fixed">
       <div class="row mx-5 mt-4">
         <h1 id="title">Replay</h1>
       </div>
@@ -39,26 +47,12 @@
         </div>
       </div>
       <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
-        <button id="button" class="btn btn-primary" onclick="setMode('browse');">Go Back</button>
+        <button id="button" class="btn btn-primary">Go Back</button>
       </div>
     </div>
   </div>
   <div class="footer"></div>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
   <script src="scripts/database.js"></script>
-  <script src="scripts/se2.js"></script>
-  <script src="scripts/control.js"></script>
-  <script src="scripts/drag_control.js"></script>
-  <script src="scripts/target_control.js"></script>
-  <script src="scripts/targetdrag_control.js"></script>
-  <script src="scripts/arrow_control.js"></script>
-  <script src="scripts/panel_control.js"></script>
   <script>
     // Pausable timer: https://stackoverflow.com/questions/3969475/javascript-pause-settimeout#3969760
     var Timer = function (callback, delay) {
@@ -134,11 +128,42 @@
 
     function setMode(mode) {
       // Update the what is displayed base on the current mode
+
+      console.log(`New mode: ${mode}`);
       switch (mode) {
-        case "browse":
-          $("#title").text("Browse Cycles");
+        case "login":
+          $("#title").text("Admin Page");
           $("#description").text("");
 
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+
+          $("#button").show();
+          $("#button").text("Login");
+          $("#button").unbind('click').click(function () {
+            db.initialize(anonymous = false);
+          });
+          break;
+
+        case "not_admin":
+          $("#title").text("You are not an admin");
+          $("#title").addClass("text-danger font-weight-bold")
+          $("#description").text("");
+
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+          $("#button").hide();
+          break;
+        case "browse":
+          $("#title").text("Browse Cycles");
+          $("#title").removeClass("text-danger font-weight-bold")
+          $("#description").text("");
+
+          $("#button").hide();
           $("#browse").show();
           $("#select").hide();
           $("#workspace-container").hide();
@@ -149,6 +174,12 @@
           $("#select").show();
           $("#workspace-container").hide();
           $("#cycleSelector").show();
+
+          $("#button").show();
+          $("#button").text("Go Back");
+          $("#button").unbind('click').click(function () {
+            setMode("browse")
+          });
           break;
         case "replay":
           $("#title").text("Replay");
@@ -161,6 +192,12 @@
 
           $("#workspace-container").show();
           $("#cycleSelector").hide();
+
+          $("#button").show();
+          $("#button").text("Go Back");
+          $("#button").unbind('click').click(function () {
+            setMode("browse")
+          });
           break;
       }
     }
@@ -204,7 +241,7 @@
                 if (cycle != undefined) {
                   var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
                   if (!document.getElementById(interfaceID)) {
-                    $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." +cycle.transitionType}</h1><br>`)
+                    $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." + cycle.transitionType}</h1><br>`)
                   }
                   $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
                 }
@@ -232,7 +269,7 @@
               if (cycle != undefined) {
                 var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
                 if (!document.getElementById(interfaceID)) {
-                  $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." +cycle.transitionType}</h1><br>`)
+                  $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." + cycle.transitionType}</h1><br>`)
                 }
                 $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
               }
@@ -325,18 +362,45 @@
       Control.checkEEatTarget();
     }
 
+    function getFirebaseData() {
+      firebase.database().ref("/").once('value').then(function (snapshot) {
+        accessible_teleop_data = snapshot.val()
+        console.log(snapshot.val());
+        setMode("browse");
+      }).catch(function (error) {
+        if (error.code == "PERMISSION_DENIED") {
+          setMode("not_admin");
+        } else {
+          console.error(error);
+        }
+      });
+    }
     var accessible_teleop_data;
 
     var replayer = new Replay();
 
-    $(document).ready(function () {
-      setMode("browse");
+    // Hide everything until the page is loaded
+    $("#container").hide();
 
+    $(document).ready(function () {
+      $("#container").show();
+      Database.readyCallback = getFirebaseData;
+      setMode("login");
+
+      /*
       $(document).load("accessible-teleop-export.json", '', function (response) {
         accessible_teleop_data = JSON.parse(response);
       });
+      */
     });
   </script>
+  <script src="scripts/se2.js"></script>
+  <script src="scripts/control.js"></script>
+  <script src="scripts/drag_control.js"></script>
+  <script src="scripts/target_control.js"></script>
+  <script src="scripts/targetdrag_control.js"></script>
+  <script src="scripts/arrow_control.js"></script>
+  <script src="scripts/panel_control.js"></script>
 </body>
 
 </html>
