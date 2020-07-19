@@ -191,6 +191,50 @@ function Panel() {
 }
 
 /*
+* Utility class for the count down timer element for the start of a cycle
+*/
+function Timer() {
+
+  var ws = document.getElementById("workspace");
+  var rect = ws.getBoundingClientRect();
+  Panel.width = rect.width;
+  Panel.height = rect.height;
+
+  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  this.group.setAttribute("id", "overlay");
+  this.group.setAttribute('x', 0);
+  this.group.setAttribute('y', 0);
+  this.group.setAttribute('height', Panel.height);
+  this.group.setAttribute('width', Panel.width);
+  this.group.setAttribute('stroke-width', 0);
+  this.group.setAttribute("fill", "#FFF");
+
+  this.timer = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  this.timer.setAttribute("id", "timer");
+  this.timer.setAttribute('x', Panel.width / 2);
+  this.timer.setAttribute('y', Panel.height / 2);
+  this.timer.setAttribute("fill", "#000");
+  this.timer.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 100px;")
+  this.timer.setAttribute("text-anchor", "middle")
+  this.timer.setAttribute("dominant-baseline", "middle")
+
+  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  this.group.appendChild(this.timer);
+
+  this.setText = function (text) {
+    this.timer.innerHTML = text;
+  }
+
+  this.setVisible = function (isVisible) {
+    var ws = document.getElementById("workspace");
+    if (isVisible)
+      ws.appendChild(this.group);
+    else if (ws.contains(this.group))
+      ws.removeChild(this.group);
+  }
+}
+
+/*
 * Utility class for the "handle" element for dragging the end-effector in 2D
 */
 function Ghost() {
