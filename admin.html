@@ -55,7 +55,7 @@
   <script src="scripts/database.js"></script>
   <script>
     // Pausable timer: https://stackoverflow.com/questions/3969475/javascript-pause-settimeout#3969760
-    var Timer = function (callback, delay) {
+    var PausableTimer = function (callback, delay) {
       var timerId, start, remaining = delay;
 
       this.pause = function () {
@@ -78,6 +78,7 @@
         this.action_list = action_list;
         this.curr_action = 0;
         this.timeOut;
+        this.control = "";
       }
 
       updateAction(cycle) {
@@ -88,6 +89,7 @@
         this.action_list = a;
         this.curr_action = 0;
         this.timeOut = undefined;
+        this.control = cycle.control;
 
         setupWorkspace(cycle.control, cycle.transitionType, cycle.targetPose);
       }
@@ -101,10 +103,10 @@
 
       step() {
         // Step forward in the action list
-        handleEvent(this.action_list[this.curr_action]);
+        handleEvent(this.action_list[this.curr_action], this.control);
 
         if (this.curr_action + 1 < this.action_list.length) {
-          this.timeOut = new Timer(function () {
+          this.timeOut = new PausableTimer(function () {
             // This is really bad because the we have to hardcode the name of the instace in the class
             // For some reason, passing the instance in as an input creates an infinite chain of callbacks
             replayer.step();
@@ -131,6 +133,16 @@
 
       console.log(`New mode: ${mode}`);
       switch (mode) {
+        case "loading":
+          $("#title").text("Loading...");
+          $("#description").text("");
+
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+          $("#button").hide();
+          break;
         case "login":
           $("#title").text("Admin Page");
           $("#description").text("");
@@ -345,19 +357,23 @@
       var rect = ws.getBoundingClientRect();
       var centerX = Math.round(rect.width / 2);
       var centerY = Math.round(rect.height / 2);
-      handleEvent({ eePose: new Pose(centerX, centerY, 0) });
+      handleEvent({ eePose: new Pose(centerX, centerY, 0) }, "panel");
 
     }
 
     // Updates the state of the display based on an action from Firebase
-    function handleEvent(state) {
+    function handleEvent(state, control) {
       var eePose = new Pose(state.eePose.x, state.eePose.y, state.eePose.theta);
       Control.ee.setPose(eePose);
 
       Control.ring.setPose(Control.ee.pose);
-      Control.xArrows.setPosition(Control.ee.getPosition());
-      Control.yArrows.setPosition(Control.ee.getPosition());
       Control.handle.setPose(Control.ee.pose);
+
+      // We don't want to move the arrows if they are supposed to be part of the panel
+      if (control !== "panel") {
+        Control.xArrows.setPosition(Control.ee.getPosition());
+        Control.yArrows.setPosition(Control.ee.getPosition());
+      }
 
       Control.checkEEatTarget();
     }
@@ -375,12 +391,13 @@
         }
       });
     }
+
     var accessible_teleop_data;
 
     var replayer = new Replay();
 
     // Hide everything until the page is loaded
-    $("#container").hide();
+    setMode("loading");
 
     $(document).ready(function () {
       $("#container").show();
