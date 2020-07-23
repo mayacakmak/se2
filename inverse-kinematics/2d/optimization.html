@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>FABRIK 2D</title>
+    <title>Optimization 2D</title>
     <script src="ik.js"></script>
+    <script src="fmin.min.js"></script>
 </head>
 <body>
-    <h1>FABRIK 2D Inverse Kinematics</h1>
+    <h1>Optimization Inverse Kinematics</h1>
     <p>Scroll to change the orientation of the end effector</p>
     <canvas id="arm_canvas" onmousemove="getMousePos(event)" onmousewheel="getMouseWheel(event)" width="1200" height="700"></canvas>
     <script>
@@ -18,7 +19,7 @@
         var canvas_scale = 10
 
         var chain = new Chain(new Position(10, 10), canvas_scale);
-        var solver = new IKSolver(2);
+        var solver = new Optimize();
 
         chain.addBone(new Position(10, 10), new Position(20, 10));
         chain.addBone(new Position(20, 10), new Position(30, 10));
@@ -37,7 +38,7 @@
 
         // Handle scrolling
         function getMouseWheel(evt) {
-            targetPos.theta += -evt.wheelDelta / 1000;
+            targetPos.theta += -evt.wheelDelta / 20;
         }
 
         update();

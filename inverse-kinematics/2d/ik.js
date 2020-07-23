@@ -1,5 +1,11 @@
-DEG_TO_RAD = 180 / Math.PI;
+DEG_TO_RAD = Math.PI/180;
 
+function normalizeAngle(angle) {
+    var newAngle = angle;
+    while (newAngle <= -180) newAngle += 360;
+    while (newAngle > 180) newAngle -= 360;
+    return newAngle;
+}
 class Position {
     constructor(x, y) {
         this.x = x;
@@ -71,6 +77,7 @@ class Chain {
     constructor(root, scale) {
         this.root = root;
         this.bones = [];
+        this.angles = [];
         this.target = { x: 0, y: 0, theta: 0 };
         this.scale = scale;
     }
@@ -78,6 +85,7 @@ class Chain {
     addBone(bone_start, bone_end) {
         var bone = new Bone(bone_start, bone_end);
         this.bones.push(bone);
+        this.angles.push(0)
     }
 
     setTarget(target) {
@@ -144,7 +152,7 @@ class Chain {
     }
 }
 
-class IKSolver {
+class FABRIK {
     constructor(tolerance) {
         this.tolerance = tolerance;
     }
@@ -218,10 +226,10 @@ class IKSolver {
     solve(chain) {
         // Grab the end bone and update its orientation to match the target
         var end_bone = chain.bones[chain.bones.length - 1];
-        var end_rotation = new Position(Math.cos(chain.target.theta), Math.sin(chain.target.theta));
+        var end_rotation = new Position(Math.cos(chain.target.theta * DEG_TO_RAD), Math.sin(chain.target.theta * DEG_TO_RAD));
         end_rotation._multiply(Position.getDistance(end_bone.start, end_bone.end) * 1.5);
         end_rotation._add(chain.target);
-        console.log(chain.target, end_rotation);
+
         this.updateBone(end_bone, chain.target, end_rotation, "backwards");
 
         for (let i = 0; i < 10; i++) {
@@ -232,5 +240,36 @@ class IKSolver {
         var offset = Position.subtract(chain.bones[chain.bones.length - 2].end, end_bone.start)
         end_bone.start._add(offset);    
         end_bone.end._add(offset);
+    }
+}
+
+class Optimize {
+    constructor() {
+
+    }
+    solve(chain) {
+        function loss(angles) {
+            var lastAngle = 0;
+            var lastPos = chain.root;
+            for (let i = 0; i < chain.bones.length; i++) {
+                var boneVec = chain.bones[i].getVector();
+                var boneLength = Math.sqrt(Position.pow(boneVec, 2).x + Position.pow(boneVec, 2).y)
+                var newAngle = (lastAngle + angles[i])*DEG_TO_RAD;
+                var newBone = new Position(Math.cos(newAngle), Math.sin(newAngle));
+                newBone._multiply(boneLength);
+                chain.bones[i].start = lastPos;
+
+                chain.bones[i].end = Position.add(lastPos, newBone);
+                chain.angles[i] = angles[i];
+
+                lastPos = chain.bones[i].end;
+                lastAngle += angles[i];
+            }
+            
+            var rotLoss = Math.abs(normalizeAngle(chain.target.theta) - normalizeAngle(chain.angles.reduce  ((a, b) => a + b, 0)));
+            var posLoss = Position.getDistance(chain.target, lastPos);
+            return posLoss + rotLoss * 0.01;
+        }
+        var solution = fmin.nelderMead(loss, chain.angles.slice());
     }
 }
