@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Optimization 2D</title>
+    <script src="ik.js"></script>
+    <script src="fmin.min.js"></script>
+</head>
+<body>
+    <h1>Optimization Inverse Kinematics</h1>
+    <p>Scroll to change the orientation of the end effector</p>
+    <canvas id="arm_canvas" onmousemove="getMousePos(event)" onmousewheel="getMouseWheel(event)" width="1200" height="700"></canvas>
+    <script>
+        var targetPos = { x: 0, y: 0, theta: 0 };
+        // get the canvas element using the DOM
+        var canvas = document.getElementById('arm_canvas');
+        // use getContext to use the canvas for drawing
+        var ctx = canvas.getContext('2d');
+
+        var canvas_scale = 10
+
+        var chain = new Chain(new Position(10, 10), canvas_scale);
+        var solver = new Optimize();
+
+        chain.addBone(new Position(10, 10), new Position(20, 10));
+        chain.addBone(new Position(20, 10), new Position(30, 10));
+        chain.addBone(new Position(30, 10), new Position(40, 10));
+        chain.addBone(new Position(40, 10), new Position(50, 10));
+        chain.addBone(new Position(50, 10), new Position(60, 10));
+
+        chain.draw(ctx);
+
+        // Get mouse position on canvas
+        function getMousePos(evt) {
+            var rect = canvas.getBoundingClientRect();
+            targetPos.x = evt.clientX - rect.left;
+            targetPos.y = evt.clientY - rect.top;
+        }
+
+        // Handle scrolling
+        function getMouseWheel(evt) {
+            targetPos.theta += -evt.wheelDelta / 20;
+        }
+
+        update();
+
+        function update() {
+            chain.setTarget(targetPos);
+            solver.solve(chain);
+
+            chain.draw(ctx);
+
+            requestAnimationFrame(update);
+        }
+    </script>
+</body>
+
+</html>

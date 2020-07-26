@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Optimization</title>
+    <meta charset="utf-8">
+    <!--  <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script> -->
+    <script src="js/three.min.js"></script>
+    <script src="js/loaders/ColladaLoader.js"></script>
+    <script src="js/renderers/CanvasRenderer.js"></script>
+    <script src="js/renderers/Projector.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/controls/TransformControls.js"></script>
+    <script src="js/sketch.js"></script>
+    <script src="js/fmin.min.js"></script>
+</head>
+
+<body>
+    <div id="ThreeJS"></div>
+    <!--
+    <script>
+        var container;
+
+        var camera, scene, renderer, renderer2d, objects;
+        var controls;
+        var sketch;
+        var particleLight;
+        var raycaster, dragging_object;
+
+        var solver;
+        var linkToIndex = {};
+
+        var gripper_guides;
+        var drag_point_visual;
+
+        var dae;
+        var collada;
+
+        var kinematics;
+
+        var cursor = new THREE.Vector2(-200, -200);
+        var cursor_normalized = new THREE.Vector2(-200, -200);
+        var drag_point = new THREE.Vector3(0, 0, 0);
+        var projected_point = new THREE.Vector2(-200, -200);
+        var radius = 10;
+        var thickness = 10;
+
+        var arm_link_name = 'l_shoulder_pan_link';
+        var arm_joint_idx;
+
+        init();
+
+        function findJointByName(nodeName) {
+            for (var i = 0; i < 87; i++) {
+                if (kinematics.jointMap[i].node.name == nodeName) {
+                    return i;
+                }
+            }
+        }
+
+        function transformToMatrix(transform) {
+            var m1 = new THREE.Matrix4();
+            switch (transform.type) {
+                case 'matrix':
+                    return transform.obj;
+                case 'translate':
+                    return m1.makeTranslation(transform.obj.x, transform.obj.y, transform.obj.z);
+                case 'rotate':
+                    return m1.makeRotationAxis(transform.obj, transform.angle);
+            }
+        }
+
+        N_JOINTS = 4;
+        function initSolverSceneGraph(link, arm) {
+            // Called once when the DAE is finished loading
+            //   this function is idempotent - running it twice does nothing.
+            //   this is just a hack because I can't find the right place to
+            //   call this after DAE loads, so I call it repeatedly
+
+            console.warn("Gathering Links")
+            if (solver.getNumTransforms() == 0) {
+                console.log('initializing solver scene graph in initSolverSceneGraph');
+                // first enumerate the links connecting 'link' to 'arm'
+                var links = [];
+                var current_link = link;
+                while (current_link.parent) {
+                    console.log("Adding link " + current_link.name);
+                    links.push(current_link);
+                    if (current_link.name == arm.name) {
+                        break;
+                    }
+                    current_link = current_link.parent;
+                }
+                console.log("All Links:");
+                console.log(links);
+                // then, starting with 'arm', add links to the solver until N_JOINTS joints have been added
+                // arm to world
+                console.warn("Adding links to solver")
+                console.log(arm)
+                solver.addStaticTransform(arm.parent.matrixWorld.elements);
+                var num_joints = 0;
+                for (var i = links.length - 1; i >= 0; i--) {
+                    var putative_joint = findJointByName(links[i].name);
+                    console.log('putative_joint = ' + putative_joint);
+                    if (putative_joint == null || kinematics.jointMap[putative_joint].joint.static || num_joints >= N_JOINTS) {
+                        console.log('adding static transform for ' + links[i].name);
+                        solver.addStaticTransform(links[i].matrix.elements);
+                        linkToIndex[links[i].name] = solver.getNumTransforms() - 1;
+                    } else {
+                        console.log('adding joint for ' + links[i].name);
+                        // Set static transforms
+                        var transforms = kinematics.jointMap[putative_joint].transforms;
+                        var m01 = transformToMatrix(transforms[0]).multiply(transformToMatrix(transforms[1]));
+                        var m34 = transformToMatrix(transforms[3]).multiply(transformToMatrix(transforms[4]));
+                        console.log(m01, m34);
+                        solver.addStaticTransform(m01.elements);
+                        console.log('kinematics.jointMap[putative_joint].joint.limits.min = ' + kinematics.jointMap[putative_joint].joint.limits.min);
+                        console.log('kinematics.jointMap[putative_joint].joint.limits.max= ' + kinematics.jointMap[putative_joint].joint.limits.max);
+                        solver.addJointTransform(kinematics.jointMap[putative_joint].joint.limits.min,
+                            kinematics.jointMap[putative_joint].joint.limits.max);
+                        solver.addStaticTransform(m34.elements);
+                        linkToIndex[links[i].name] = solver.getNumTransforms() - 1;
+                        num_joints++;
+                    }
+                }
+            }
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+
+            //var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+            var SCREEN_WIDTH = 600, SCREEN_HEIGHT = 600;
+            var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+            camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+            scene.add(camera);
+            camera.position.set(33.2473216212127, 22.57002219279167, -19.15198843903227);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+            container = document.getElementById('ThreeJS');
+            container.appendChild(renderer.domElement);
+
+            var loader = new THREE.ColladaLoader();
+            loader.options.convertUpAxis = true;
+            loader.load('openrave-pr2.dae', function (collada) {
+                dae = collada.scene;
+
+                dae.traverse(function (child) {
+
+                    if (child instanceof THREE.Mesh) {
+
+                        child.geometry.computeFaceNormals();
+                        child.material.shading = THREE.FlatShading;
+
+                    }
+
+                });
+
+                dae.scale.x = dae.scale.y = dae.scale.z = 10.0;
+                dae.updateMatrix();
+
+                kinematics = collada.kinematics;
+                console.log("Kinematics:");
+                console.log(kinematics);
+
+                // Add the COLLADA
+                THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
+                dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
+                dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x669966); } }, 0);
+                scene.add(dae);
+
+                // Arm index
+                arm_joint_idx = findJointByName(arm_link_name);
+            });
+
+
+            // Lights
+            particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            particleLight.position.set(-2611.7403539515544, -3454.272981693232, -1494.286894656113);
+            scene.add(particleLight);
+
+            var light = new THREE.HemisphereLight(0x333333, 0xffeeee);
+            scene.add(light);
+
+            var pointLight = new THREE.PointLight(0xffffff, 0.3);
+            particleLight.add(pointLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            // turns out you need to wait a cycle until matrixWorld is updated
+            // initSolverSceneGraph(dae.getObjectByName(arm_link_name));
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            update();
+            render();
+        }
+
+        function update() {
+            controls.update();
+        }
+
+        function render() {
+            // update the camera controls
+            renderer.render(scene, camera);
+        }
+
+        // Returns a random integer between min (inclusive) and max (inclusive)
+        // Using Math.round() will give you a non-uniform distribution!
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+    </script>
+    -->
+
+    <script>
+        var container, scene, camera, renderer, controls;
+
+        var target, dae, kinematics;
+        var arm_link_name = 'l_shoulder_pan_link';
+        var NUM_JOINTS = 7;
+
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+
+            //var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+            var SCREEN_WIDTH = 600, SCREEN_HEIGHT = 600;
+            var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+            camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+            scene.add(camera);
+            camera.position.set(33.2473216212127, 22.57002219279167, -19.15198843903227);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+            container = document.getElementById('ThreeJS');
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.reset();
+
+            // Lights
+            var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            particleLight.position.set(2611.7403539515544, 3454.272981693232, 1494.286894656113);
+            scene.add(particleLight);
+
+            var light = new THREE.HemisphereLight(0x333333, 0xffeeee);
+            scene.add(light);
+
+            var pointLight = new THREE.PointLight(0xffffff, 0.7);
+            particleLight.add(pointLight);
+
+
+            var skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
+            var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
+            var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
+
+            var loader = new THREE.ColladaLoader();
+            loader.options.convertUpAxis = true;
+            loader.load('openrave-pr2.dae', function (collada) {
+                dae = collada.scene;
+
+                dae.traverse(function (child) {
+
+                    if (child instanceof THREE.Mesh) {
+
+                        child.geometry.computeFaceNormals();
+                        child.material.shading = THREE.FlatShading;
+
+                    }
+
+                });
+
+                dae.scale.x = dae.scale.y = dae.scale.z = 10.0;
+                dae.updateMatrix();
+
+                kinematics = collada.kinematics;
+                console.log("Kinematics:");
+                console.log(kinematics);
+
+                // Add the COLLADA
+                THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
+                dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
+                //dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x669966); } }, 0);
+                scene.add(dae);
+
+                // Arm index
+                arm_joint_idx = findJointByName(arm_link_name);
+                console.log(arm_joint_idx);
+            });
+
+
+            // Add the target
+            var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
+
+            target = new THREE.Mesh(geometry, material);
+            scene.add(target);
+
+            var transformControls = new THREE.TransformControls(camera, renderer.domElement);
+            transformControls.addEventListener('change', render);
+
+            try {
+                transformControls.attach(target);
+            } catch (err) {
+                console.log(err);
+            }
+
+            scene.add(transformControls);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+            update();
+        }
+
+
+        function update() {
+            controls.update();
+            if (kinematics) {
+                //solveIK(target.position, 1000);
+            }
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        function findJointByName(nodeName) {
+            for (var i = 0; i < 87; i++) {
+                if (kinematics.jointMap[i].node.name == nodeName) {
+                    return i;
+                }
+            }
+        }
+
+        function getJointAngles() {
+            var jointAngles = [];
+            for (var i = 0; i < NUM_JOINTS; i++) {
+                var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
+                var newAngle = map_range(kinematics.getJointValue(arm_joint_idx + i), jointLimits.min, jointLimits.max, 0, 1);
+                jointAngles.push(newAngle);
+            }
+            return jointAngles;
+        }
+
+        function calcDist(v1, v2) {
+            var dx = v1.x - v2.x;
+            var dy = v1.y - v2.y;
+            var dz = v1.z - v2.z;
+
+            return Math.sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        function map_range(raw_value, low1, high1, low2, high2) {
+            var value = Math.min(Math.max(raw_value, low1), high1);
+            return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+        }
+
+        function getEEPose() {
+
+            // Set the endpoint to the tip of the hand
+            // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node.matrixWorld.elements;
+
+            // Set the endpoint to the wrist
+            var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS - 1].node.matrixWorld.elements;
+            return new THREE.Vector3(eeJoint[12], eeJoint[13], eeJoint[14]);;
+        }
+
+        function solveIK(targetPos, iter) {
+            function loss(angles) {
+                var constrainLoss = 0;
+                for (var i = 0; i < NUM_JOINTS; i++) {
+                    var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
+
+                    // Map the input angle to the joint range
+                    //var newAngle = map_range(angles[i], 0, 1, jointLimits.min, jointLimits.max);
+
+                    // Limit the input angle to the joint range
+                    var newAngle = Math.min(Math.max(angles[i], jointLimits.min), jointLimits.max);
+                    //console.log(angles[i], newAngle, jointLimits);
+
+                    if (angles[i] < jointLimits.min) {
+                        constrainLoss += jointLimits.min - angles[i];
+                    } else if (angles[i] > jointLimits.max) {
+                        constrainLoss += angles[i] - jointLimits.max;
+                    }
+
+                    console.log(constrainLoss, angles[i], jointLimits);
+
+                    kinematics.setJointValue(arm_joint_idx + i, newAngle);
+                }
+                render();
+
+
+                var eePos = getEEPose()
+
+                var posLoss = calcDist(targetPos, eePos);
+                return posLoss;
+            }
+
+
+            var startingAngles = Array(NUM_JOINTS).fill(0);
+            //startingAngles = [45,25.000949999999996,88.80845,-66.5005,0,-62.4525,0];
+            startingAngles = getJointAngles();
+
+            var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
+        }
+    </script>
+</body>
+
+</html>

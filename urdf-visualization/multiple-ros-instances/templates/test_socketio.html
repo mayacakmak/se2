@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha256-bQmrZe4yPnQrLTY+1gYylfNMBuGfnT/HKsCGX+9Xuqo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+</body>
+<head>
+    <script>
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+            socket.on('start_visualization', function (message) {
+                console.log(`Starting visualization on port `, message.port);
+            });
+        });
+    </script>
+</head>
