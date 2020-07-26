@@ -68,6 +68,8 @@
             }
         }
 
+        var joints = [];
+
         init();
         animate();
 
@@ -154,11 +156,14 @@
         function update() {
             controls.update();
             if (urdf_robot) {
+                joints = [];
                 Object.keys(urdf_robot.joints).forEach(function (jointName) {
                     joint = urdf_robot.joints[jointName];
                     if (joint.limit.lower !== 0 || joint.limit.upper !== 0) {
+                        joints.push(map_range($(`#${jointName}`).val(), 0, 1, joint.limit.lower, joint.limit.upper));
                         joint.setAngle(map_range($(`#${jointName}`).val(), 0, 1, joint.limit.lower, joint.limit.upper));
                     } else if (pr2_missing_joints[jointName] !== undefined) {
+                        joints.push(map_range($(`#${jointName}`).val(), 0, 1, pr2_missing_joints[jointName].min, pr2_missing_joints[jointName].max));
                         joint.setAngle(map_range($(`#${jointName}`).val(), 0, 1, pr2_missing_joints[jointName].min, pr2_missing_joints[jointName].max));
                     }
                 });

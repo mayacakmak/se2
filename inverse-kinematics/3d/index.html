@@ -323,7 +323,7 @@
         function update() {
             controls.update();
             if (kinematics) {
-                solveIK(target.position, 150);
+                //solveIK(target.position, 1000);
             }
         }
 
@@ -357,29 +357,59 @@
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
 
-        function map_range(value, low1, high1, low2, high2) {
+        function map_range(raw_value, low1, high1, low2, high2) {
+            var value = Math.min(Math.max(raw_value, low1), high1);
             return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
         }
 
+        function getEEPose() {
+
+            // Set the endpoint to the tip of the hand
+            // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node.matrixWorld.elements;
+
+            // Set the endpoint to the wrist
+            var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS - 1].node.matrixWorld.elements;
+            return new THREE.Vector3(eeJoint[12], eeJoint[13], eeJoint[14]);;
+        }
 
         function solveIK(targetPos, iter) {
             function loss(angles) {
+                var constrainLoss = 0;
                 for (var i = 0; i < NUM_JOINTS; i++) {
                     var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
-                    var newAngle = map_range(angles[i], 0, 1, jointLimits.min, jointLimits.max);
+
+                    // Map the input angle to the joint range
+                    //var newAngle = map_range(angles[i], 0, 1, jointLimits.min, jointLimits.max);
+
+                    // Limit the input angle to the joint range
+                    var newAngle = Math.min(Math.max(angles[i], jointLimits.min), jointLimits.max);
+                    //console.log(angles[i], newAngle, jointLimits);
+
+                    if (angles[i] < jointLimits.min) {
+                        constrainLoss += jointLimits.min - angles[i];
+                    } else if (angles[i] > jointLimits.max) {
+                        constrainLoss += angles[i] - jointLimits.max;
+                    }
+
+                    console.log(constrainLoss, angles[i], jointLimits);
+
                     kinematics.setJointValue(arm_joint_idx + i, newAngle);
                 }
                 render();
 
-                var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node.matrixWorld.elements;
-                var eePos = new THREE.Vector3(eeJoint[12], eeJoint[13], eeJoint[14]);
+
+                var eePos = getEEPose()
 
                 var posLoss = calcDist(targetPos, eePos);
                 return posLoss;
             }
+
+
             var startingAngles = Array(NUM_JOINTS).fill(0);
+            //startingAngles = [45,25.000949999999996,88.80845,-66.5005,0,-62.4525,0];
             startingAngles = getJointAngles();
-            var solution = fmin.nelderMead(loss, startingAngles,{maxIterations: iter});
+
+            var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
         }
     </script>
 </body>
