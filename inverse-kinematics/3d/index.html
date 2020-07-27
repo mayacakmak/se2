@@ -5,6 +5,7 @@
     <title>Optimization</title>
     <meta charset="utf-8">
     <!--  <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="js/three.min.js"></script>
     <script src="js/loaders/ColladaLoader.js"></script>
     <script src="js/renderers/CanvasRenderer.js"></script>
@@ -16,13 +17,34 @@
 </head>
 
 <body>
+    <p>press "r" and "t" to toggle between rotation and translation controls</p>
     <div id="ThreeJS"></div>
+    <h3>Iterations: <span id="iter-display"></span></h3>
+    <input type="range" min="0" max="15" step="1" value="4" id="iter"></input>
     <script>
-        var container, scene, camera, renderer, controls;
+        var container, scene, camera, renderer, controls, transformControls;
 
         var target, dae, kinematics;
         var arm_link_name = 'l_shoulder_pan_link';
         var NUM_JOINTS = 7;
+
+        var iterations = 10000; // Default is ten thousand iterations
+
+        $(document).ready(function () {
+            $("#iter-display").text(iterations);
+
+            $("#iter").change(function () {
+                iterations = Math.pow(10, this.value);
+                $("#iter-display").text(iterations);
+            });
+            $(document).keypress(function (event) {
+                if (event.key == "t") {
+                    transformControls.setMode("translate");
+                } else if (event.key == "r") {
+                    transformControls.setMode("rotate");
+                }
+            });
+        });
 
         init();
         animate();
@@ -103,7 +125,7 @@
             target = new THREE.Mesh(geometry, material);
             scene.add(target);
 
-            var transformControls = new THREE.TransformControls(camera, renderer.domElement);
+            transformControls = new THREE.TransformControls(camera, renderer.domElement);
             transformControls.addEventListener('change', render);
 
             try {
@@ -125,7 +147,7 @@
         function update() {
             controls.update();
             if (kinematics) {
-                solveIK(target.position, 1000);
+                solveIK(target, iterations);
             }
         }
 
@@ -144,9 +166,11 @@
         function getJointAngles() {
             var jointAngles = [];
             for (var i = 0; i < NUM_JOINTS; i++) {
-                var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
-                var newAngle = map_range(kinematics.getJointValue(arm_joint_idx + i), jointLimits.min, jointLimits.max, 0, 1);
-                jointAngles.push(newAngle);
+                // Map the input angle to the joint range
+                //var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
+                //var newAngle = map_range(kinematics.getJointValue(arm_joint_idx + i), jointLimits.min, jointLimits.max, 0, 1);
+                //jointAngles.push(newAngle);
+                jointAngles.push(kinematics.getJointValue(arm_joint_idx + i));
             }
             return jointAngles;
         }
@@ -159,6 +183,24 @@
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        function calcQuaternionDist(q1, q2) {
+            var dx = q1._x - q2._x;
+            var dy = q1._y - q2._y;
+            var dz = q1._z - q2._z;
+            var dw = q1._w - q2._w;
+
+            return Math.sqrt(dx * dx + dy * dy + dz * dz + dw * dw);
+        }
+
+        function calcAngleDist(a1, a2) {
+            var sum = 0;
+            for (var i = 0; i < NUM_JOINTS; i++) {
+                sum += a1[i] - a2[i];
+            }
+
+            return sum
+        }
+
         function map_range(raw_value, low1, high1, low2, high2) {
             var value = Math.min(Math.max(raw_value, low1), high1);
             return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
@@ -167,14 +209,21 @@
         function getEEPose() {
 
             // Set the endpoint to the tip of the hand
-            // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node.matrixWorld.elements;
+            var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node;
 
             // Set the endpoint to the wrist
-            var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS - 1].node.matrixWorld.elements;
-            return new THREE.Vector3(eeJoint[12], eeJoint[13], eeJoint[14]);;
+            // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS - 1].node;
+
+            var position = new THREE.Vector3();
+            var quaternion = new THREE.Quaternion();
+            var scale = new THREE.Vector3();
+
+            eeJoint.matrixWorld.decompose(position, quaternion, scale);
+
+            return { position: position, quaternion: quaternion };
         }
 
-        function solveIK(targetPos, iter) {
+        function solveIK(target, iter) {
             function loss(angles) {
                 var constrainLoss = 0;
                 for (var i = 0; i < NUM_JOINTS; i++) {
@@ -185,7 +234,6 @@
 
                     // Limit the input angle to the joint range
                     var newAngle = Math.min(Math.max(angles[i], jointLimits.min), jointLimits.max);
-                    //console.log(angles[i], newAngle, jointLimits);
 
                     if (angles[i] < jointLimits.min) {
                         constrainLoss += jointLimits.min - angles[i];
@@ -193,23 +241,30 @@
                         constrainLoss += angles[i] - jointLimits.max;
                     }
 
-                    console.log(constrainLoss, angles[i], jointLimits);
-
                     kinematics.setJointValue(arm_joint_idx + i, newAngle);
                 }
-                render();
 
+                dae.updateMatrixWorld(true);
 
-                var eePos = getEEPose()
+                var eePose = getEEPose()
 
-                var posLoss = calcDist(targetPos, eePos);
-                return posLoss;
+                var posLoss = calcDist(target.position, eePose.position);
+                var rotLoss = calcQuaternionDist(target.quaternion, eePose.quaternion)
+
+                //var changeLoss = calcAngleDist(lastAngles, getJointAngles());
+
+                //console.log(lastAngles, getJointAngles());
+
+                return posLoss + rotLoss * 3;
             }
 
+            dae.updateMatrixWorld(true);
+
+            var lastAngles = getJointAngles();
 
             var startingAngles = Array(NUM_JOINTS).fill(0);
-            //startingAngles = [45,25.000949999999996,88.80845,-66.5005,0,-62.4525,0];
-            startingAngles = getJointAngles();
+            startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
+            //startingAngles = getJointAngles();
 
             var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
         }
