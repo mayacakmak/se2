@@ -90,7 +90,7 @@ function initializeTest() {
 function setupEnvironment() {
 
   // Create target and place it in workspace
-  target = new SE2("target", new Pose(), "#AAA");
+  target = new SE2("target", new Pose(), "#AAA", 25, 45);
   target.addToWorkspace();
 
   // Create end effector and place it in workspace

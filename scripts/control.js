@@ -29,14 +29,14 @@ function Control(name, ee, target, transitionType) {
   Control.checkAtTarget = function (se2) {
     var targetSuccessColor = "#393";
 
-    if (se2.isSame(Control.target))
+    if (Control.target.isSame(se2))
       se2.setTempColor(targetSuccessColor);
     else
       se2.resetColor();
   }
 
   Control.checkSuccess = function () {
-    if (Control.ee.isSame(Control.target)) success();
+    if (Control.target.isSame(Control.ee)) success();
   }
 
   Control.rotateFromRing = function () {
@@ -227,10 +227,11 @@ function Timer() {
 
   this.setVisible = function (isVisible) {
     var ws = document.getElementById("workspace");
-    if (isVisible)
+    if (isVisible) {
       ws.appendChild(this.group);
-    else if (ws.contains(this.group))
+    } else if (ws.contains(this.group)) {
       ws.removeChild(this.group);
+    }
   }
 }
 
@@ -700,7 +701,7 @@ function targetMoveEE(event) {
 
   updatePose();
 
-  if (ee.isSame(target))
+  if (target.isSame(ee))
     success();
 
   // if(checkGoal(pos[0], pos[1], targetPos[0], targetPos[1], rot, targetRot)){
@@ -916,7 +917,7 @@ function stopDrag(event, direction) {
       arrowDown.style.fill = "#cc070e";
     }
 
-    if (ee.isSame(target))
+    if (target.isSame(ee))
       success();
     // ee.group.style.fill = "#ACC";
     ee.stopMoving();
@@ -937,7 +938,7 @@ function stopRotate(event, direction) {
     // arrowCW.style.fill = "#a442f4";
     // arrowCCW.style.fill = "#36bc3d";
     ring.style.stroke = "#AAC";
-    if (ee.isSame(target))
+    if (target.isSame(ee))
       success();
   }
 }
