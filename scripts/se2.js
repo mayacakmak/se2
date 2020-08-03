@@ -137,6 +137,7 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
     ws.removeChild(this.group);
   }
 
+  // We don't want the MoveableSE2 to also have a wedge and circle, this function is used to remove them
   this.disableFlexiblePose = function () {
     this.group.removeChild(this.wedge);
     this.group.removeChild(this.circle);

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles/style.processed.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+    <div class="container-fixed">
+      <div class="row mx-5 mt-4">
+        <h1>Sampling</h1>
+      </div>
+      <div class="row mx-5">
+        <div class="workspace-div border border-secondary rounded-lg mb-3">
+          <svg class="workspace" id="workspace"></svg>
+        </div>
+        <div class="border border-secondary rounded-lg p-3" style="width: 750px">
+          <h3>Dist Theta</h3>
+          <svg class="workspace mb-4" style="height: 100px" id="dist-theta"></svg>
+          <h3>Thresh XY</h3>
+          <svg class="workspace mb-4" style="height: 100px" id="thresh-xy"></svg>
+          <h3>Thresh Theta</h3>
+          <svg class="workspace mb-4" style="height: 100px" id="thresh-theta"></svg>
+        </div>
+      </div>
+      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
+        <button class="btn btn-primary mx-2" onclick="sample(1)">Sample 1</button>
+        <button class="btn btn-primary mx-2" onclick="sample(100)">Sample 100</button>
+        <button class="btn btn-primary mx-2" onclick="sample(1000)">Sample 1000</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script>
+    var dist_xy = {
+      1: [
+        { x: 0.2, y: 0.2 },
+        { x: 0.4, y: 0.2 },
+        { x: 0.6, y: 0.2 },
+        { x: 0.2, y: 0.4 },
+        { x: 0.2, y: 0.6 },
+        { x: 0.4, y: 0.6 },
+        { x: 0.6, y: 0.6 },
+        { x: 0.6, y: 0.4 }
+      ],
+      2: [
+        { x: 0.0, y: 0.2 },
+        { x: 0.0, y: 0.4 },
+        { x: 0.0, y: 0.6 },
+        { x: 0.2, y: 0.0 },
+        { x: 0.4, y: 0.0 },
+        { x: 0.6, y: 0.0 },
+        { x: 0.2, y: 0.8 },
+        { x: 0.4, y: 0.8 },
+        { x: 0.6, y: 0.8 },
+        { x: 0.8, y: 0.2 },
+        { x: 0.8, y: 0.4 },
+        { x: 0.8, y: 0.6 }
+      ],
+      3: [
+        { x: 0.0, y: 0.0 },
+        { x: 0.0, y: 0.8 },
+        { x: 0.8, y: 0.0 },
+        { x: 0.8, y: 0.8 }
+      ]
+    }
+
+    var dist_theta = {
+      1: { start: 0, end: 60 },
+      2: { start: 60, end: 120 },
+      3: { start: 120, end: 180 }
+    };
+
+    var thresh_xy = {
+      1: { start: 3, end: 10 },
+      2: { start: 15, end: 30 }
+    };
+
+    var thresh_theta = {
+      1: { start: 3, end: 20 },
+      2: { start: 25, end: 60 }
+    };
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRandomArrayItem(arr) {
+      return arr[getRandomInt(0, arr.length - 1)];
+    }
+
+    function createDot(x, y, fill, radius) {
+      var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', x);
+      dot.setAttribute('cy', y);
+      dot.setAttribute('r', radius);
+      dot.setAttribute("fill", fill);
+      return dot;
+    }
+
+    function removeChildren(_obj) {
+      // Remove all the children of object
+      while (_obj.firstChild) {
+        _obj.removeChild(_obj.firstChild);
+      }
+    }
+
+    function map_range(value, low1, high1, low2, high2) {
+      return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+    }
+
+    function plotHistogram(ws, points, n_bins = 10) {
+      removeChildren(ws);
+
+      var max = Math.max(...points);
+      var min = Math.min(...points);
+      var range = max - min;
+
+      var bin_size = range / n_bins;
+      var bins = Array(n_bins).fill(0);
+      var bin_ranges = [];
+      for (var i = min; i < max; i += bin_size) {
+        bin_ranges.push([i, i + bin_size]);
+      }
+
+      for (var i = 0; i < points.length; i++) {
+        for (var j = 0; j < n_bins; j++) {
+          if (bin_ranges[j][0] <= points[i] && points[i] <= bin_ranges[j][1]) {
+            bins[j] += 1;
+            break;
+          }
+        }
+      }
+
+      var size = ws.getBoundingClientRect();
+      var outer = 40;
+      var padding = 10;
+      var font_size = 15;
+      var bin_width = (size.width - padding * (n_bins + 1) - outer) / n_bins;
+
+      var bin_max = Math.max(...bins);
+      var bins_mapped = bins.map(function (bin_val) {
+        return map_range(bin_val, 0, bin_max, 0, size.height - font_size);
+      });
+
+      for (var i = 0; i < n_bins; i++) {
+        var bin_height = bins_mapped[i];
+        rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', outer/2 + padding + (i * (bin_width + padding)));
+        rect.setAttribute('y', size.height - bin_height - font_size/2);
+        rect.setAttribute('rx', 5);
+        rect.setAttribute('width', bin_width);
+        rect.setAttribute('height', bin_height - font_size/2);
+        rect.setAttribute("fill", "#111");
+        rect.style.opacity = 0.3
+        ws.appendChild(rect);
+
+
+        label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', outer/2 + (i * (bin_width + padding)) + padding / 2);
+        label.setAttribute('y', size.height);
+        label.setAttribute("fill", "#000");
+        label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
+        label.setAttribute("text-anchor", "middle");
+        label.innerHTML = bin_ranges[i][0].toFixed(1);
+        ws.appendChild(label);
+      }
+
+      label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      label.setAttribute('x', outer/2 + (n_bins * (bin_width + padding)) + padding / 2);
+      label.setAttribute('y', size.height);
+      label.setAttribute("fill", "#000");
+      label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
+      label.setAttribute("text-anchor", "middle");
+      label.innerHTML = bin_ranges[n_bins-1][1].toFixed(1);
+      ws.appendChild(label);
+    }
+
+    function sample(num) {
+      removeChildren(dot_group);
+
+      var dist_xy_list = [];
+      var dist_theta_list = [];
+      var thresh_xy_list = [];
+      var thresh_theta_list = [];
+      for (var i = 0; i < num; i++) {
+        for (var j = 1; j <= 3; j++) { // dist_xy
+          for (var k = 1; k <= 3; k++) { // dist_theta
+            for (var l = 1; l <= 2; l++) { // thresh_xy
+              for (var m = 1; m <= 2; m++) { // thresh_theta
+                var dist_xy_rect = getRandomArrayItem(dist_xy[j]);
+
+                var loc = {
+                  x: getRandomArbitrary(dist_xy_rect.x, dist_xy_rect.x + 0.2),
+                  y: getRandomArbitrary(dist_xy_rect.y, dist_xy_rect.y + 0.2),
+                }
+
+                dist_xy_list.push(loc)
+
+                var dist_theta_range = dist_theta[k];
+                theta_val = getRandomArbitrary(dist_theta_range.start, dist_theta_range.end) * (Math.random() < 0.5 ? -1 : 1)
+                dist_theta_list.push(theta_val);
+
+                var thresh_xy_range = thresh_xy[l];
+                thresh_xy_list.push(getRandomArbitrary(thresh_xy_range.start, thresh_xy_range.end));
+
+                var thresh_theta_range = thresh_theta[m];
+                thresh_theta_list.push(getRandomArbitrary(thresh_theta_range.start, thresh_theta_range.end));
+              }
+            }
+          }
+        }
+      }
+      dist_xy_list.forEach(function (loc) {
+        dot_group.appendChild(createDot(loc.x * size.width, loc.y * size.height, "black", 2));
+      });
+
+      plotHistogram(dist_theta_ws, dist_theta_list);
+      plotHistogram(thresh_xy_ws, thresh_xy_list);
+      plotHistogram(thresh_theta_ws, thresh_theta_list);
+    }
+
+
+    var ws = document.getElementById("workspace");
+    var size = ws.getBoundingClientRect();
+    var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+
+    var dist_theta_ws = document.getElementById("dist-theta");
+    var dist_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var thresh_xy_ws = document.getElementById("thresh-xy");
+    var thresh_xy_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var thresh_theta_ws = document.getElementById("thresh-theta");
+    var thresh_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+    for (var i = 1; i <= 3; i++) {
+      for (var j = 0; j < dist_xy[i].length; j++) {
+        rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', dist_xy[i][j].x * size.width);
+        rect.setAttribute('y', dist_xy[i][j].y * size.height);
+        rect.setAttribute('width', size.width / 5);
+        rect.setAttribute('height', size.height / 5);
+        rect.setAttribute("fill", "#" + String((3 - i) * 3).repeat(3));
+        rect.style.opacity = 0.3
+        background_group.appendChild(rect);
+      }
+    }
+
+    ws.appendChild(background_group);
+    ws.appendChild(dot_group);
+    dist_theta_ws.appendChild(dist_theta_group);
+    thresh_xy_ws.appendChild(thresh_xy_group);
+    thresh_theta_ws.appendChild(thresh_theta_group);
+  </script>
+</body>
+
+</html>
