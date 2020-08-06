@@ -17,10 +17,14 @@
 </head>
 
 <body>
+  <div id='histogram-display-container'
+    style="width: 75px; height: 50px; position: absolute; z-index:1000; pointer-events: none;">
+    <svg id="workspace" width="750" height="500" class="border border-secondary" style="background: #FFF;"></svg>
+  </div>
+
   <div id='ee-display-container'
-    style="width: 75px; height: 50px; position: relative; z-index:1000; pointer-events: none;">
-    <svg id="workspace" width="750" height="500" class="border border-secondary"
-      style="background: #FFF;"></svg>
+    style="position: absolute; z-index:1001; pointer-events: none;">
+    <h5 id="histogram-display" class="p-1 border border-secondary" style="background: #FFF"></h5>
   </div>
   <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
     <div style="background: #FFF">
@@ -100,7 +104,7 @@
 
     var current_dot;
     var ee;
-    var ee_display_scale = 1/3;
+    var ee_display_scale = 1 / 3;
 
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;
@@ -211,14 +215,23 @@
 
       for (var i = 0; i < n_bins; i++) {
         var bin_height = bins_mapped[i];
-        rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', outer / 2 + padding + (i * (bin_width + padding)));
         rect.setAttribute('y', size.height - bin_height - font_size / 2);
         rect.setAttribute('rx', 5);
         rect.setAttribute('width', bin_width);
         rect.setAttribute('height', Math.max(bin_height - font_size / 2, 0));
         rect.setAttribute("fill", "#111");
+        rect.setAttribute("real_num", bins[i])
         rect.style.opacity = 0.3
+        $(rect).hover(function () {
+          $("#histogram-display").show();
+          $("#histogram-display").text(this.getAttribute("real_num"));
+          this.style.opacity = 0.45;
+        }, function () {
+          $("#histogram-display").hide();
+          this.style.opacity = 0.3;
+        });
         ws.appendChild(rect);
 
 
@@ -310,7 +323,7 @@
 
     for (var i = 1; i <= 3; i++) {
       for (var j = 0; j < dist_xy[i].length; j++) {
-        rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', dist_xy[i][j].x * size.width);
         rect.setAttribute('y', dist_xy[i][j].y * size.height);
         rect.setAttribute('width', size.width / 5);
@@ -328,14 +341,23 @@
     thresh_theta_ws.appendChild(thresh_theta_group);
 
     $(document).ready(function () {
+      // Hide and set the correct scale of the workspace
       $("#workspace").hide();
       $("#workspace").width($("#workspace").width() * ee_display_scale);
       $("#workspace").height($("#workspace").height() * ee_display_scale);
-      sample(1);
+
+      // Add an event listner to move the workspace to the position of the mouse
       $(document).mousemove(function (event) {
         $("#workspace").css("margin-top", event.clientY + "px");
         $("#workspace").css("margin-left", (event.clientX - $("#workspace").width() - 5) + "px");
+
+        $("#histogram-display").css("margin-top", (event.clientY-$("#histogram-display").height()) + "px");
+        $("#histogram-display").css("margin-left", (event.clientX - $("#histogram-display").width()) + "px");
       });
+
+
+      $("#histogram-display").hide();
+      sample(1);
     });
   </script>
 </body>
