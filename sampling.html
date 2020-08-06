@@ -26,7 +26,7 @@
     style="position: absolute; z-index:1001; pointer-events: none;">
     <h5 id="histogram-display" class="p-1 border border-secondary" style="background: #FFF"></h5>
   </div>
-  <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+  <div class="container-fluid d-flex align-items-center justify-content-center">
     <div style="background: #FFF">
       <div class="row mx-5 mt-4">
         <h1>Sampling</h1>
@@ -149,7 +149,7 @@
       // Create and set the position of the EE
       var size = ws.getBoundingClientRect();
       var eePose = new Pose(dot_data.x * size.width * ee_display_scale, dot_data.y * size.height * ee_display_scale, dot_data.theta, dot_data.thresh_xy, dot_data.thresh_theta);
-      ee = new SE2("target", eePose, dot_data.thresh_xy, dot_data.thresh_theta);
+      ee = new SE2("target", eePose,"#AAA", dot_data.thresh_xy, dot_data.thresh_theta);
       ee.setPose(eePose);
 
       ee.group.setAttribute("transform", ee.group.getAttribute("transform") + "scale (" + ee_display_scale + ", " + ee_display_scale + ")");
@@ -348,11 +348,11 @@
 
       // Add an event listner to move the workspace to the position of the mouse
       $(document).mousemove(function (event) {
-        $("#workspace").css("margin-top", event.clientY + "px");
-        $("#workspace").css("margin-left", (event.clientX - $("#workspace").width() - 5) + "px");
+        $("#workspace").css("margin-top", event.clientY + window.scrollY + "px");
+        $("#workspace").css("margin-left", (event.clientX - $("#workspace").width() - 5 + window.scrollX) + "px");
 
-        $("#histogram-display").css("margin-top", (event.clientY-$("#histogram-display").height()) + "px");
-        $("#histogram-display").css("margin-left", (event.clientX - $("#histogram-display").width()) + "px");
+        $("#histogram-display").css("margin-top", (event.clientY - $("#histogram-display").height() + window.scrollY) + "px");
+        $("#histogram-display").css("margin-left", (event.clientX - $("#histogram-display").width() + window.scrollX) + "px");
       });
 
 
