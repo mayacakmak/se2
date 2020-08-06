@@ -70,6 +70,7 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   SE2.lineLength = 35;
   SE2.lineWidth = 5;
 
+  /*
   if (posThreshold > SE2.lineLength - 5) {
     throw `Position threshold  ${posThreshold} cannot be greater than [SE2.lineLength - 5] (${SE2.lineLength -5})`;
   }
@@ -77,7 +78,8 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   if (rotThreshold > 180) {
     throw `Rotation threshold  ${rotThreshold} cannot be greater than 180`;
   }
-
+  */
+ 
   // Create the "dot" that indicates the center (x, y) of the element
   this.dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   this.dot.setAttribute('x', 0);

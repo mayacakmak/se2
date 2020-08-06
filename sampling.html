@@ -13,19 +13,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
     crossorigin="anonymous"></script>
+  <script src="scripts/se2.js"></script>
 </head>
 
 <body>
+  <div id='ee-display-container'
+    style="width: 75px; height: 50px; position: relative; z-index:1000; pointer-events: none;">
+    <svg id="workspace" width="750" height="500" class="border border-secondary"
+      style="background: #FFF;"></svg>
+  </div>
   <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
-    <div class="container-fixed">
+    <div style="background: #FFF">
       <div class="row mx-5 mt-4">
         <h1>Sampling</h1>
       </div>
       <div class="row mx-5">
-        <div class="workspace-div border border-secondary rounded-lg mb-3">
-          <svg class="workspace" id="workspace"></svg>
+        <div class="workspace-div border border-secondary rounded-lg m-3">
+          <svg class="workspace" id="dist-xy"></svg>
         </div>
-        <div class="border border-secondary rounded-lg p-3" style="width: 750px">
+        <div class="border border-secondary rounded-lg m-3" style="width: 750px">
           <h3>Dist Theta</h3>
           <svg class="workspace mb-4" style="height: 100px" id="dist-theta"></svg>
           <h3>Thresh XY</h3>
@@ -37,7 +43,7 @@
       <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
         <button class="btn btn-primary mx-2" onclick="sample(1)">Sample 1</button>
         <button class="btn btn-primary mx-2" onclick="sample(100)">Sample 100</button>
-        <button class="btn btn-primary mx-2" onclick="sample(1000)">Sample 1000</button>
+        <button class="btn btn-primary mx-2" onclick="sample(300)">Sample 300</button>
       </div>
     </div>
   </div>
@@ -92,6 +98,10 @@
       2: { start: 25, end: 60 }
     };
 
+    var current_dot;
+    var ee;
+    var ee_display_scale = 1/3;
+
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;
     }
@@ -106,13 +116,52 @@
       return arr[getRandomInt(0, arr.length - 1)];
     }
 
-    function createDot(x, y, fill, radius) {
+    function createDot(dot_data, radius = 3, fill = "black", stroke = "blue") {
+      var size = ws.getBoundingClientRect();
       var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('cx', x);
-      dot.setAttribute('cy', y);
+      dot.setAttribute('cx', dot_data.x * size.width);
+      dot.setAttribute('cy', dot_data.y * size.height);
       dot.setAttribute('r', radius);
       dot.setAttribute("fill", fill);
+      dot.setAttribute("stroke", stroke);
+      dot.setAttribute("stroke-width", 0);
+      dot.style.pointerEvents = "all";
+      $(dot).hover(function () {
+        showDotEE();
+        renderDotEE(dot, dot_data);
+      }, hideDotEE);
+      current_dot = dot;
       return dot;
+    }
+
+    function renderDotEE(dot, dot_data) {
+      // Remove the outline from the old dot
+      current_dot.setAttribute("stroke-width", 0);
+      current_dot = dot;
+
+      // Add an outline to the newly selected dot
+      dot.setAttribute("stroke-width", 2);
+
+      // Create and set the position of the EE
+      var size = ws.getBoundingClientRect();
+      var eePose = new Pose(dot_data.x * size.width * ee_display_scale, dot_data.y * size.height * ee_display_scale, dot_data.theta, dot_data.thresh_xy, dot_data.thresh_theta);
+      ee = new SE2("target", eePose, dot_data.thresh_xy, dot_data.thresh_theta);
+      ee.setPose(eePose);
+
+      ee.group.setAttribute("transform", ee.group.getAttribute("transform") + "scale (" + ee_display_scale + ", " + ee_display_scale + ")");
+      ee.addToWorkspace();
+
+      var size = ws.getBoundingClientRect();
+    }
+
+    function hideDotEE() {
+      current_dot.setAttribute("stroke-width", 0);
+      ee.removeFromWorkspace();
+      $("#workspace").hide();
+    }
+
+    function showDotEE() {
+      $("#workspace").show();
     }
 
     function removeChildren(_obj) {
@@ -163,18 +212,18 @@
       for (var i = 0; i < n_bins; i++) {
         var bin_height = bins_mapped[i];
         rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', outer/2 + padding + (i * (bin_width + padding)));
-        rect.setAttribute('y', size.height - bin_height - font_size/2);
+        rect.setAttribute('x', outer / 2 + padding + (i * (bin_width + padding)));
+        rect.setAttribute('y', size.height - bin_height - font_size / 2);
         rect.setAttribute('rx', 5);
         rect.setAttribute('width', bin_width);
-        rect.setAttribute('height', bin_height - font_size/2);
+        rect.setAttribute('height', Math.max(bin_height - font_size / 2, 0));
         rect.setAttribute("fill", "#111");
         rect.style.opacity = 0.3
         ws.appendChild(rect);
 
 
         label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', outer/2 + (i * (bin_width + padding)) + padding / 2);
+        label.setAttribute('x', outer / 2 + (i * (bin_width + padding)) + padding / 2);
         label.setAttribute('y', size.height);
         label.setAttribute("fill", "#000");
         label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
@@ -184,12 +233,12 @@
       }
 
       label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', outer/2 + (n_bins * (bin_width + padding)) + padding / 2);
+      label.setAttribute('x', outer / 2 + (n_bins * (bin_width + padding)) + padding / 2);
       label.setAttribute('y', size.height);
       label.setAttribute("fill", "#000");
       label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
       label.setAttribute("text-anchor", "middle");
-      label.innerHTML = bin_ranges[n_bins-1][1].toFixed(1);
+      label.innerHTML = bin_ranges[n_bins - 1][1].toFixed(1);
       ws.appendChild(label);
     }
 
@@ -215,30 +264,38 @@
                 dist_xy_list.push(loc)
 
                 var dist_theta_range = dist_theta[k];
-                theta_val = getRandomArbitrary(dist_theta_range.start, dist_theta_range.end) * (Math.random() < 0.5 ? -1 : 1)
+                var theta_val = getRandomArbitrary(dist_theta_range.start, dist_theta_range.end) * (Math.random() < 0.5 ? -1 : 1)
                 dist_theta_list.push(theta_val);
 
                 var thresh_xy_range = thresh_xy[l];
-                thresh_xy_list.push(getRandomArbitrary(thresh_xy_range.start, thresh_xy_range.end));
+                var thresh_xy_val = getRandomArbitrary(thresh_xy_range.start, thresh_xy_range.end);
+                thresh_xy_list.push(thresh_xy_val);
 
                 var thresh_theta_range = thresh_theta[m];
-                thresh_theta_list.push(getRandomArbitrary(thresh_theta_range.start, thresh_theta_range.end));
+                var thresh_theta_val = getRandomArbitrary(thresh_theta_range.start, thresh_theta_range.end);
+                thresh_theta_list.push(thresh_theta_val);
+
+                dot_data = {
+                  x: loc.x,
+                  y: loc.y,
+                  theta: theta_val,
+                  thresh_xy: thresh_xy_val,
+                  thresh_theta: thresh_theta_val
+                };
+
+                dot_group.appendChild(createDot(dot_data));
               }
             }
           }
         }
       }
-      dist_xy_list.forEach(function (loc) {
-        dot_group.appendChild(createDot(loc.x * size.width, loc.y * size.height, "black", 2));
-      });
 
       plotHistogram(dist_theta_ws, dist_theta_list);
       plotHistogram(thresh_xy_ws, thresh_xy_list);
       plotHistogram(thresh_theta_ws, thresh_theta_list);
     }
 
-
-    var ws = document.getElementById("workspace");
+    var ws = document.getElementById("dist-xy");
     var size = ws.getBoundingClientRect();
     var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     var dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -269,6 +326,17 @@
     dist_theta_ws.appendChild(dist_theta_group);
     thresh_xy_ws.appendChild(thresh_xy_group);
     thresh_theta_ws.appendChild(thresh_theta_group);
+
+    $(document).ready(function () {
+      $("#workspace").hide();
+      $("#workspace").width($("#workspace").width() * ee_display_scale);
+      $("#workspace").height($("#workspace").height() * ee_display_scale);
+      sample(1);
+      $(document).mousemove(function (event) {
+        $("#workspace").css("margin-top", event.clientY + "px");
+        $("#workspace").css("margin-left", (event.clientX - $("#workspace").width() - 5) + "px");
+      });
+    });
   </script>
 </body>
 
