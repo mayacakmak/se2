@@ -27,7 +27,7 @@ function Position(x, y) {
 /*
 * Pose class to represent SE2 poses
 */
-function Pose(x, y, theta, posThreshold = 3, rotThreshold = 3) {
+function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
 
   if (x == undefined)
     this.x = 0;
@@ -44,7 +44,7 @@ function Pose(x, y, theta, posThreshold = 3, rotThreshold = 3) {
   else
     this.theta = theta;
 
-  this.isSame = function (pose, rotThreshold = 3, posThreshold = 3) {
+  this.isSame = function (pose, rotThreshold = 5, posThreshold = 5) {
     var myPosition = this.getPosition();
     var distErr = myPosition.dist(pose);
     var rotErr = Math.abs(this.theta - pose.theta);
@@ -70,7 +70,6 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   SE2.lineLength = 35;
   SE2.lineWidth = 5;
 
-  /*
   if (posThreshold > SE2.lineLength - 5) {
     throw `Position threshold  ${posThreshold} cannot be greater than [SE2.lineLength - 5] (${SE2.lineLength -5})`;
   }
@@ -78,7 +77,6 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   if (rotThreshold > 180) {
     throw `Rotation threshold  ${rotThreshold} cannot be greater than 180`;
   }
-  */
  
   // Create the "dot" that indicates the center (x, y) of the element
   this.dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -102,8 +100,14 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
 
   // Create the wedge to visualze flexible rotations
   this.wedge = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  /* Adjust the size of the wedge based on the flexible position
   this.wedge.setAttribute("d", generateWedgeString((SE2.lineWidth + this.posThreshold)/2, 0, -this.rotThreshold/2, this.rotThreshold/2, SE2.lineLength));
   this.wedge.setAttribute('stroke-width', SE2.lineWidth + this.posThreshold);
+  */
+ 
+  this.wedge.setAttribute("d", generateWedgeString(SE2.lineWidth/2, 0, -this.rotThreshold/2, this.rotThreshold/2, SE2.lineLength));
+  this.wedge.setAttribute('stroke-width', SE2.lineWidth);
+
   this.wedge.setAttribute('stroke-linecap', 'round');
   this.wedge.setAttribute("fill", "#DDD");
   this.wedge.setAttribute("stroke", "#DDD");
@@ -123,8 +127,12 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   this.group.setAttribute('shape-rendering', 'inherit');
   this.group.setAttribute('pointer-events', 'all');
-  this.group.appendChild(this.wedge);
-  this.group.appendChild(this.circle);
+  if (this.rotThreshold > 5) {
+    this.group.appendChild(this.wedge);
+  }
+  if (this.posThreshold > 5) {
+    this.group.appendChild(this.circle);
+  }
   this.group.appendChild(this.dot);
   this.group.appendChild(this.line);
   this.group.setAttribute("id", name);
@@ -141,8 +149,12 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
 
   // We don't want the MoveableSE2 to also have a wedge and circle, this function is used to remove them
   this.disableFlexiblePose = function () {
-    this.group.removeChild(this.wedge);
-    this.group.removeChild(this.circle);
+    if (this.rotThreshold > 5) {
+      this.group.removeChild(this.wedge);
+    }
+    if (this.posThreshold > 5) {
+      this.group.removeChild(this.circle);
+    }
   }
 
   this.setPose = function (pose) {
