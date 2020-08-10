@@ -1,0 +1,116 @@
+{
+    "title": "Post Experiment Questionnaire",
+    "description": "We should add some description text here",
+    "sections": [
+        {
+            "title": "Evaluating the Interface CHANGE TO NASA-TLX wording",
+            "questions": [
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface was easy to use",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface allowed me to complete the task fast",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface helped to keep my frustration levels low",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface could be used to teleoperate a robot effectively",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface helped make the task easy to accomplish",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The interface can be considered accessible for users with mobility impairments",
+                    "options": ["1", "2", "3", "4", "5"],
+                    "left-text": "(Strongly disagree)",
+                    "right-text": "(Strongly agree)",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "title": "Open ended questions and statement agreement",
+            "questions": []
+        },
+        {
+            "title": "Suggestions and Recommendations",
+            "questions": [
+                {
+                    "type": "input",
+                    "title": "Is there any additional feature that you consider will make the interface more accessible to users who may have mobility impairments?",
+                    "required": true
+                },
+                {
+                    "type": "input",
+                    "title": "Are there any other recommendations that you wish to share with us?"
+                }
+            ]
+        },
+        {
+            "title": "Demographics - About you",
+            "questions": [
+                {
+                    "title": "Age",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "above 75"],
+                    "required": true
+                },
+                {
+                    "title": "Gender",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Male", "Female", "Non-binary", "Do not wish to share"],
+                    "required": true
+                },
+                {
+                    "title": "How often do you use a computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "required": true
+                },
+                {
+                    "title": "How often do you use word processors such as Microsoft Word, Apple Page, Google Doc, etc.?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
