@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Accessible Teleoperation Study</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/style.processed.css">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+    <script src="scripts/database.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid d-flex align-items-center justify-content-center my-5">
+        <div class="container-fixed" style="width: 1000px">
+            <div class="row mx-5 mt-4">
+                <h1 id="title"></h1>
+            </div>
+            <div class="row mx-5">
+                <p id="description"></p>
+            </div>
+            <div class="row mx-5">
+                <form id="form">
+                    <div id="form-container">
+                    </div>
+                    <div class="d-flex">
+                        <div class="ml-5 mb-3 p-2">
+                            <button type="button" class="btn btn-primary btn-lg" id="back">Back</button>
+                        </div>
+                        <div class="mr-5 mb-3 ml-auto p-2">
+                            <button type="button" class="btn btn-primary btn-lg" id="next">Next</button>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit">Submit</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="complete" class="mb-3">
+                    <h2>Thank you! <span id="mturk-key" class="h2">[mturk payment key]</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer"></div>
+    <script>
+        function generateForm(form_data) {
+            $("#title").text(form_data.title);
+            $("#description").text(form_data.description);
+
+            var form_container = $("#form-container");
+
+            num_sections = form_data.sections.length;
+            current_section = 0;
+
+            for (var section in form_data.sections) {
+                form_container.append(`
+                <div id='section-${section}'>
+                    <h2 class="mb-4">${form_data.sections[section].title}</h2>
+                    <div id="section-${section}-questions"></div>
+                </div>`);
+
+                var questions_container = $(`#section-${section}-questions`);
+
+                for (var question in form_data.sections[section].questions) {
+                    var question_data = form_data.sections[section].questions[question];
+                    questions_container.append(`<div class="mb-4" id="section-${section}-question-${question}"></div>`);
+                    var question_container = $(`#section-${section}-question-${question}`);
+                    switch (question_data.type) {
+                        case "radio":
+                            var horizontal = ((question_data.layout == "horizontal") ? "-inline" : "");
+                            var required = ((question_data.required) ? "required" : "");
+
+                            question_container.append(`<h3>${question_data.title}</h3>`);
+                            var question_id = `section-${section}-question-${question}`;
+
+                            if (typeof question_data["left-text"] !== 'undefined') {
+                                question_container.append(`<label class="form-check-label">${question_data["left-text"]}</label>`);
+                            }
+
+                            for (var option in question_data.options) {
+                                var option_data = question_data.options[option];
+                                var option_id = `section-${section}-question-${question}-option-${option}`;
+                                question_container.append(`
+                                    <div class="form-check form-check${horizontal}">
+                                        <input class="form-check-input" type="radio" name="${question_id}" id="${option_id}" value="${option_data}"/>
+                                        <label class="form-check-label" for="${option_id}">${option_data}</label>
+                                    </div>
+                                    `);
+                            }
+
+                            if (question_data.required) {
+                                required_questions.push(question_id);
+                            }
+
+                            if (typeof question_data["right-text"] !== 'undefined') {
+                                question_container.append(`<label class="form-check-label">${question_data["right-text"]}</label>`);
+                            }
+                            break;
+                        case "input":
+                            var question_id = `section-${section}-question-${question}-input`;
+                            var placeholder = ((question_data.placeholder) ? `placeholder="${question_data.placeholder}"` : "");
+                            question_container.append(`
+                            <div class="form-group">
+                                <label for="${question_id}">${question_data.title}</label>
+                                <input class="form-control" id="${question_id}" ${placeholder}/>
+                            </div>
+                            `);
+                            if (question_data.required) {
+                                required_questions.push(question_id);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        function setSection(sect_num) {
+            $('#form-container').children().each(function () {
+                if (this.id.split("-")[1] == sect_num) {
+                    $(this).show();
+                    current_section = sect_num;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if (sect_num == 0) {
+                $("#back").hide()
+                $("#next").show()
+                $("#submit").hide()
+            } else if (sect_num == num_sections - 1) {
+                $("#next").hide()
+                $("#back").show()
+                $("#submit").show()
+            } else {
+                $("#next").show()
+                $("#back").show()
+                $("#submit").hide()
+            }
+
+            
+            if (sect_num == -1) {
+                $("#back").hide()
+                $("#next").hide()
+                $("#submit").hide()
+
+                $("#complete").show();
+            }
+        }
+
+        function getFormData() {
+            var data = $('#form').serializeArray().reduce(function (obj, item) {
+                obj[item.name] = item.value;
+                return obj;
+            }, {});
+
+            return data;
+        }
+
+        function validateForm() {
+            for (var i = 0; i < required_questions.length; i++) {
+                var question_section = required_questions[i].split("-")[1];
+                if (question_section <= current_section) {
+                    if (!(typeof $(`input[name=${required_questions[i]}]:checked`).val() !== "undefined" || $("#" + required_questions[i]).val() !== "")) {
+                        console.log(required_questions[i], "isn't filled out");
+                        if (question_section !== current_section) {
+                            setSection(Number(question_section));
+                        }
+                        $("#" + required_questions[i]).stop().css("background-color", "#FF9C9C")
+                            .animate({ backgroundColor: "#FFFFFF" }, 1500);
+
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        var form_data;
+        var required_questions = [];
+
+        var num_sections;
+        var current_section;
+
+        $(document).ready(function () {
+            $("#complete").hide();
+
+            $(document).load("questionnaire.json", '', function (response) {
+                form_data = JSON.parse(response);
+                generateForm(form_data);
+                setSection(0);
+            });
+
+            $("#next").click(function () {
+                if (validateForm()) {
+                    setSection(current_section + 1);
+                }
+            });
+
+            $("#back").click(function () {
+                if (validateForm()) {
+                    setSection(current_section - 1);
+                }
+            });
+
+            $("#form").submit(function (e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    setSection(-1);
+                    var data = getFormData();
+                    console.log(data);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

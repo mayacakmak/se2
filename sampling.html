@@ -19,11 +19,11 @@
 <body>
   <div id='histogram-display-container'
     style="width: 75px; height: 50px; position: absolute; z-index:1000; pointer-events: none;">
-    <svg id="workspace" width="750" height="500" class="border border-secondary" style="background: #FFF; display: none;"></svg>
+    <svg id="workspace" width="750" height="500" class="border border-secondary"
+      style="background: #FFF; display: none;"></svg>
   </div>
 
-  <div id='ee-display-container'
-    style="position: absolute; z-index:1001; pointer-events: none;">
+  <div id='ee-display-container' style="position: absolute; z-index:1001; pointer-events: none;">
     <h5 id="histogram-display" class="p-1 border border-secondary" style="background: #FFF"></h5>
   </div>
   <div class="container-fluid d-flex align-items-center justify-content-center">
@@ -32,59 +32,60 @@
         <h1>Sampling</h1>
       </div>
       <div class="row mx-5">
-        <div class="workspace-div border border-secondary rounded-lg m-3">
-          <svg class="workspace" id="dist-xy"></svg>
+        <div>
+          <div class="workspace-div border border-secondary rounded-lg m-3">
+            <svg class="workspace" id="dist-xy"></svg>
+          </div>
+          <div class="m-3 d-flex justify-content-center">
+            <button class="btn btn-primary mx-2" onclick="sample(1)">Sample 1</button>
+            <button class="btn btn-primary mx-2" onclick="sample(100)">Sample 100</button>
+            <button class="btn btn-primary mx-2" onclick="sample(300)">Sample 300</button>
+          </div>
         </div>
         <div class="border border-secondary rounded-lg m-3" style="width: 750px">
-          <h3>Dist Theta</h3>
-          <svg class="workspace mb-4" style="height: 100px" id="dist-theta"></svg>
-          <h3>Thresh XY</h3>
-          <svg class="workspace mb-4" style="height: 100px" id="thresh-xy"></svg>
-          <h3>Thresh Theta</h3>
-          <svg class="workspace mb-4" style="height: 100px" id="thresh-theta"></svg>
+          <div class="ml-2 mt-2">
+            <h3>Target Position Distance <span>(The euclidean distance between the center and the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="pos-dist"></svg>
+            <h3>Target Position Theta <span>(Rotation of the target position relative to the center where 0 is to the right)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="pos-angle"></svg>
+            <h3>Target Theta <span>(The angle of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="dist-theta"></svg>
+            <h3>XY Threshold <span>(The euclidean distance threshold of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="thresh-xy"></svg>
+            <h3>Theta Threshold <span>(The rotational threshold of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="thresh-theta"></svg>
+          </div>
         </div>
-      </div>
-      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
-        <button class="btn btn-primary mx-2" onclick="sample(1)">Sample 1</button>
-        <button class="btn btn-primary mx-2" onclick="sample(100)">Sample 100</button>
-        <button class="btn btn-primary mx-2" onclick="sample(300)">Sample 300</button>
       </div>
     </div>
   </div>
   <div class="footer"></div>
   <script>
+    var ws = document.getElementById("dist-xy");
+    var size = ws.getBoundingClientRect();
+    var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+
+    var dist_theta_ws = document.getElementById("dist-theta");
+    var dist_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var thresh_xy_ws = document.getElementById("thresh-xy");
+    var thresh_xy_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var thresh_theta_ws = document.getElementById("thresh-theta");
+    var thresh_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var pos_dist_ws = document.getElementById("pos-dist");
+    var pos_dist_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    var pos_angle_ws = document.getElementById("pos-angle");
+    var pos_angle_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+
+    var upper_bound = 80;
+    var middle_outer_radius = (size.height / 2) - upper_bound;
     var dist_xy = {
-      1: [
-        { x: 0.2, y: 0.2 },
-        { x: 0.4, y: 0.2 },
-        { x: 0.6, y: 0.2 },
-        { x: 0.2, y: 0.4 },
-        { x: 0.2, y: 0.6 },
-        { x: 0.4, y: 0.6 },
-        { x: 0.6, y: 0.6 },
-        { x: 0.6, y: 0.4 }
-      ],
-      2: [
-        { x: 0.0, y: 0.2 },
-        { x: 0.0, y: 0.4 },
-        { x: 0.0, y: 0.6 },
-        { x: 0.2, y: 0.0 },
-        { x: 0.4, y: 0.0 },
-        { x: 0.6, y: 0.0 },
-        { x: 0.2, y: 0.8 },
-        { x: 0.4, y: 0.8 },
-        { x: 0.6, y: 0.8 },
-        { x: 0.8, y: 0.2 },
-        { x: 0.8, y: 0.4 },
-        { x: 0.8, y: 0.6 }
-      ],
-      3: [
-        { x: 0.0, y: 0.0 },
-        { x: 0.0, y: 0.8 },
-        { x: 0.8, y: 0.0 },
-        { x: 0.8, y: 0.8 }
-      ]
-    }
+      1: { start: 0, end: middle_outer_radius * 0.5 },
+      2: { start: middle_outer_radius * 0.5, end: middle_outer_radius },
+      3: { start: middle_outer_radius, end: middle_outer_radius * 1.5 }
+    };
 
     var dist_theta = {
       1: { start: 0, end: 60 },
@@ -93,13 +94,13 @@
     };
 
     var thresh_xy = {
-      1: { start: 3, end: 10 },
-      2: { start: 15, end: 30 }
+      1: { start: 5, end: 17.5 },
+      2: { start: 17.5, end: 30 }
     };
 
     var thresh_theta = {
-      1: { start: 3, end: 20 },
-      2: { start: 25, end: 60 }
+      1: { start: 5, end: 32.5 },
+      2: { start: 32.5, end: 60 }
     };
 
     var current_dot;
@@ -123,8 +124,8 @@
     function createDot(dot_data, radius = 3, fill = "black", stroke = "blue") {
       var size = ws.getBoundingClientRect();
       var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('cx', dot_data.x * size.width);
-      dot.setAttribute('cy', dot_data.y * size.height);
+      dot.setAttribute('cx', dot_data.x);
+      dot.setAttribute('cy', dot_data.y);
       dot.setAttribute('r', radius);
       dot.setAttribute("fill", fill);
       dot.setAttribute("stroke", stroke);
@@ -148,14 +149,12 @@
 
       // Create and set the position of the EE
       var size = ws.getBoundingClientRect();
-      var eePose = new Pose(dot_data.x * size.width * ee_display_scale, dot_data.y * size.height * ee_display_scale, dot_data.theta, dot_data.thresh_xy, dot_data.thresh_theta);
-      ee = new SE2("target", eePose,"#AAA", dot_data.thresh_xy, dot_data.thresh_theta);
+      var eePose = new Pose(dot_data.x * ee_display_scale, dot_data.y * ee_display_scale, dot_data.theta, dot_data.thresh_xy, dot_data.thresh_theta);
+      ee = new SE2("target", eePose, "#AAA", dot_data.thresh_xy, dot_data.thresh_theta);
       ee.setPose(eePose);
 
       ee.group.setAttribute("transform", ee.group.getAttribute("transform") + "scale (" + ee_display_scale + ", " + ee_display_scale + ")");
       ee.addToWorkspace();
-
-      var size = ws.getBoundingClientRect();
     }
 
     function hideDotEE() {
@@ -258,23 +257,37 @@
     function sample(num) {
       removeChildren(dot_group);
 
-      var dist_xy_list = [];
       var dist_theta_list = [];
       var thresh_xy_list = [];
       var thresh_theta_list = [];
+      var pos_dist_list = [];
+      var pos_angle_list = [];
       for (var i = 0; i < num; i++) {
         for (var j = 1; j <= 3; j++) { // dist_xy
           for (var k = 1; k <= 3; k++) { // dist_theta
             for (var l = 1; l <= 2; l++) { // thresh_xy
               for (var m = 1; m <= 2; m++) { // thresh_theta
-                var dist_xy_rect = getRandomArrayItem(dist_xy[j]);
+                var dist_xy_range = dist_xy[j];
 
                 var loc = {
-                  x: getRandomArbitrary(dist_xy_rect.x, dist_xy_rect.x + 0.2),
-                  y: getRandomArbitrary(dist_xy_rect.y, dist_xy_rect.y + 0.2),
+                  x: -1,
+                  y: -1,
+                  dist: -1,
+                  angle: -1
                 }
 
-                dist_xy_list.push(loc)
+                while (loc.y < upper_bound || loc.y > size.height - upper_bound) {
+                  var dist = getRandomArbitrary(dist_xy_range.start, dist_xy_range.end);
+                  var angle = getRandomArbitrary(0, 360);
+
+                  loc.x = Math.cos(angle) * dist + centerX;
+                  loc.y = Math.sin(angle) * dist + centerY;
+                  loc.dist = dist;
+                  loc.angle = angle;
+                }
+
+                pos_dist_list.push(loc.dist);
+                pos_angle_list.push(loc.angle);
 
                 var dist_theta_range = dist_theta[k];
                 var theta_val = getRandomArbitrary(dist_theta_range.start, dist_theta_range.end) * (Math.random() < 0.5 ? -1 : 1)
@@ -306,39 +319,48 @@
       plotHistogram(dist_theta_ws, dist_theta_list);
       plotHistogram(thresh_xy_ws, thresh_xy_list);
       plotHistogram(thresh_theta_ws, thresh_theta_list);
+      plotHistogram(pos_dist_ws, pos_dist_list);
+      plotHistogram(pos_angle_ws, pos_angle_list);
     }
 
-    var ws = document.getElementById("dist-xy");
-    var size = ws.getBoundingClientRect();
-    var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    var dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-
-    var dist_theta_ws = document.getElementById("dist-theta");
-    var dist_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    var thresh_xy_ws = document.getElementById("thresh-xy");
-    var thresh_xy_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    var thresh_theta_ws = document.getElementById("thresh-theta");
-    var thresh_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
+    // Draw background sampling area
     for (var i = 1; i <= 3; i++) {
-      for (var j = 0; j < dist_xy[i].length; j++) {
-        var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', dist_xy[i][j].x * size.width);
-        rect.setAttribute('y', dist_xy[i][j].y * size.height);
-        rect.setAttribute('width', size.width / 5);
-        rect.setAttribute('height', size.height / 5);
-        rect.setAttribute("fill", "#" + String((3 - i) * 3).repeat(3));
-        rect.style.opacity = 0.3
-        background_group.appendChild(rect);
-      }
+      var rect = ws.getBoundingClientRect();
+      var centerX = Math.round(rect.width / 2);
+      var centerY = Math.round(rect.height / 2);
+
+      var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', centerX);
+      circle.setAttribute('cy', centerY);
+      circle.setAttribute('r', dist_xy[i].end);
+      circle.setAttribute("fill", "#000");
+      circle.style.opacity = 0.2;
+      background_group.appendChild(circle);
     }
+
+    var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    top_rect.setAttribute('x', 0);
+    top_rect.setAttribute('y', 0);
+    top_rect.setAttribute('width', size.width);
+    top_rect.setAttribute('height', upper_bound);
+    top_rect.setAttribute("fill", "#FFF");
+    background_group.appendChild(top_rect);
+
+    var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    top_rect.setAttribute('x', 0);
+    top_rect.setAttribute('y', size.height - upper_bound);
+    top_rect.setAttribute('width', size.width);
+    top_rect.setAttribute('height', upper_bound);
+    top_rect.setAttribute("fill", "#FFF");
+    background_group.appendChild(top_rect);
 
     ws.appendChild(background_group);
     ws.appendChild(dot_group);
     dist_theta_ws.appendChild(dist_theta_group);
     thresh_xy_ws.appendChild(thresh_xy_group);
     thresh_theta_ws.appendChild(thresh_theta_group);
+    pos_dist_ws.appendChild(pos_dist_group);
+    pos_angle_ws.appendChild(pos_angle_group);
 
     $(document).ready(function () {
       // Hide and set the correct scale of the workspace
