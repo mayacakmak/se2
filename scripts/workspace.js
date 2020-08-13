@@ -95,8 +95,16 @@ function initializeTest() {
 */
 function setupEnvironment() {
 
+  // Randomly pick thresh_xy and thresh_theta
+  threshXY = 5;
+  threshTheta = 5;
+  // if (Math.random()<0.75)
+  	threshXY += Math.random()*40;
+  // if (Math.random()<0.75)
+  	// threshTheta += Math.random()*90;
+
   // Create target and place it in workspace
-  target = new SE2("target", new Pose(), "#AAA", 25, 45);
+  target = new SE2("target", new Pose(), "#AAA", threshXY, threshTheta);
   target.addToWorkspace();
 
   // Create end effector and place it in workspace
@@ -117,7 +125,7 @@ function setupEnvironment() {
     control = new PanelControl(ee, target, currentTransitionType);
 
   // Place the EE and the target in the workspace
-  setRandomTargetPose();
+  setRandomTargetPose(); // This should be replaced for systematic experiments!
   setEEPoseAtCenter();
 
   // Initialize control
