@@ -31,6 +31,7 @@ var control = null;
 // Enable/Disable logging
 var offline = true;
 var hasTimer = false;
+var nSuccess = 0;
 
 function loadInterface() {
   let controlParam = getURLParameter("c");
@@ -99,9 +100,9 @@ function setupEnvironment() {
   threshXY = 5;
   threshTheta = 5;
   // if (Math.random()<0.75)
-  	threshXY += Math.random()*40;
+  	threshXY += Math.random()*25;
   // if (Math.random()<0.75)
-  	// threshTheta += Math.random()*90;
+  	threshTheta += Math.random()*85;
 
   // Create target and place it in workspace
   target = new SE2("target", new Pose(), "#AAA", threshXY, threshTheta);
@@ -204,7 +205,13 @@ function success() {
   if (!offline) {
     Database.logCycleFinish();
   }
-  console.log("SUCCESS!");
+  nSuccess++;
+  if (nSuccess == 5)
+  {
+  	var btn = document.getElementById("next-button");
+  	btn.disabled = false;
+  }
+  console.log("SUCCESS! " + nSuccess);
   ee.resetColor();
   clearWorkspace();
   initializeTest();
