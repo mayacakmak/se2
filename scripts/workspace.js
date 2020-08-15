@@ -1,8 +1,8 @@
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
-var currentControl = controlTypes[0];
-var currentTransitionType = transitionTypes[1];
+var currentControl = 0;
+var currentTransitionType = 1;
 
 /* 
 * SE2 object representing the target 
@@ -37,9 +37,9 @@ function loadInterface(withTimer) {
   let controlParam = getURLParameter("c");
   let transitionParam = getURLParameter("t");
   if (controlParam != undefined)
-    currentControl = controlTypes[controlParam];
+    currentControl = controlParam;
   if (transitionParam != undefined)
-    currentTransitionType = transitionTypes[transitionParam];
+    currentTransitionType = transitionParam;
 
   hasTimer = withTimer;
 
@@ -95,16 +95,20 @@ function setupEnvironment() {
 
   // Create control and initialize to add it to the workspace
 
-  if (currentControl == "arrow")
-    control = new ArrowControl(ee, target, currentTransitionType);
-  else if (currentControl == "drag")
-    control = new DragControl(ee, target, currentTransitionType);
-  else if (currentControl == "target")
+  if (controlTypes[currentControl] == "arrow")
+    control = new ArrowControl(ee, target, 
+      transitionTypes[currentTransitionType]);
+  else if (controlTypes[currentControl] == "drag")
+    control = new DragControl(ee, target, 
+      transitionTypes[currentTransitionType]);
+  else if (controlTypes[currentControl] == "target")
     control = new TargetControl(ee, target);
-  else if (currentControl == "targetdrag")
-    control = new TargetDragControl(ee, target, currentTransitionType);
-  else if (currentControl == "panel")
-    control = new PanelControl(ee, target, currentTransitionType);
+  else if (controlTypes[currentControl] == "targetdrag")
+    control = new TargetDragControl(ee, target, 
+      transitionTypes[currentTransitionType]);
+  else if (controlTypes[currentControl] == "panel")
+    control = new PanelControl(ee, target, 
+      transitionTypes[currentTransitionType]);
 
   // Place the EE and the target in the workspace
   setRandomTargetPose(); // This should be replaced for systematic experiments!
@@ -118,12 +122,14 @@ function setupEnvironment() {
   ws.addEventListener("mousemove", Control.update);
 
   // Some controls need a clock update
-  if (currentControl == "panel" && currentTransitionType != "click") {
+  if (controlTypes[currentControl] == "panel" && 
+    transitionTypes[currentTransitionType] != "click") {
     window.setInterval(Control.clockUpdate, 100);
   }
 
   if (!offline) {
-    Database.logCycleStart(currentControl, currentTransitionType, target.pose);
+    Database.logCycleStart(controlTypes[currentControl], 
+      transitionTypes[currentTransitionType], target.pose);
     eeLogger = setInterval(Database.logEEPose, 500);
   }
 
@@ -148,7 +154,7 @@ function setRandomTargetPose() {
     var randomTheta = Math.random() * 360 - 180;
 
     // If there it a panel, don't let the target fall behind it
-    if (currentControl == "panel" &&
+    if (controlTypes[currentControl] == "panel" &&
       randomX < Panel.width + SE2.lineLength
       && randomY < Panel.height + SE2.lineLength)
       console.log("pose rejected");

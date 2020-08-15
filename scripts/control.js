@@ -242,6 +242,7 @@ function Timer() {
   Timer.buttonText.setAttribute("dominant-baseline", "middle");
   Timer.buttonText.innerHTML = "I'm ready!";
   Timer.buttonText.setAttribute("cursor", "pointer");
+  Timer.buttonText.setAttribute("onclick", "Timer.startTimer()");
 
   Timer.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
@@ -256,8 +257,10 @@ function Timer() {
   Timer.startTimer = function () {
     console.log("Started timer");
     Timer.showText();
-    
-    var countDownDate = new Date().getTime()+ 5000;
+
+    let timerDuration = 3500;
+    var countDownDate = new Date().getTime()+ timerDuration;
+    Timer.setText(Math.floor(timerDuration/1000));
     // Update the count down every 1 second
     var x = setInterval(function () {
       // Get today's date and time
@@ -268,7 +271,7 @@ function Timer() {
       var seconds = Math.floor((distance % (1000 * 60)) / 1000);
       Timer.setText(seconds);
       // If the count down is finished, write some text
-      if (seconds < 1) {
+      if (seconds <= 0) {
         clearInterval(x);
         Timer.setVisible(false);
         Timer.timerDoneCallback();
