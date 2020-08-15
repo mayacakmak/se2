@@ -11,7 +11,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Mental Demand",
                     "text": "How much mental and perceptual activity was required? Was the task easy or demanding, simple or complex?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
                     "required": true
@@ -21,7 +22,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Physical Demand",
                     "text": "How much physical activity was required? Was the task easy or demanding, slack or strenuous?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
                     "required": true
@@ -31,7 +33,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Temporal Demand",
                     "text": "How much time pressure did you feel due to the pace at which the tasks or task elements occurred? Was the pace slow or rapid?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
                     "required": true
@@ -41,7 +44,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Overall Performance",
                     "text": "How successful were you in performing the task? How satisfied were you with your performance?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Perfect",
                     "right-text": "Failure",
                     "required": true
@@ -51,7 +55,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Effort",
                     "text": "How hard did you have to work (mentally and physically) to accomplish your level of performance?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
                     "required": true
@@ -61,7 +66,8 @@ var questions = {
                     "layout": "horizontal",
                     "title": "Frustration Level",
                     "text": "How irritated, stressed, and annoyed versus content, relaxed, and complacent did you feel during the task?",
-                    "options": ["", "", "", "", "", "", ""],
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
                     "required": true
@@ -94,6 +100,7 @@ var questions = {
                     "type": "radio",
                     "layout": "vertical",
                     "options": ["18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "above 75"],
+                    "display-options": true,
                     "required": true
                 },
                 {
@@ -101,6 +108,7 @@ var questions = {
                     "type": "radio",
                     "layout": "vertical",
                     "options": ["Male", "Female", "Non-binary", "Do not wish to share"],
+                    "display-options": true,
                     "required": true
                 },
                 {
@@ -108,6 +116,7 @@ var questions = {
                     "type": "radio",
                     "layout": "vertical",
                     "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "display-options": true,
                     "required": true
                 },
                 {
@@ -115,6 +124,7 @@ var questions = {
                     "type": "radio",
                     "layout": "vertical",
                     "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "display-options": true,
                     "required": true
                 }
             ]
@@ -123,7 +133,6 @@ var questions = {
 };
 
 
-// var form_data;
 var required_questions = [];
 var num_sections;
 var current_section;
@@ -133,13 +142,9 @@ generateForm(form_data);
 setSection(0);
 
 $(document).ready(function () {
-    $("#complete").hide();
+    db.initialize();
 
-    // $(document).load("questionnaire.json", '', function (response) {
-    //     form_data = JSON.parse(response);
-    //     generateForm(form_data);
-    //     setSection(0);
-    // });
+    $("#complete").hide();
 
     $("#next").click(function () {
         if (validateForm()) {
@@ -156,10 +161,11 @@ $(document).ready(function () {
     $("#form").submit(function (e) {
         e.preventDefault();
 
-        if (validateForm()) {
+        if (validateForm() && current_section == num_sections - 1) {
+            Database.logQuestionnaire(getFormData());
+            
+            $("#mturk-key").html(`This is your MTurk payment key: <kbd>${Database.uid}</kbd>`);
             setSection(-1);
-            var data = getFormData();
-            console.log(data);
         }
     });
 });
@@ -189,9 +195,11 @@ function generateForm(form_data) {
             switch (question_data.type) {
                 case "radio":
                     var horizontal = ((question_data.layout == "horizontal") ? "-inline" : "");
-                    var required = ((question_data.required) ? "required" : "");
+                    var required = ((question_data.required) ? `<span class="font-weight-bold text-danger h4">*</span>` : "");
 
-                    question_container.append(`<div class='mb-2'><b>${question_data.title}:</b> ${question_data.text}</div>`);
+                    var title = question_data.title + ((question_data.title.slice(-1) == "?") ? "" : ":");
+
+                    question_container.append(`<div class='mb-2'><b>${title}</b> ${((question_data.text) ? question_data.text : "")} ${required}</div>`);
                     var question_id = `section-${section}-question-${question}`;
 
                     if (typeof question_data["left-text"] !== 'undefined') {
@@ -204,7 +212,7 @@ function generateForm(form_data) {
                         question_container.append(`
                             <div class="form-check form-check${horizontal}">
                                 <input class="form-check-input" type="radio" name="${question_id}" id="${option_id}" value="${option_data}"/>
-                                <label class="form-check-label" for="${option_id}">${option_data}</label>
+                                <label class="form-check-label" for="${option_id}">${((question_data['display-options']) ? option_data : "")}</label>
                             </div>
                             `);
                     }

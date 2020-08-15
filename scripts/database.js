@@ -200,8 +200,17 @@ function Database() {
     }
   }
 
-  Database.getData = function () {
-    
+  Database.logQuestionnaire = function (data) {
+    if (Database.isLogging) {
+      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/questionnaires/";
+      var dbRef = firebase.database().ref(dir);
+      var questionnaireInfo = {
+        answers: data,
+        time: {}
+      }
+      Database.insertTime(questionnaireInfo.time);
+      dbRef.push(questionnaireInfo);
+    }
   }
 }
 

@@ -16,7 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
-    <script src="scripts/database.js"></script>
 </head>
 
 <body>
@@ -45,7 +44,8 @@
                 </form>
 
                 <div id="complete" class="mb-3">
-                    <h2>Thank you! <span id="mturk-key" class="h2">[mturk payment key]</span></h2>
+                    <h2 class="text-center">Thank you!</h2>
+                    <h2 class="text-center" id="mturk-key"></h2>
                 </div>
             </div>
         </div>
@@ -53,6 +53,7 @@
 
     <div class="footer"></div>
     <script src="scripts/questionnaire.js"></script>
+    <script src="scripts/database.js"></script>
 </body>
 
 </html>
