@@ -6,8 +6,8 @@ function moveToPracticePage() {
   moveToPage("practice.html");
 }
 
-function moveToTestPage() {
-  moveToPage("test.html");
+function moveToTestPage(controlType, transitionType) {
+  moveToPage("test.html?c="+controlType+"&t="+transitionType);
 }
 
 function startInterface(controlType, transitionType) {

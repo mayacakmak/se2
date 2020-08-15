@@ -200,37 +200,108 @@ function Timer() {
   Panel.width = rect.width;
   Panel.height = rect.height;
 
-  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  this.group.setAttribute("id", "overlay");
-  this.group.setAttribute('x', 0);
-  this.group.setAttribute('y', 0);
-  this.group.setAttribute('height', Panel.height);
-  this.group.setAttribute('width', Panel.width);
-  this.group.setAttribute('stroke-width', 0);
-  this.group.setAttribute("fill", "#FFF");
+  // This seems redundant but keeping it commented out for now
+  // this.group = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  // this.group.setAttribute("id", "overlay");
+  // this.group.setAttribute('x', 0);
+  // this.group.setAttribute('y', 0);
+  // this.group.setAttribute('height', Panel.height);
+  // this.group.setAttribute('width', Panel.width);
+  // this.group.setAttribute('stroke-width', 0);
+  // this.group.setAttribute("fill", "#FFF");
 
-  this.timer = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  this.timer.setAttribute("id", "timer");
-  this.timer.setAttribute('x', Panel.width / 2);
-  this.timer.setAttribute('y', Panel.height / 2);
-  this.timer.setAttribute("fill", "#000");
-  this.timer.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 100px;")
-  this.timer.setAttribute("text-anchor", "middle")
-  this.timer.setAttribute("dominant-baseline", "middle")
+  Timer.timer = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  Timer.timer.setAttribute("id", "timer");
+  Timer.timer.setAttribute('x', Panel.width / 2);
+  Timer.timer.setAttribute('y', Panel.height / 2);
+  Timer.timer.setAttribute("fill", "#000");
+  Timer.timer.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 100px;");
+  Timer.timer.setAttribute("text-anchor", "middle");
+  Timer.timer.setAttribute("dominant-baseline", "middle");
 
-  this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  this.group.appendChild(this.timer);
+  Timer.button = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  Timer.button.setAttribute("id", "button");
+  Timer.button.setAttribute('x', Panel.width / 4);
+  Timer.button.setAttribute('y', 4*Panel.height / 10);
+  Timer.button.setAttribute('width', Panel.width / 2);
+  Timer.button.setAttribute('height', Panel.height / 5);
+  Timer.button.setAttribute('rx', 10);
+  Timer.button.setAttribute("fill", "#FFF");
+  Timer.button.setAttribute("stroke-width", 2);
+  Timer.button.setAttribute("stroke", "#333");
+  Timer.button.setAttribute("cursor", "pointer");
+  Timer.button.setAttribute("onclick", "Timer.startTimer()");
 
-  this.setText = function (text) {
-    this.timer.innerHTML = text;
+  Timer.buttonText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  Timer.buttonText.setAttribute("id", "button-text");
+  Timer.buttonText.setAttribute('x', Panel.width / 2);
+  Timer.buttonText.setAttribute('y', Panel.height / 2);
+  Timer.buttonText.setAttribute("fill", "#333");
+  Timer.buttonText.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 42px;");
+  Timer.buttonText.setAttribute("text-anchor", "middle");
+  Timer.buttonText.setAttribute("dominant-baseline", "middle");
+  Timer.buttonText.innerHTML = "I'm ready!";
+  Timer.buttonText.setAttribute("cursor", "pointer");
+
+  Timer.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  Timer.timerDoneCallback = null;
+
+  this.reset = function () {
+    Timer.setText("");
+    Timer.showButton();
+    Timer.setVisible(true);    
   }
 
-  this.setVisible = function (isVisible) {
+  Timer.startTimer = function () {
+    console.log("Started timer");
+    Timer.showText();
+    
+    var countDownDate = new Date().getTime()+ 5000;
+    // Update the count down every 1 second
+    var x = setInterval(function () {
+      // Get today's date and time
+      var now = new Date().getTime();
+      // Find the distance between now and the count down date
+      var distance = countDownDate - now;
+      // Time calculations for seconds
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      Timer.setText(seconds);
+      // If the count down is finished, write some text
+      if (seconds < 1) {
+        clearInterval(x);
+        Timer.setVisible(false);
+        Timer.timerDoneCallback();
+        // timer.setText("Go");
+        // setTimeout(function () {
+        // }, 1000)
+      }
+    }, 1000);
+  }
+
+  Timer.setText = function (text) {
+    Timer.timer.innerHTML = text;
+  }
+
+  Timer.showButton = function () {
+    while (Timer.group.lastChild)
+        Timer.group.removeChild(Timer.group.lastChild);
+    Timer.group.appendChild(Timer.button);
+    Timer.group.appendChild(Timer.buttonText);
+  }
+
+  Timer.showText = function () {
+    while (Timer.group.lastChild)
+        Timer.group.removeChild(Timer.group.lastChild);
+    Timer.group.appendChild(Timer.timer);
+  }
+
+  Timer.setVisible = function (isVisible) {
     var ws = document.getElementById("workspace");
     if (isVisible) {
-      ws.appendChild(this.group);
-    } else if (ws.contains(this.group)) {
-      ws.removeChild(this.group);
+      ws.appendChild(Timer.group);
+    } else if (ws.contains(Timer.group)) {
+      ws.removeChild(Timer.group);
     }
   }
 }
