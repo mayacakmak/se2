@@ -16,7 +16,7 @@
   <script src="scripts/se2.js"></script>
 </head>
 
-<body onload="initializeSampling()">
+<body onload="initializeSamplingDebug()">
   <div id='histogram-display-container'
     style="width: 75px; height: 50px; position: absolute; z-index:1000; pointer-events: none;">
     <svg id="workspace" width="750" height="500" class="border border-secondary"
@@ -37,9 +37,9 @@
             <svg class="workspace" id="dist-xy"></svg>
           </div>
           <div class="m-3 d-flex justify-content-center">
-            <button class="btn btn-primary mx-2" onclick="sample(1)">Sample 1</button>
-            <button class="btn btn-primary mx-2" onclick="sample(100)">Sample 100</button>
-            <button class="btn btn-primary mx-2" onclick="sample(300)">Sample 300</button>
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(1)">Sample 1</button>
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(100)">Sample 100</button>
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(300)">Sample 300</button>
           </div>
         </div>
         <div class="border border-secondary rounded-lg m-3" style="width: 750px">

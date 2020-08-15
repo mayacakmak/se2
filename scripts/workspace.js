@@ -31,9 +31,11 @@ var control = null;
 // Enable/Disable logging
 var offline = true;
 var hasTimer = false;
-var nSuccess = 0;
+var isTest = false;
+var testConfigs = null;
+var currentTest = 0;
 
-function loadInterface(withTimer) {
+function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
   let transitionParam = getURLParameter("t");
   if (controlParam != undefined)
@@ -41,7 +43,14 @@ function loadInterface(withTimer) {
   if (transitionParam != undefined)
     currentTransitionType = transitionParam;
 
-  hasTimer = withTimer;
+  isTest = isTestInterface;
+  currentTest = 34;
+
+  if (isTest) {
+    testConfigs = sampleConfigs(1);
+    var btn = document.getElementById("next-button");
+    btn.innerHTML = "0/" + testConfigs.length;
+  }
 
   if (offline) {
     initializeTest();
@@ -57,8 +66,8 @@ function startTest() {
 }
 
 function initializeTest() {
-	if (hasTimer) {
-	  // Set the date we're counting down to
+	if (isTest) {
+	  // There is a timer during tests, but not during practice
     var timer = new Timer();
     Timer.timerDoneCallback = setupEnvironment;
     timer.reset();
@@ -77,13 +86,23 @@ function startTimer() {
 */
 function setupEnvironment() {
 
-  // Randomly pick thresh_xy and thresh_theta
-  threshXY = 5;
-  threshTheta = 5;
-  // if (Math.random()<0.75)
-  	threshXY += Math.random()*25;
-  // if (Math.random()<0.75)
-  	threshTheta += Math.random()*85;
+  let threshXY = null;
+  let threshTheta = null;
+
+  if (isTest){
+    let currentConfig = testConfigs[currentTest];
+    threshXY = currentConfig.thresh_xy;
+    threshTheta = currentConfig.thresh_theta;
+  }
+  else {
+    // During practice, randomly pick thresh_xy and thresh_theta
+    threshXY = 5;
+    threshTheta = 5;
+    if (Math.random()<0.75)
+      threshXY += Math.random()*25;
+    if (Math.random()<0.75)
+      threshTheta += Math.random()*85;    
+  }
 
   // Create target and place it in workspace
   target = new SE2("target", new Pose(), "#AAA", threshXY, threshTheta);
@@ -111,7 +130,7 @@ function setupEnvironment() {
       transitionTypes[currentTransitionType]);
 
   // Place the EE and the target in the workspace
-  setRandomTargetPose(); // This should be replaced for systematic experiments!
+  setTargetPose(); // This should be replaced for systematic experiments!
   setEEPoseAtCenter();
 
   // Initialize control
@@ -135,35 +154,42 @@ function setupEnvironment() {
 
 }
 
-function setRandomTargetPose() {
-  var ws = document.getElementById("workspace");
-  var rect = ws.getBoundingClientRect();
-  var ringBuffer = Ring.innerR + Ring.ringRadius;
-  var edgeBuffer = ringBuffer + (Arrow.arrowLengthTot);
-  var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
-  var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
-
-  console.log("ringBuffer:" + ringBuffer);
-  console.log("randomW:" + randomW);
-  console.log("randomH:" + randomH);
-
-  let poseFound = false;
-  while (!poseFound) {
-    var randomX = rect.width / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomW);
-    var randomY = rect.height / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomH);
-    var randomTheta = Math.random() * 360 - 180;
-
-    // If there it a panel, don't let the target fall behind it
-    if (controlTypes[currentControl] == "panel" &&
-      randomX < Panel.width + SE2.lineLength
-      && randomY < Panel.height + SE2.lineLength)
-      console.log("pose rejected");
-    else
-      poseFound = true;
+function setTargetPose() {
+  if (isTest){
+    let currentConfig = testConfigs[currentTest];
+    target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
   }
+  else {
+    // During practice, set pose randomly
+    var ws = document.getElementById("workspace");
+    var rect = ws.getBoundingClientRect();
+    var ringBuffer = Ring.innerR + Ring.ringRadius;
+    var edgeBuffer = ringBuffer + (Arrow.arrowLengthTot);
+    var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
+    var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
 
-  // Set the pose of the created target
-  target.setPose(new Pose(randomX, randomY, randomTheta));
+    console.log("ringBuffer:" + ringBuffer);
+    console.log("randomW:" + randomW);
+    console.log("randomH:" + randomH);
+
+    let poseFound = false;
+    while (!poseFound) {
+      var randomX = rect.width / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomW);
+      var randomY = rect.height / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomH);
+      var randomTheta = Math.random() * 360 - 180;
+
+      // If there it a panel, don't let the target fall behind it
+      if (controlTypes[currentControl] == "panel" &&
+        randomX < Panel.width + SE2.lineLength
+        && randomY < Panel.height + SE2.lineLength)
+        console.log("pose rejected");
+      else
+        poseFound = true;
+    }
+
+    // Set the pose of the created target
+    target.setPose(new Pose(randomX, randomY, randomTheta));
+  }
 }
 
 function setEEPoseAtCenter() {
@@ -192,15 +218,28 @@ function success() {
   if (!offline) {
     Database.logCycleFinish();
   }
-  nSuccess++;
-  if (nSuccess == 5)
-  {
-  	var btn = document.getElementById("next-button");
-  	if (btn != null)
-  		btn.disabled = false;
-  }
-  console.log("SUCCESS! " + nSuccess);
+  
   ee.resetColor();
   clearWorkspace();
-  initializeTest();
+
+  currentTest++;
+  if (!isTest && currentTest == 5)
+  {
+  	var btn = document.getElementById("next-button");
+  		btn.disabled = false;
+  }
+
+  if (isTest) {
+    var btn = document.getElementById("next-button");
+    if (currentTest >= testConfigs.length) {
+      btn.innerHTML = "Done";
+      btn.disabled = false;
+    }
+    else
+      btn.innerHTML = currentTest + "/" + testConfigs.length;
+  }
+
+  if (!isTest || currentTest < testConfigs.length) {
+    initializeTest();      
+  }    
 }

@@ -1,23 +1,13 @@
-var ws = document.getElementById("dist-xy");
-var size = ws.getBoundingClientRect();
-var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-var dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
+var isDebug = false;
 
-var dist_theta_ws = document.getElementById("dist-theta");
-var dist_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-var thresh_xy_ws = document.getElementById("thresh-xy");
-var thresh_xy_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-var thresh_theta_ws = document.getElementById("thresh-theta");
-var thresh_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-var pos_dist_ws = document.getElementById("pos-dist");
-var pos_dist_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-var pos_angle_ws = document.getElementById("pos-angle");
-var pos_angle_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-
+var ws = document.getElementById("workspace");
+var wsRect = ws.getBoundingClientRect();
+var centerX = Math.round(wsRect.width / 2);
+var centerY = Math.round(wsRect.height / 2);
 var upper_bound = 80;
-var middle_outer_radius = (size.height / 2) - upper_bound;
+var middle_outer_radius = (wsRect.height / 2) - upper_bound;
+
 var dist_xy = {
   1: { start: 0, end: middle_outer_radius * 0.5 },
   2: { start: middle_outer_radius * 0.5, end: middle_outer_radius },
@@ -59,7 +49,6 @@ function getRandomArrayItem(arr) {
 }
 
 function createDot(dot_data, radius = 3, fill = "black", stroke = "blue") {
-  var size = ws.getBoundingClientRect();
   var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   dot.setAttribute('cx', dot_data.x);
   dot.setAttribute('cy', dot_data.y);
@@ -85,7 +74,6 @@ function renderDotEE(dot, dot_data) {
   dot.setAttribute("stroke-width", 2);
 
   // Create and set the position of the EE
-  var size = ws.getBoundingClientRect();
   var eePose = new Pose(dot_data.x * ee_display_scale, dot_data.y * ee_display_scale, dot_data.theta, dot_data.thresh_xy, dot_data.thresh_theta);
   ee = new SE2("target", eePose, "#AAA", dot_data.thresh_xy, dot_data.thresh_theta);
   ee.setPose(eePose);
@@ -138,22 +126,21 @@ function plotHistogram(ws, points, n_bins = 10) {
     }
   }
 
-  var size = ws.getBoundingClientRect();
   var outer = 40;
   var padding = 10;
   var font_size = 15;
-  var bin_width = (size.width - padding * (n_bins + 1) - outer) / n_bins;
+  var bin_width = (wsRect.width - padding * (n_bins + 1) - outer) / n_bins;
 
   var bin_max = Math.max(...bins);
   var bins_mapped = bins.map(function (bin_val) {
-    return map_range(bin_val, 0, bin_max, 0, size.height - font_size);
+    return map_range(bin_val, 0, bin_max, 0, wsRect.height - font_size);
   });
 
   for (var i = 0; i < n_bins; i++) {
     var bin_height = bins_mapped[i];
     var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', outer / 2 + padding + (i * (bin_width + padding)));
-    rect.setAttribute('y', size.height - bin_height - font_size / 2);
+    rect.setAttribute('y', wsRect.height - bin_height - font_size / 2);
     rect.setAttribute('rx', 5);
     rect.setAttribute('width', bin_width);
     rect.setAttribute('height', Math.max(bin_height - font_size / 2, 0));
@@ -173,7 +160,7 @@ function plotHistogram(ws, points, n_bins = 10) {
 
     label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', outer / 2 + (i * (bin_width + padding)) + padding / 2);
-    label.setAttribute('y', size.height);
+    label.setAttribute('y', wsRect.height);
     label.setAttribute("fill", "#000");
     label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
     label.setAttribute("text-anchor", "middle");
@@ -183,7 +170,7 @@ function plotHistogram(ws, points, n_bins = 10) {
 
   label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   label.setAttribute('x', outer / 2 + (n_bins * (bin_width + padding)) + padding / 2);
-  label.setAttribute('y', size.height);
+  label.setAttribute('y', wsRect.height);
   label.setAttribute("fill", "#000");
   label.setAttribute("style", `font-family:Varela Round, sans-serif; font-size: ${font_size}px;`);
   label.setAttribute("text-anchor", "middle");
@@ -191,8 +178,12 @@ function plotHistogram(ws, points, n_bins = 10) {
   ws.appendChild(label);
 }
 
-function sample(num) {
-  removeChildren(dot_group);
+function sampleConfigs(num) {
+
+  if (isDebug)
+    removeChildren(dot_group);
+
+  let sampleList = [];
 
   var dist_theta_list = [];
   var thresh_xy_list = [];
@@ -213,7 +204,7 @@ function sample(num) {
               angle: -1
             }
 
-            while (loc.y < upper_bound || loc.y > size.height - upper_bound) {
+            while (loc.y < upper_bound || loc.y > wsRect.height - upper_bound) {
               var dist = getRandomArbitrary(dist_xy_range.start, dist_xy_range.end);
               var angle = getRandomArbitrary(0, 360);
 
@@ -246,60 +237,101 @@ function sample(num) {
               thresh_theta: thresh_theta_val
             };
 
-            dot_group.appendChild(createDot(dot_data));
+            sampleList.push(dot_data);
           }
         }
       }
     }
   }
 
-  plotHistogram(dist_theta_ws, dist_theta_list);
-  plotHistogram(thresh_xy_ws, thresh_xy_list);
-  plotHistogram(thresh_theta_ws, thresh_theta_list);
-  plotHistogram(pos_dist_ws, pos_dist_list);
-  plotHistogram(pos_angle_ws, pos_angle_list);
+  if (isDebug) {
+
+    for (let i=0; i<sampleList.length; i++)
+      dot_group.appendChild(createDot(sampleList[i]));
+
+    plotHistogram(dist_theta_ws, dist_theta_list);
+    plotHistogram(thresh_xy_ws, thresh_xy_list);
+    plotHistogram(thresh_theta_ws, thresh_theta_list);
+    plotHistogram(pos_dist_ws, pos_dist_list);
+    plotHistogram(pos_angle_ws, pos_angle_list);    
+  }
+  return sampleList;
 }
 
-// Draw background sampling area
-for (var i = 1; i <= 3; i++) {
-  var rect = ws.getBoundingClientRect();
-  var centerX = Math.round(rect.width / 2);
-  var centerY = Math.round(rect.height / 2);
+var ws = null;
+var dist_theta_ws = null;
+var thresh_xy_ws = null;
+var thresh_theta_ws = null;
+var pos_dist_ws = null;
+var pos_angle_ws = null;
+var dot_group = null;
 
-  var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  circle.setAttribute('cx', centerX);
-  circle.setAttribute('cy', centerY);
-  circle.setAttribute('r', dist_xy[i].end);
-  circle.setAttribute("fill", "#000");
-  circle.style.opacity = 0.2;
-  background_group.appendChild(circle);
-}
+function initializeSamplingDebug() {
 
-var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-top_rect.setAttribute('x', 0);
-top_rect.setAttribute('y', 0);
-top_rect.setAttribute('width', size.width);
-top_rect.setAttribute('height', upper_bound);
-top_rect.setAttribute("fill", "#FFF");
-background_group.appendChild(top_rect);
+  isDebug = true;
 
-var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-top_rect.setAttribute('x', 0);
-top_rect.setAttribute('y', size.height - upper_bound);
-top_rect.setAttribute('width', size.width);
-top_rect.setAttribute('height', upper_bound);
-top_rect.setAttribute("fill", "#FFF");
-background_group.appendChild(top_rect);
+  ws = document.getElementById("dist-xy");
+  wsRect = ws.getBoundingClientRect();
+  centerX = Math.round(wsRect.width / 2);
+  centerY = Math.round(wsRect.height / 2);
+  middle_outer_radius = (wsRect.height / 2) - upper_bound;
 
-ws.appendChild(background_group);
-ws.appendChild(dot_group);
-dist_theta_ws.appendChild(dist_theta_group);
-thresh_xy_ws.appendChild(thresh_xy_group);
-thresh_theta_ws.appendChild(thresh_theta_group);
-pos_dist_ws.appendChild(pos_dist_group);
-pos_angle_ws.appendChild(pos_angle_group);
+  dist_xy = {
+    1: { start: 0, end: middle_outer_radius * 0.5 },
+    2: { start: middle_outer_radius * 0.5, end: middle_outer_radius },
+    3: { start: middle_outer_radius, end: middle_outer_radius * 1.5 }
+  };
 
-function initializeSampling() {
+  dist_theta_ws = document.getElementById("dist-theta");
+  thresh_xy_ws = document.getElementById("thresh-xy");
+  thresh_theta_ws = document.getElementById("thresh-theta");
+  pos_dist_ws = document.getElementById("pos-dist");
+  pos_angle_ws = document.getElementById("pos-angle");
+  dot_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  var background_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  var dist_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  var thresh_xy_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  var thresh_theta_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  var pos_dist_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  var pos_angle_group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  // Draw background sampling area
+  for (var i = 1; i <= 3; i++) {
+    var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', centerX);
+    circle.setAttribute('cy', centerY);
+    circle.setAttribute('r', dist_xy[i].end);
+    circle.setAttribute("fill", "#000");
+    circle.style.opacity = 0.2;
+    background_group.appendChild(circle);
+  }
+
+  var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  top_rect.setAttribute('x', 0);
+  top_rect.setAttribute('y', 0);
+  top_rect.setAttribute('width', wsRect.width);
+  top_rect.setAttribute('height', upper_bound);
+  top_rect.setAttribute("fill", "#FFF");
+  background_group.appendChild(top_rect);
+
+  var top_rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  top_rect.setAttribute('x', 0);
+  top_rect.setAttribute('y', wsRect.height - upper_bound);
+  top_rect.setAttribute('width', wsRect.width);
+  top_rect.setAttribute('height', upper_bound);
+  top_rect.setAttribute("fill", "#FFF");
+  background_group.appendChild(top_rect);
+
+  ws.appendChild(background_group);
+  ws.appendChild(dot_group);
+  dist_theta_ws.appendChild(dist_theta_group);
+  thresh_xy_ws.appendChild(thresh_xy_group);
+  thresh_theta_ws.appendChild(thresh_theta_group);
+  pos_dist_ws.appendChild(pos_dist_group);
+  pos_angle_ws.appendChild(pos_angle_group);
+
+
   // Hide and set the correct scale of the workspace
   $("#workspace").hide();
   $("#workspace").width($("#workspace").width() * ee_display_scale);
@@ -314,7 +346,6 @@ function initializeSampling() {
     $("#histogram-display").css("margin-left", (event.clientX - $("#histogram-display").width() + window.scrollX) + "px");
   });
 
-
   $("#histogram-display").hide();
-  sample(1);
+  sampleConfigs(1);
 }

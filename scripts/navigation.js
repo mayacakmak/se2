@@ -14,6 +14,10 @@ function startInterface(controlType, transitionType) {
   moveToPage("practice.html?c="+controlType+"&t="+transitionType);
 }
 
+function moveToSurveyPage() {
+ moveToPage("questionnaire.html");
+}
+
 function getURLParameter(paramName) {
   var url = window.location.toString();
   var urlParamIndex = url.indexOf(paramName+"=");
