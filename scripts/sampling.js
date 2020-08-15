@@ -255,6 +255,8 @@ function sampleConfigs(num) {
     plotHistogram(pos_dist_ws, pos_dist_list);
     plotHistogram(pos_angle_ws, pos_angle_list);    
   }
+  
+  // TODO: Shuffle the order of points before returning
   return sampleList;
 }
 
