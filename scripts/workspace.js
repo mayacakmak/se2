@@ -130,7 +130,7 @@ function setupEnvironment() {
       transitionTypes[currentTransitionType]);
 
   // Place the EE and the target in the workspace
-  setTargetPose(); // This should be replaced for systematic experiments!
+  setTargetPose();
   setEEPoseAtCenter();
 
   // Initialize control
@@ -147,8 +147,12 @@ function setupEnvironment() {
   }
 
   if (!offline) {
+    var targetInfo = target.pose;
+    targetInfo.threshXY =  threshXY;
+    targetInfo.threshTheta = threshTheta;
+
     Database.logCycleStart(controlTypes[currentControl], 
-      transitionTypes[currentTransitionType], target.pose);
+      transitionTypes[currentTransitionType], targetInfo);
     eeLogger = setInterval(Database.logEEPose, 500);
   }
 

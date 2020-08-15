@@ -142,7 +142,9 @@ function Database() {
         targetPose: {
           x: targetPose.x,
           y: targetPose.y,
-          theta: targetPose.theta
+          theta: targetPose.theta,
+          threshXY: targetPose.threshXY,
+          threshTheta: targetPose.threshTheta
         },
         startTime: {},
         status: "incomplete"

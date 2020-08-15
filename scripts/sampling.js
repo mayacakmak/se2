@@ -103,6 +103,28 @@ function map_range(value, low1, high1, low2, high2) {
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
+// Shuffle an array using Fisher-Yates Shuffle
+function shuffle(array) {
+  let counter = array.length;
+
+  // While there are elements in the array
+  while (counter > 0) {
+      // Pick a random index
+      let index = Math.floor(Math.random() * counter);
+
+      // Decrease counter by 1
+      counter--;
+
+      // And swap the last element with it
+      let temp = array[counter];
+      array[counter] = array[index];
+      array[index] = temp;
+  }
+
+  return array;
+}
+
+
 function plotHistogram(ws, points, n_bins = 10) {
   removeChildren(ws);
 
@@ -257,7 +279,7 @@ function sampleConfigs(num) {
   }
   
   // TODO: Shuffle the order of points before returning
-  return sampleList;
+  return shuffle(sampleList);
 }
 
 var ws = null;
