@@ -1,63 +1,69 @@
 
 var questions = {
-    "title": "Post Experiment Questionnaire",
-    "description": "We should add some description text here",
+    "title": "Questionnaire",
+    "description": "",
     "sections": [
         {
-            "title": "Evaluating the Interface CHANGE TO NASA-TLX wording",
+            "title": "Please answer the following questions based on the tests you just performed.",
             "questions": [
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface was easy to use",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Mental Demand",
+                    "text": "How much mental and perceptual activity was required? Was the task easy or demanding, simple or complex?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Very low",
+                    "right-text": "Very high",
                     "required": true
                 },
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface allowed me to complete the task fast",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Physical Demand",
+                    "text": "How much physical activity was required? Was the task easy or demanding, slack or strenuous?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Very low",
+                    "right-text": "Very high",
                     "required": true
                 },
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface helped to keep my frustration levels low",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Temporal Demand",
+                    "text": "How much time pressure did you feel due to the pace at which the tasks or task elements occurred? Was the pace slow or rapid?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Very low",
+                    "right-text": "Very high",
                     "required": true
                 },
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface could be used to teleoperate a robot effectively",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Overall Performance",
+                    "text": "How successful were you in performing the task? How satisfied were you with your performance?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Perfect",
+                    "right-text": "Failure",
                     "required": true
                 },
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface helped make the task easy to accomplish",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Effort",
+                    "text": "How hard did you have to work (mentally and physically) to accomplish your level of performance?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Very low",
+                    "right-text": "Very high",
                     "required": true
                 },
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface can be considered accessible for users with mobility impairments",
-                    "options": ["1", "2", "3", "4", "5"],
-                    "left-text": "(Strongly disagree)",
-                    "right-text": "(Strongly agree)",
+                    "title": "Frustration Level",
+                    "text": "How irritated, stressed, and annoyed versus content, relaxed, and complacent did you feel during the task?",
+                    "options": ["", "", "", "", "", "", ""],
+                    "left-text": "Very low",
+                    "right-text": "Very high",
                     "required": true
                 }
             ]
@@ -170,7 +176,7 @@ function generateForm(form_data) {
     for (var section in form_data.sections) {
         form_container.append(`
         <div id='section-${section}'>
-            <h2 class="mb-4">${form_data.sections[section].title}</h2>
+            <div class="mb-4"><i>${form_data.sections[section].title}</i></div>
             <div id="section-${section}-questions"></div>
         </div>`);
 
@@ -185,11 +191,11 @@ function generateForm(form_data) {
                     var horizontal = ((question_data.layout == "horizontal") ? "-inline" : "");
                     var required = ((question_data.required) ? "required" : "");
 
-                    question_container.append(`<h3>${question_data.title}</h3>`);
+                    question_container.append(`<div class='mb-2'><b>${question_data.title}:</b> ${question_data.text}</div>`);
                     var question_id = `section-${section}-question-${question}`;
 
                     if (typeof question_data["left-text"] !== 'undefined') {
-                        question_container.append(`<label class="form-check-label">${question_data["left-text"]}</label>`);
+                        question_container.append(`<label class="form-check-label mr-3">${question_data["left-text"]}</label>`);
                     }
 
                     for (var option in question_data.options) {
@@ -211,6 +217,7 @@ function generateForm(form_data) {
                         question_container.append(`<label class="form-check-label">${question_data["right-text"]}</label>`);
                     }
                     break;
+
                 case "input":
                     var question_id = `section-${section}-question-${question}-input`;
                     var placeholder = ((question_data.placeholder) ? `placeholder="${question_data.placeholder}"` : "");
