@@ -244,14 +244,25 @@ function Timer() {
   Timer.buttonText.setAttribute("cursor", "pointer");
   Timer.buttonText.setAttribute("onclick", "Timer.startTimer()");
 
+  Timer.countText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  Timer.countText.setAttribute("id", "button-text");
+  Timer.countText.setAttribute('x', 9*Panel.width/10);
+  Timer.countText.setAttribute('y', Panel.height/10);
+  Timer.countText.setAttribute("fill", "#0275d8");
+  Timer.countText.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 32px;");
+  Timer.countText.setAttribute("text-anchor", "middle");
+  Timer.countText.setAttribute("dominant-baseline", "middle");
+  Timer.countText.innerHTML = "0/36";
+
   Timer.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
   Timer.timerDoneCallback = null;
 
-  this.reset = function () {
+  this.reset = function (addText) {
     Timer.setText("");
     Timer.showButton();
-    Timer.setVisible(true);    
+    Timer.setVisible(true);
+    Timer.countText.innerHTML = addText;
   }
 
   Timer.startTimer = function () {
@@ -291,6 +302,7 @@ function Timer() {
         Timer.group.removeChild(Timer.group.lastChild);
     Timer.group.appendChild(Timer.button);
     Timer.group.appendChild(Timer.buttonText);
+    Timer.group.appendChild(Timer.countText);    
   }
 
   Timer.showText = function () {
