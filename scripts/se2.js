@@ -47,7 +47,7 @@ function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
   this.isSame = function (pose, rotThreshold = 5, posThreshold = 5) {
     var myPosition = this.getPosition();
     var distErr = myPosition.dist(pose);
-    var rotErr = Math.abs(this.theta - pose.theta);
+    var rotErr = Math.abs(mod(this.theta, 360) - mod(pose.theta,360));
     return (distErr < posThreshold &&
       rotErr < rotThreshold/2);
   }
@@ -266,7 +266,9 @@ function moveObject(object, x, y, theta, isFlip) {
   object.setAttribute("transform", transform);
 }
 
-// Generates an SVG path for a wedge (https://stackoverflow.com/a/17309908/6454085)
+/*
+* Utility function to generate a SVG path for a wedge (https://stackoverflow.com/a/17309908/6454085)
+*/
 function generateWedgeString(startX, startY, startAngle, endAngle, radius) {
   var x1 = startX + radius * Math.cos(Math.PI * startAngle / 180);
   var y1 = startY + radius * Math.sin(Math.PI * startAngle / 180);
@@ -277,4 +279,11 @@ function generateWedgeString(startX, startY, startAngle, endAngle, radius) {
 
   return pathString;
 
+}
+
+/*
+* Utility function calculate the modulus of two numbers. The default modulus in does not work correctly for negative numbers
+*/
+function mod(n, m) {
+  return ((n % m) + m) % m;
 }
