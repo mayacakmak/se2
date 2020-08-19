@@ -74,19 +74,19 @@ function PanelControl(ee, target, transitionType) {
   */
   Control.minSpeed = 1;
   Control.minRotSpeed = 1;
-  Control.maxSpeed = 20;
-  Control.maxRotSpeed = 10;
+  Control.maxSpeed = 16;
+  Control.maxRotSpeed = 8;
   Control.currentSpeed = Control.minSpeed;
   Control.currentRotSpeed = Control.minRotSpeed;
 
   Control.handleEvent = function(event) {
 
+    console.log(Control.currentSpeed);
+    
     if (event.target.id != "workspace")
       event.stopPropagation();
 
     if (event.type == "click") {
-      Control.ee.startTranslating();
-      Control.ee.startRotating();
       if (event.target.id == "arrowLeft")
         Control.ee.translateBy(new Position(Control.minSpeed, 0));
       else if (event.target.id == "arrowRight")
@@ -107,6 +107,8 @@ function PanelControl(ee, target, transitionType) {
     else if (event.type == "mousedown") {
       Control.currentSpeed = Control.minSpeed;
       Control.currentRotSpeed = Control.minRotSpeed;
+      Control.ee.startTranslating();
+      Control.ee.startRotating();
       let fsmEvent = null;
       if (event.target.id == "arrowLeft")
         fsmEvent = "press-left";
@@ -138,6 +140,9 @@ function PanelControl(ee, target, transitionType) {
         fsmEvent = "release-cw";
       else if (event.target.id == "arrowCCW")
         fsmEvent = "release-ccw";
+
+      Control.currentSpeed = Control.minSpeed;
+      Control.currentRotSpeed = Control.minRotSpeed;
 
       if (fsmEvent != null)
         Control.fsm.emitEvent(fsmEvent);

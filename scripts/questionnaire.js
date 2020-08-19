@@ -164,7 +164,7 @@ $(document).ready(function () {
         if (validateForm() && current_section == num_sections - 1) {
             Database.logQuestionnaire(getFormData());
             
-            $("#mturk-key").html(`This is your MTurk completion code: <kbd>${Database.uid}</kbd>`);
+            $("#mturk-key").html(`<h3>Thank you!</h3> <br> Here is your AMT completion code: <kbd>${Database.uid}</kbd>`);
             setSection(-1);
         }
     });
@@ -273,6 +273,7 @@ function setSection(sect_num) {
         $("#back").hide()
         $("#next").hide()
         $("#submit").hide()
+        $("#title").hide()
 
         $("#complete").show();
     }
