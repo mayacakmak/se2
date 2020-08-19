@@ -164,7 +164,7 @@ $(document).ready(function () {
         if (validateForm() && current_section == num_sections - 1) {
             Database.logQuestionnaire(getFormData());
             
-            $("#mturk-key").html(`This is your MTurk payment key: <kbd>${Database.uid}</kbd>`);
+            $("#mturk-key").html(`This is your MTurk completion code: <kbd>${Database.uid}</kbd>`);
             setSection(-1);
         }
     });
