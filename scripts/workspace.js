@@ -44,12 +44,12 @@ function loadInterface(isTestInterface) {
     currentTransitionType = transitionParam;
 
   isTest = isTestInterface;
-  currentTest = 34;
+  
+  // For debugging, fast forward to the ending--
+  //currentTest = 34;
 
   if (isTest) {
     testConfigs = sampleConfigs(1);
-    var btn = document.getElementById("next-button");
-    btn.innerHTML = "0/" + testConfigs.length;
   }
 
   if (offline) {
@@ -70,7 +70,7 @@ function initializeTest() {
 	  // There is a timer during tests, but not during practice
     var timer = new Timer();
     Timer.timerDoneCallback = setupEnvironment;
-    timer.reset();
+    timer.reset((currentTest+1) + "/" + testConfigs.length);
 	}
 	else {
 		setupEnvironment();
@@ -227,20 +227,23 @@ function success() {
   clearWorkspace();
 
   currentTest++;
-  if (!isTest && currentTest == 5)
-  {
-  	var btn = document.getElementById("next-button");
-  		btn.disabled = false;
-  }
+
+  console.log(currentTest);
+  console.log(isTest);
 
   if (isTest) {
-    var btn = document.getElementById("next-button");
     if (currentTest >= testConfigs.length) {
+      let btn = document.getElementById("next-button");
       btn.innerHTML = "Done";
       btn.disabled = false;
     }
-    else
-      btn.innerHTML = currentTest + "/" + testConfigs.length;
+  }
+  else {
+    if (currentTest == 3)
+    {
+      let btn = document.getElementById("next-button");
+      btn.disabled = false;
+    }
   }
 
   if (!isTest || currentTest < testConfigs.length) {
