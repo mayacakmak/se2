@@ -162,6 +162,8 @@ function setTargetPose() {
   if (isTest){
     let currentConfig = testConfigs[currentTest];
     target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
+    // DEBUGGING
+    // target.setPose(new Pose(currentConfig.x, currentConfig.y, 180));
   }
   else {
     // During practice, set pose randomly
@@ -227,9 +229,6 @@ function success() {
   clearWorkspace();
 
   currentTest++;
-
-  console.log(currentTest);
-  console.log(isTest);
 
   if (isTest) {
     if (currentTest >= testConfigs.length) {
