@@ -81,8 +81,6 @@ function PanelControl(ee, target, transitionType) {
 
   Control.handleEvent = function(event) {
 
-    console.log(Control.currentSpeed);
-    
     if (event.target.id != "workspace")
       event.stopPropagation();
 

@@ -169,7 +169,6 @@ function setupEnvironment() {
     if (logClock == null)
       logClock = window.setInterval(Database.logEEPose, 500);
   }
-
 }
 
 function setTargetPose() {
