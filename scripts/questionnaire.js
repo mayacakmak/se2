@@ -229,9 +229,10 @@ function generateForm(form_data) {
                 case "input":
                     var question_id = `section-${section}-question-${question}-input`;
                     var placeholder = ((question_data.placeholder) ? `placeholder="${question_data.placeholder}"` : "");
+                    var required = ((question_data.required) ? `<span class="font-weight-bold text-danger h4">*</span>` : "");
                     question_container.append(`
                     <div class="form-group">
-                        <label for="${question_id}">${question_data.title}</label>
+                        <label for="${question_id}">${question_data.title} ${required}</label>
                         <input class="form-control" id="${question_id}" ${placeholder}/>
                     </div>
                     `);
