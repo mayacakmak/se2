@@ -141,8 +141,7 @@ function setupEnvironment() {
   ws.addEventListener("mousemove", Control.update);
 
   // Some controls need a clock update
-  if (controlTypes[currentControl] == "panel" && 
-    transitionTypes[currentTransitionType] != "click") {
+  if (controlTypes[currentControl] == "panel") {
     window.setInterval(Control.clockUpdate, 100);
   }
 

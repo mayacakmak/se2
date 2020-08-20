@@ -85,23 +85,89 @@ function PanelControl(ee, target, transitionType) {
       event.stopPropagation();
 
     if (event.type == "click") {
-      Control.ee.startTranslating();
-      Control.ee.startRotating();
-      if (event.target.id == "arrowLeft")
-        Control.ee.translateBy(new Position(Control.minSpeed, 0));
-      else if (event.target.id == "arrowRight")
-        Control.ee.translateBy(new Position(-Control.minSpeed, 0));
-      else if (event.target.id == "arrowUp")
-        Control.ee.translateBy(new Position(0, Control.minSpeed));
-      else if (event.target.id == "arrowDown")
-        Control.ee.translateBy(new Position(0, -Control.minSpeed));
-      else if (event.target.id == "arrowCW")
-        Control.ee.rotateBy(Control.minRotSpeed);
-      else if (event.target.id == "arrowCCW")
-        Control.ee.rotateBy(-Control.minRotSpeed);
-      Control.ee.moveNow();
-      Control.checkEEatTarget();
-      Control.fsm.emitEvent("cursor-click");
+      Control.currentSpeed = Control.minSpeed;
+      Control.currentRotSpeed = Control.minRotSpeed;
+      
+      if (event.target.id == "arrowLeft") {
+        if (Control.fsm.currentState == "moving-left") {
+          // If we are already moving left, release-left to stop
+          Control.fsm.emitEvent("release-left");
+        } else {
+          // If we are not moving left, first make sure that we are not moving any other direction
+          Control.fsm.emitEvent("release-right");
+          Control.fsm.emitEvent("release-up");
+          Control.fsm.emitEvent("release-down");
+          Control.fsm.emitEvent("release-cw");
+          
+          // Then start moving left
+          Control.fsm.emitEvent("press-left");
+        }
+      }
+      else if (event.target.id == "arrowRight") {
+        if (Control.fsm.currentState == "moving-right") {
+          Control.fsm.emitEvent("release-right");
+        } else {
+          Control.fsm.emitEvent("release-left");
+          Control.fsm.emitEvent("release-up");
+          Control.fsm.emitEvent("release-down");
+          Control.fsm.emitEvent("release-cw");
+          Control.fsm.emitEvent("release-ccw");
+          
+          Control.fsm.emitEvent("press-right");
+        }
+      }
+      else if (event.target.id == "arrowUp") {
+        if (Control.fsm.currentState == "moving-up") {
+          Control.fsm.emitEvent("release-up");
+        } else {
+          Control.fsm.emitEvent("release-right");
+          Control.fsm.emitEvent("release-left");
+          Control.fsm.emitEvent("release-down");
+          Control.fsm.emitEvent("release-cw");
+          Control.fsm.emitEvent("release-ccw");
+          
+          Control.fsm.emitEvent("press-up");
+        }
+      }
+      else if (event.target.id == "arrowDown") {
+        if (Control.fsm.currentState == "moving-down") {
+          Control.fsm.emitEvent("release-down");
+        } else {
+          Control.fsm.emitEvent("release-right");
+          Control.fsm.emitEvent("release-up");
+          Control.fsm.emitEvent("release-left");
+          Control.fsm.emitEvent("release-cw");
+          Control.fsm.emitEvent("release-ccw");
+          
+          Control.fsm.emitEvent("press-down");
+        }
+      }
+      else if (event.target.id == "arrowCW") {
+        if (Control.fsm.currentState == "moving-cw") {
+          Control.fsm.emitEvent("release-cw");
+        } else {
+          Control.fsm.emitEvent("release-right");
+          Control.fsm.emitEvent("release-up");
+          Control.fsm.emitEvent("release-down");
+          Control.fsm.emitEvent("release-left");
+          Control.fsm.emitEvent("release-ccw");
+          
+          Control.fsm.emitEvent("press-cw");
+        }
+      }
+      else if (event.target.id == "arrowCCW") {
+        if (Control.fsm.currentState == "moving-ccw") {
+          Control.fsm.emitEvent("release-ccw");
+        } else {
+          Control.fsm.emitEvent("release-right");
+          Control.fsm.emitEvent("release-up");
+          Control.fsm.emitEvent("release-down");
+          Control.fsm.emitEvent("release-cw");
+          Control.fsm.emitEvent("release-left");
+          
+          Control.fsm.emitEvent("press-ccw");
+        }
+      }
       window.setTimeout(Control.checkSuccess, 200);
     }
     else if (event.type == "mousedown") {
