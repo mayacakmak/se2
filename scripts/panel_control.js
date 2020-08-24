@@ -74,8 +74,8 @@ function PanelControl(ee, target, transitionType) {
   */
   Control.minSpeed = 1;
   Control.minRotSpeed = 1;
-  Control.maxSpeed = 20;
-  Control.maxRotSpeed = 10;
+  Control.maxSpeed = ((Control.transitionType == "press/release") ? 20 : 10);
+  Control.maxRotSpeed = ((Control.transitionType == "press/release") ? 10 : 5);
   Control.currentSpeed = Control.minSpeed;
   Control.currentRotSpeed = Control.minRotSpeed;
 
@@ -143,7 +143,7 @@ function PanelControl(ee, target, transitionType) {
         }
       }
       else if (event.target.id == "arrowCW") {
-        if (Control.fsm.currentState == "moving-cw") {
+        if (Control.fsm.currentState == "rotating-cw") {
           Control.fsm.emitEvent("release-cw");
         } else {
           Control.fsm.emitEvent("release-right");
@@ -156,7 +156,7 @@ function PanelControl(ee, target, transitionType) {
         }
       }
       else if (event.target.id == "arrowCCW") {
-        if (Control.fsm.currentState == "moving-ccw") {
+        if (Control.fsm.currentState == "rotating-ccw") {
           Control.fsm.emitEvent("release-ccw");
         } else {
           Control.fsm.emitEvent("release-right");
@@ -240,48 +240,50 @@ function PanelControl(ee, target, transitionType) {
   }
 
   Control.clockUpdate = function(event) {
+    var acceleration = ((Control.transitionType == "press/release") ? 1 : 0.5);
 
     if (Control.fsm.currentState == "moving-left") {
       Control.ee.startTranslating();
       Control.ee.translateBy(new Position(Control.currentSpeed, 0));
       Control.ee.moveNow();
       if (Control.currentSpeed < Control.maxSpeed)
-        Control.currentSpeed += 1;
+        Control.currentSpeed += acceleration;
+        
     }
     else if (Control.fsm.currentState == "moving-right") {
       Control.ee.startTranslating();
       Control.ee.translateBy(new Position(-Control.currentSpeed, 0));
       Control.ee.moveNow();
       if (Control.currentSpeed < Control.maxSpeed)
-        Control.currentSpeed += 1;
+        Control.currentSpeed += acceleration;
     }
     else if (Control.fsm.currentState == "moving-up") {
       Control.ee.startTranslating();
       Control.ee.translateBy(new Position(0, Control.currentSpeed));
       Control.ee.moveNow();
       if (Control.currentSpeed < Control.maxSpeed)
-        Control.currentSpeed += 1;
+        Control.currentSpeed += acceleration;
     }
     else if (Control.fsm.currentState == "moving-down") {
       Control.ee.startTranslating();
       Control.ee.translateBy(new Position(0, -Control.currentSpeed));
       Control.ee.moveNow();
       if (Control.currentSpeed < Control.maxSpeed)
-        Control.currentSpeed += 1;
+        Control.currentSpeed += acceleration;
     }
     else if (Control.fsm.currentState == "rotating-cw") {
       Control.ee.startRotating();
       Control.ee.rotateBy(Control.currentRotSpeed);
       Control.ee.moveNow();
       if (Control.currentRotSpeed < Control.maxRotSpeed)
-        Control.currentRotSpeed += 1;
+        Control.currentRotSpeed += acceleration;
     }
     else if (Control.fsm.currentState == "rotating-ccw") {
       Control.ee.startRotating();
       Control.ee.rotateBy(-Control.currentRotSpeed);
       Control.ee.moveNow();
       if (Control.currentRotSpeed < Control.maxRotSpeed)
-        Control.currentRotSpeed += 1;
+        Control.currentRotSpeed += acceleration;
     }
     Control.checkEEatTarget();
   }

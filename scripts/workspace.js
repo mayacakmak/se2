@@ -1,3 +1,23 @@
+// Count the number of intervals set for debugging
+window.originalSetInterval = window.setInterval;
+window.originalClearInterval = window.clearInterval;
+window.activeIntervals = 0;
+window.setInterval = function (func, delay)
+{
+    if(func && delay){
+            window.activeIntervals++;
+    }
+    return window.originalSetInterval(func,delay);
+};
+window.clearInterval = function (intervalId)
+{
+    // JQuery sometimes hands in true which doesn't count
+    if(intervalId !== true){
+        window.activeIntervals--;
+    }
+    return window.originalClearInterval(intervalId);
+};
+
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
@@ -34,6 +54,8 @@ var hasTimer = false;
 var isTest = false;
 var testConfigs = null;
 var currentTest = 0;
+
+var clockUpdateInterval;
 
 function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
@@ -142,7 +164,7 @@ function setupEnvironment() {
 
   // Some controls need a clock update
   if (controlTypes[currentControl] == "panel") {
-    window.setInterval(Control.clockUpdate, 100);
+    clockUpdateInterval = window.setInterval(Control.clockUpdate, 100);
   }
 
   if (!offline) {
@@ -211,6 +233,11 @@ function clearWorkspace() {
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
+
+
+  if (controlTypes[currentControl] == "panel") {
+    clearInterval(clockUpdateInterval);
+  }
 }
 
 /*
