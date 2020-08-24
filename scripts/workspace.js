@@ -234,7 +234,7 @@ function clearWorkspace() {
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
 
-
+  clearInterval(eeLogger);
   if (controlTypes[currentControl] == "panel") {
     clearInterval(clockUpdateInterval);
   }
