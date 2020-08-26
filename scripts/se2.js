@@ -47,7 +47,7 @@ function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
   this.isSame = function (pose, rotThreshold = 5, posThreshold = 5) {
     var myPosition = this.getPosition();
     var distErr = myPosition.dist(pose);
-    var rotErr = Math.abs(mod(this.theta, 360) - mod(pose.theta,360));
+    var rotErr = angleDistance(this.theta, pose.theta);
     return (distErr < posThreshold &&
       rotErr < rotThreshold/2);
   }
@@ -290,4 +290,10 @@ function generateWedgeString(startX, startY, startAngle, endAngle, radius) {
 */
 function mod(n, m) {
   return ((n % m) + m) % m;
+}
+
+function angleDistance(alpha, beta) {
+  var phi = mod(Math.abs(beta - alpha), 360);       // This is either the distance or 360 - distance
+  var distance = ((phi > 180) ? 360 - phi : phi);
+  return distance;
 }
