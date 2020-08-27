@@ -58,7 +58,7 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1593816412.5075164
+snapshot_timestamp = 1598561814.367759
 
 # %% [markdown]
 ## Load data from Firebase
@@ -87,53 +87,57 @@ print("Loaded snapshot {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localt
 # We use it later on to sparate the dataframe by interface
 interfaceIDs = set()
 
-cycle_data_columns = ["startTime", "endTime", "status", "control", "transitionType", "interfaceID", "targetX", "targetY", "targetTheta"]
+cycle_data_columns = ["startTime", "endTime", "status", "control", "transitionType", "interfaceID", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta"]
 cycle_data = []
 
 action_list = {}
 
 for uid in json_snapshot:
     for sid in json_snapshot[uid]['sessions']:
-        for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
-            cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
+        if 'cycles' in json_snapshot[uid]['sessions'][sid]:
+            for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
+                cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
 
-            # Update cycle_data with general information about the cycle
-            startTime = cycle['startTime']['timestamp'] / 1000
-            status = cycle['status']
+                if cycle['isTest']:
+                    # Update cycle_data with general information about the cycle
+                    startTime = cycle['startTime']['timestamp'] / 1000
+                    status = cycle['status']
 
-            # There is no end timestamp if the cycle is incomplete
-            endTime = startTime
-            if status == "complete":
-                endTime = cycle['endTime']['timestamp'] / 1000
+                    # There is no end timestamp if the cycle is incomplete
+                    endTime = startTime
+                    if status == "complete":
+                        endTime = cycle['endTime']['timestamp'] / 1000
 
-            control = cycle['control']
-            transitionType = cycle['transitionType']
-            interfaceID = control + "." +transitionType
+                    control = cycle['control']
+                    transitionType = cycle['transitionType']
+                    interfaceID = control + "." +transitionType
 
-            interfaceIDs.add(interfaceID)
+                    interfaceIDs.add(interfaceID)
 
-            targetX = cycle['targetPose']['x']
-            targetY = cycle['targetPose']['y']
-            targetTheta = cycle['targetPose']['theta']
+                    targetX = cycle['targetPose']['x']
+                    targetY = cycle['targetPose']['y']
+                    targetTheta = cycle['targetPose']['theta']
+                    threshXY = cycle['targetPose']['threshXY']
+                    threshTheta = cycle['targetPose']['threshTheta']
 
-            cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta])
+                    cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta, threshXY, threshTheta])
 
-            # Update action_list with the set of actions for this cycle
-            if 'actions' in cycle: # Sometimes the last cycle of a session has no action so we skip it
-                actions = []
-                for aid in cycle['actions']:
+                    # Update action_list with the set of actions for this cycle
+                    if 'actions' in cycle: # Sometimes the last cycle of a session has no action so we skip it
+                        actions = []
+                        for aid in cycle['actions']:
 
-                    # We want to remove any actions that are just a release of the cursor
-                    action_type = cycle['actions'][aid]['newState']
-                    if action_type != "cursor-free":
-                        actions.append(action_type)
-                    elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
-                        actions.append(action_type)
-                
-                if interfaceID in action_list:
-                    action_list[interfaceID].append(actions)
-                else:
-                    action_list[interfaceID] = [actions]
+                            # We want to remove any actions that are just a release of the cursor
+                            action_type = cycle['actions'][aid]['newState']
+                            if action_type != "cursor-free":
+                                actions.append(action_type)
+                            elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
+                                actions.append(action_type)
+                        
+                        if interfaceID in action_list:
+                            action_list[interfaceID].append(actions)
+                        else:
+                            action_list[interfaceID] = [actions]
 
 # %%
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
@@ -172,7 +176,7 @@ fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
 for i, interfaceID in enumerate(interface_dfs):
-    ax = plt.subplot("42"+str(i+1))
+    ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
@@ -192,7 +196,7 @@ fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
 for i, interfaceID in enumerate(interface_dfs):
-    ax = plt.subplot("42"+str(i+1))
+    ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
@@ -213,7 +217,7 @@ fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
 for i, interfaceID in enumerate(interface_dfs):
-    ax = plt.subplot("42"+str(i+1))
+    ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
@@ -230,7 +234,7 @@ for i, interfaceID in enumerate(interface_dfs):
 ### Action Type vs Time
 
 # %%
-sample_num = 1000
+sample_num = 100
 
 fig = plt.figure(figsize=(16,20))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
@@ -259,7 +263,7 @@ for i, interfaceID in enumerate(action_list):
     if click.shape[0] != 0:
         click = remap_array(click, np.min(click), np.max(click), 1, 5)
 
-    ax = plt.subplot("42"+str(i+1))
+    ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
 
     drawn_lines = []
