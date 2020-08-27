@@ -13,8 +13,7 @@ var videoIds = {
         "click": "A-mzWlPjxDU"
     },
     "target": {
-        "press/release": "zpOULjyy-n8",
-        "click": "zpOULjyy-n8"
+        "click": "-qUV753YINg"
     },
     "targetdrag": {
         "press/release": "YEVwIV0PPDE",
