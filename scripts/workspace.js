@@ -18,7 +18,6 @@ window.clearInterval = function (intervalId)
     return window.originalClearInterval(intervalId);
 };
 
-
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
 var currentControl = 0;
@@ -247,10 +246,11 @@ function clearWorkspace() {
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
 
-  clearInterval(logClock);
-  if (controlTypes[currentControl] == "panel") {
-    clearInterval(updateClock);
-  }
+  // This is already handled by not recreating intervals if their handle is not null
+  //clearInterval(logClock);
+  //if (controlTypes[currentControl] == "panel") {
+  //  clearInterval(updateClock);
+  //}
 }
 
 /*
