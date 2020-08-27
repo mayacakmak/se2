@@ -123,16 +123,18 @@ for uid in json_snapshot:
                     cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta, threshXY, threshTheta])
 
                     # Update action_list with the set of actions for this cycle
-                    if 'actions' in cycle: # Sometimes the last cycle of a session has no action so we skip it
+                    if 'events' in cycle: # Sometimes the last cycle of a session has no action so we skip it
                         actions = []
-                        for aid in cycle['actions']:
+                        for aid in cycle['events']:
 
-                            # We want to remove any actions that are just a release of the cursor
-                            action_type = cycle['actions'][aid]['newState']
-                            if action_type != "cursor-free":
-                                actions.append(action_type)
-                            elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
-                                actions.append(action_type)
+                            # We want to ignore any events that are just ee pose logs, and only keep user actions
+                            if cycle['events'][aid]['type'] != 'pose':
+                                # We want to remove any actions that are just a release of the cursor
+                                action_type = cycle['events'][aid]['newState']
+                                if action_type != "cursor-free":
+                                    actions.append(action_type)
+                                elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
+                                    actions.append(action_type)
                         
                         if interfaceID in action_list:
                             action_list[interfaceID].append(actions)
@@ -234,9 +236,9 @@ for i, interfaceID in enumerate(interface_dfs):
 ### Action Type vs Time
 
 # %%
-sample_num = 100
+sample_num = 1000
 
-fig = plt.figure(figsize=(16,20))
+fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
 for i, interfaceID in enumerate(action_list):
@@ -314,8 +316,15 @@ for i, interfaceID in enumerate(action_list):
     ax.set_xlabel('Time (based on action number)')
     ax.set_ylabel('Action Frequency')
 
-    ax.set_ylim([0, 4])
+    # The axis limits are not (0, 4) becase we don't want to see those labels
+    ax.set_ylim([0.1, 3.9])
     ax.set_xlim([0, max(rotation.shape[0], translation.shape[0], click.shape[0])+1])
 
+    # Lable the ticks
+    ax.set_yticklabels(['','Rotate','Translate', 'Click'])
+
+    # Force the x-axis tick interval to be 1
+    start, end = ax.get_xlim()
+    ax.xaxis.set_ticks(np.arange(start, end, 1))
 
 # %%
