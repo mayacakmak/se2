@@ -47,7 +47,7 @@ function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
   this.isSame = function (pose, rotThreshold = 5, posThreshold = 5) {
     var myPosition = this.getPosition();
     var distErr = myPosition.dist(pose);
-    var rotErr = Math.abs(mod(this.theta, 360) - mod(pose.theta,360));
+    var rotErr = angleDistance(this.theta, pose.theta);
     return (distErr < posThreshold &&
       rotErr < rotThreshold/2);
   }
@@ -136,6 +136,9 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   this.group.appendChild(this.dot);
   this.group.appendChild(this.line);
   this.group.setAttribute("id", name);
+  
+  var ws = document.getElementById("workspace");
+  this.size = ws.getBoundingClientRect();
 
   this.addToWorkspace = function () {
     var ws = document.getElementById("workspace");
@@ -174,6 +177,7 @@ function SE2(name, pose, color, posThreshold = 0, rotThreshold = 0) {
   }
 
   this.moveNow = function () {
+    // We want to limit the possible positions of the target within the bounds of the workspace
     this.group.setAttribute("transform",
       "translate(" + this.pose.x + " " +
       this.pose.y + ") rotate(" +
@@ -242,16 +246,16 @@ function moveableSE2(name, pose, color, hasHandle) {
   }
 
   this.translateBy = function (positionDiff) {
-    this.pose.x = this.startPose.x + positionDiff.x;
-    this.pose.y = this.startPose.y + positionDiff.y;
+    this.pose.x = Math.min(Math.max(0, this.startPose.x + positionDiff.x), this.size.width);
+    this.pose.y = Math.min(Math.max(0, this.startPose.y + positionDiff.y), this.size.height);
   }
 
   this.translateXBy = function (positionDiff) {
-    this.pose.x = this.startPose.x + positionDiff.x;
+    this.pose.x = Math.min(Math.max(0, this.startPose.x + positionDiff.x), this.size.width);
   }
 
   this.translateYBy = function (positionDiff) {
-    this.pose.y = this.startPose.y + positionDiff.y;
+    this.pose.y = Math.min(Math.max(0, this.startPose.y + positionDiff.y), this.size.height);
   }
 }
 
@@ -286,4 +290,10 @@ function generateWedgeString(startX, startY, startAngle, endAngle, radius) {
 */
 function mod(n, m) {
   return ((n % m) + m) % m;
+}
+
+function angleDistance(alpha, beta) {
+  var phi = mod(Math.abs(beta - alpha), 360);       // This is either the distance or 360 - distance
+  var distance = ((phi > 180) ? 360 - phi : phi);
+  return distance;
 }

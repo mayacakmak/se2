@@ -325,7 +325,7 @@
       $('#workspace').empty();
 
       // Create target and place it in workspace
-      var target = new SE2("target", new Pose(), "#AAA");
+      var target = new SE2("target", new Pose(), "#AAA", targetPose.threshXY, targetPose.threshTheta);
       target.addToWorkspace();
 
       // Create end effector and place it in workspace
@@ -350,7 +350,7 @@
       Control.unregisterEvents();
 
       // Set the position of the target
-      target.setPose(targetPose);
+      target.setPose(new Pose(targetPose.x, targetPose.y, targetPose.theta, targetPose.threshXY, targetPose.threshTheta));
 
       // Move the ee to the center (Code is modified from setEEPoseAtCenter() in workspace.js)
       var ws = document.getElementById("workspace");
@@ -403,12 +403,6 @@
       $("#container").show();
       Database.readyCallback = getFirebaseData;
       setMode("login");
-
-      /*
-      $(document).load("accessible-teleop-export.json", '', function (response) {
-        accessible_teleop_data = JSON.parse(response);
-      });
-      */
     });
   </script>
   <script src="scripts/se2.js"></script>

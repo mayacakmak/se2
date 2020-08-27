@@ -147,7 +147,8 @@ function Database() {
           threshTheta: targetPose.threshTheta
         },
         startTime: {},
-        status: "incomplete"
+        status: "incomplete",
+        isTest: isTest
       }
       Database.insertTime(cycleInfo.startTime);
       Database.cid = dbRef.push(cycleInfo).key;

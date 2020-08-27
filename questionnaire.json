@@ -1,15 +1,184 @@
 {
     "title": "Post Experiment Questionnaire",
-    "description": "We should add some description text here",
-    "sections": [
+    "description": "This questionnaire aims to gather information from your experience during the experiment. Please circle the option that best describes your opinion for the following questions. If you have more elaborate feedback, we encourage you to use the \"Recommendations and Suggestions\" section of the questionnaire. If you feel any of the questions makes you uncomfortable, please leave it blank.",
+    "sections": 
+    [
         {
-            "title": "Evaluating the Interface CHANGE TO NASA-TLX wording",
+            "title": "Evaluating the Workload for the Interface (NASA-TLX)",
+            "sub-sections":[
+                {
+                    "title": "Mental Demand",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How much mental and perceptual activity was required?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very low)",
+                            "right-text": "(Very high)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "Was the task easy or demanding?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very easy)",
+                            "right-text": "(Very demanding)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "Was the task simple or complex?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very simple)",
+                            "right-text": "(Very complex)",
+                            "required": true
+                        }
+                    ]
+
+                },
+                {
+                    "title": "Physical Demand",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How much physical activity was required?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very low)",
+                            "right-text": "(Very high)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "Was the task easy or demanding?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very easy)",
+                            "right-text": "(Very demanding)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "Was the task slack or strenuous?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very slack)",
+                            "right-text": "(Very strenuous)",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Temporal Demand",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How much time pressure did you feel due to the pace at which the task or task elements occurred?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very low)",
+                            "right-text": "(Very high)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "Was the pace slow or rapid?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very slow)",
+                            "right-text": "(Very rapid)",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Overall Performance",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How successful were you in performing the task?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Perfect)",
+                            "right-text": "(Failure)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How satisfied were you with your performance?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very satisfied)",
+                            "right-text": "(Very dissatisfied)",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Effort",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How hard did you have to work (mentally and physically) to accomplish your level of performance?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very low)",
+                            "right-text": "(Very high)",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Frustration Level",
+                    "questions":
+                    [
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How content versus irritated did you feel during the task?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very content)",
+                            "right-text": "(Very irritated)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How relaxed versus stressed did you feel during the task?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very relaxed)",
+                            "right-text": "(Very stressed)",
+                            "required": true
+                        },
+                        {
+                            "type": "radio",
+                            "layout": "horizontal",
+                            "title": "How complacent versus annoyed did you feel during the task?",
+                            "options": ["1", "2", "3", "4", "5", "6", "7"],
+                            "left-text": "(Very complacent)",
+                            "right-text": "(Very annoyed)",
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Evaluating Perceived Accessibility and Efficiency of the Interface",
             "questions": [
                 {
                     "type": "radio",
                     "layout": "horizontal",
                     "title": "The interface was easy to use",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -18,7 +187,7 @@
                     "type": "radio",
                     "layout": "horizontal",
                     "title": "The interface allowed me to complete the task fast",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -26,8 +195,8 @@
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The interface helped to keep my frustration levels low",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "title": "The interface helped me to keep my frustration levels low",
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -36,7 +205,7 @@
                     "type": "radio",
                     "layout": "horizontal",
                     "title": "The interface could be used to teleoperate a robot effectively",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -45,7 +214,7 @@
                     "type": "radio",
                     "layout": "horizontal",
                     "title": "The interface helped make the task easy to accomplish",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -54,7 +223,7 @@
                     "type": "radio",
                     "layout": "horizontal",
                     "title": "The interface can be considered accessible for users with mobility impairments",
-                    "options": ["1", "2", "3", "4", "5"],
+                    "options": ["1", "2", "3", "4", "5", "6","7"],
                     "left-text": "(Strongly disagree)",
                     "right-text": "(Strongly agree)",
                     "required": true
@@ -63,11 +232,15 @@
         },
         {
             "title": "Open ended questions and statement agreement",
-            "questions": []
+            "questions": 
+            [
+
+            ]
         },
         {
             "title": "Suggestions and Recommendations",
-            "questions": [
+            "questions": 
+            [
                 {
                     "type": "input",
                     "title": "Is there any additional feature that you consider will make the interface more accessible to users who may have mobility impairments?",

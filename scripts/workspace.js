@@ -1,3 +1,23 @@
+// Count the number of intervals set for debugging
+window.originalSetInterval = window.setInterval;
+window.originalClearInterval = window.clearInterval;
+window.activeIntervals = 0;
+window.setInterval = function (func, delay)
+{
+    if(func && delay){
+            window.activeIntervals++;
+    }
+    return window.originalSetInterval(func,delay);
+};
+window.clearInterval = function (intervalId)
+{
+    // JQuery sometimes hands in true which doesn't count
+    if(intervalId !== true){
+        window.activeIntervals--;
+    }
+    return window.originalClearInterval(intervalId);
+};
+
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
@@ -29,6 +49,7 @@ var isTest = false;
 var testConfigs = null;
 var currentTest = 0;
 
+<<<<<<< HEAD
 /*
 * EE control update clock (interval)
 */
@@ -38,6 +59,9 @@ var updateClock = null;
 * End effector pose logging clock (interval)
 */
 var logClock = null;
+=======
+var clockUpdateInterval;
+>>>>>>> cbf24d2461f107cfdc344156336162ce5883765f
 
 function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
@@ -152,11 +176,16 @@ function setupEnvironment() {
   ws.addEventListener("mousemove", Control.update);
 
   // Some controls need a clock update
+<<<<<<< HEAD
   if (updateClock == null) {
     if (controlTypes[currentControl] == "panel" && 
       transitionTypes[currentTransitionType] != "click") {
       updateClock = window.setInterval(Control.clockUpdate, 100);
     }
+=======
+  if (controlTypes[currentControl] == "panel") {
+    clockUpdateInterval = window.setInterval(Control.clockUpdate, 100);
+>>>>>>> cbf24d2461f107cfdc344156336162ce5883765f
   }
 
   if (!offline) {
@@ -227,6 +256,11 @@ function clearWorkspace() {
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
+
+  clearInterval(eeLogger);
+  if (controlTypes[currentControl] == "panel") {
+    clearInterval(clockUpdateInterval);
+  }
 }
 
 /*
