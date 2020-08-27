@@ -49,7 +49,6 @@ var isTest = false;
 var testConfigs = null;
 var currentTest = 0;
 
-<<<<<<< HEAD
 /*
 * EE control update clock (interval)
 */
@@ -59,9 +58,6 @@ var updateClock = null;
 * End effector pose logging clock (interval)
 */
 var logClock = null;
-=======
-var clockUpdateInterval;
->>>>>>> cbf24d2461f107cfdc344156336162ce5883765f
 
 function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
@@ -176,16 +172,10 @@ function setupEnvironment() {
   ws.addEventListener("mousemove", Control.update);
 
   // Some controls need a clock update
-<<<<<<< HEAD
   if (updateClock == null) {
-    if (controlTypes[currentControl] == "panel" && 
-      transitionTypes[currentTransitionType] != "click") {
+    if (controlTypes[currentControl] == "panel") {
       updateClock = window.setInterval(Control.clockUpdate, 100);
     }
-=======
-  if (controlTypes[currentControl] == "panel") {
-    clockUpdateInterval = window.setInterval(Control.clockUpdate, 100);
->>>>>>> cbf24d2461f107cfdc344156336162ce5883765f
   }
 
   if (!offline) {
@@ -259,7 +249,7 @@ function clearWorkspace() {
 
   clearInterval(eeLogger);
   if (controlTypes[currentControl] == "panel") {
-    clearInterval(clockUpdateInterval);
+    clearInterval(updateClock);
   }
 }
 
