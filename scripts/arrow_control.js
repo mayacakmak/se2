@@ -108,8 +108,12 @@ function ArrowControl(ee, target, transitionType) {
         fsmEvent = "x-arrow-press";
       else if (event.target.parentNode.id == "yArrows")
         fsmEvent = "y-arrow-press";
-    } else if (event.type == "click") {   
-      if (event.target.id == "workspace") {
+    } else if (event.type == "click") {  
+      if (event.target.id == "button" ||
+            event.target.id == "button-text") {
+        // Do nothing
+      }
+      else if (event.target.id == "workspace") {
         if (Control.fsm.currentState == "translating-x")
           fsmEvent = "x-arrow-release";
         else if (Control.fsm.currentState == "translating-y")

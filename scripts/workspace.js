@@ -36,12 +36,6 @@ var target = null;
 var ee = null;
 
 /*
-* End effector pose logger
-*/
-
-var eeLogger = null;
-
-/*
 * Object of type Control representing the interactive interface
 * to control the dend effector. This will have more specific class
 * that inherits from Control (e.g. DragControl)
@@ -55,7 +49,15 @@ var isTest = false;
 var testConfigs = null;
 var currentTest = 0;
 
-var clockUpdateInterval;
+/*
+* EE control update clock (interval)
+*/
+var updateClock = null;
+
+/*
+* End effector pose logging clock (interval)
+*/
+var logClock = null;
 
 function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
@@ -118,12 +120,19 @@ function setupEnvironment() {
   }
   else {
     // During practice, randomly pick thresh_xy and thresh_theta
+
+    // For video making purposes 
+    let isExact = false;
+
     threshXY = 5;
     threshTheta = 5;
-    if (Math.random()<0.75)
-      threshXY += Math.random()*25;
-    if (Math.random()<0.75)
-      threshTheta += Math.random()*85;    
+    
+    if (!isExact) {
+      if (Math.random()<0.75)
+        threshXY += Math.random()*25;
+      if (Math.random()<0.75)
+        threshTheta += Math.random()*85;      
+    }
   }
 
   // Create target and place it in workspace
@@ -163,8 +172,10 @@ function setupEnvironment() {
   ws.addEventListener("mousemove", Control.update);
 
   // Some controls need a clock update
-  if (controlTypes[currentControl] == "panel") {
-    clockUpdateInterval = window.setInterval(Control.clockUpdate, 100);
+  if (updateClock == null) {
+    if (controlTypes[currentControl] == "panel") {
+      updateClock = window.setInterval(Control.clockUpdate, 100);
+    }
   }
 
   if (!offline) {
@@ -174,15 +185,17 @@ function setupEnvironment() {
 
     Database.logCycleStart(controlTypes[currentControl], 
       transitionTypes[currentTransitionType], targetInfo);
-    eeLogger = setInterval(Database.logEEPose, 500);
+    if (logClock == null)
+      logClock = window.setInterval(Database.logEEPose, 500);
   }
-
 }
 
 function setTargetPose() {
   if (isTest){
     let currentConfig = testConfigs[currentTest];
     target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
+    // DEBUGGING
+    // target.setPose(new Pose(currentConfig.x, currentConfig.y, 180));
   }
   else {
     // During practice, set pose randomly
@@ -234,9 +247,9 @@ function clearWorkspace() {
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
 
-  clearInterval(eeLogger);
+  clearInterval(logClock);
   if (controlTypes[currentControl] == "panel") {
-    clearInterval(clockUpdateInterval);
+    clearInterval(updateClock);
   }
 }
 
@@ -254,9 +267,6 @@ function success() {
 
   currentTest++;
 
-  console.log(currentTest);
-  console.log(isTest);
-
   if (isTest) {
     if (currentTest >= testConfigs.length) {
       let btn = document.getElementById("next-button");
@@ -265,7 +275,7 @@ function success() {
     }
   }
   else {
-    if (currentTest == 3)
+    if (currentTest == 5)
     {
       let btn = document.getElementById("next-button");
       btn.disabled = false;

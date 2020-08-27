@@ -85,6 +85,7 @@ function PanelControl(ee, target, transitionType) {
       event.stopPropagation();
 
     if (event.type == "click") {
+
       Control.currentSpeed = Control.minSpeed;
       Control.currentRotSpeed = Control.minRotSpeed;
       
@@ -173,6 +174,8 @@ function PanelControl(ee, target, transitionType) {
     else if (event.type == "mousedown") {
       Control.currentSpeed = Control.minSpeed;
       Control.currentRotSpeed = Control.minRotSpeed;
+      Control.ee.startTranslating();
+      Control.ee.startRotating();
       let fsmEvent = null;
       if (event.target.id == "arrowLeft")
         fsmEvent = "press-left";
@@ -204,6 +207,9 @@ function PanelControl(ee, target, transitionType) {
         fsmEvent = "release-cw";
       else if (event.target.id == "arrowCCW")
         fsmEvent = "release-ccw";
+
+      Control.currentSpeed = Control.minSpeed;
+      Control.currentRotSpeed = Control.minRotSpeed;
 
       if (fsmEvent != null)
         Control.fsm.emitEvent(fsmEvent);
