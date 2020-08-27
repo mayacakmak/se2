@@ -122,7 +122,7 @@ function setupEnvironment() {
     // During practice, randomly pick thresh_xy and thresh_theta
 
     // For video making purposes 
-    let isExact = true;
+    let isExact = false;
 
     threshXY = 5;
     threshTheta = 5;
