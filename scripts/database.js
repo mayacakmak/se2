@@ -213,6 +213,27 @@ function Database() {
       dbRef.push(questionnaireInfo);
     }
   }
+
+  Database.getAndUpdateInterfaceNum = function (callback) {
+    if (Database.isLogging) {
+      var dir = 'state';
+      var dbRef = firebase.database().ref(dir);
+      dbRef.once('value').then( function (snapshot) {
+        var state = snapshot.val();
+        if (state != null) {
+          firebase.database().ref('state').set({
+            interface_num: (state.interface_num + 1) % 9
+          });
+          callback(state.interface_num);
+        } else {
+          firebase.database().ref('state').set({
+            interface_num: 1
+          });
+          callback(0);
+        }
+      });
+    }
+  }
 }
 
 /*

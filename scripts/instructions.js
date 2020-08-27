@@ -1,7 +1,5 @@
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
-var currentControl = 0;
-var currentTransitionType = 1;
 
 // Because right now not all of the videos are finished
 //    some urls are repeated or placeholders are used just to test that everything is working
@@ -28,13 +26,11 @@ var videoIds = {
     }
 }
 
-function loadVideo() {
-    let controlParam = getURLParameter("c");
-    let transitionParam = getURLParameter("t");
-    if (controlParam != undefined)
-        currentControl = controlParam;
-    if (transitionParam != undefined)
-        currentTransitionType = transitionParam;
+var interface_nums = [[0,0], [0,1], [1,0], [1,1], [2,1], [3,0], [3,1], [4,0], [4,1]];
+
+function loadVideo(interface_num) {
+    var currentControl = interface_nums[interface_num][0];
+    var currentTransitionType = interface_nums[interface_num][1];
 
     var url = `https://www.youtube.com/embed/${videoIds[controlTypes[currentControl]][transitionTypes[currentTransitionType]]}?rel=0`;
     $("#instruction-video").prop("src", url);
