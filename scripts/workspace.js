@@ -122,7 +122,7 @@ function setupEnvironment() {
     // During practice, randomly pick thresh_xy and thresh_theta
 
     // For video making purposes 
-    let isExact = false;
+    let isExact = true;
 
     threshXY = 5;
     threshTheta = 5;
@@ -247,7 +247,7 @@ function clearWorkspace() {
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
 
-  clearInterval(eeLogger);
+  clearInterval(logClock);
   if (controlTypes[currentControl] == "panel") {
     clearInterval(updateClock);
   }
