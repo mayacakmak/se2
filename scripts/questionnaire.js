@@ -4,213 +4,6 @@ var questions = {
     "description": "",
     "sections": [
         {
-            "title": "Please answer the following questions about yourself and the computer system you are using.",
-            "questions": [
-                {
-                    "title": "Age",
-                    "type": "input",
-                    "layout": "horizontal",
-                    "required": true
-                },
-                {
-                    "title": "Gender",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["Male", "Female", "Non-binary", "Do not wish to share"],
-                    "display-options": true,
-                    "required": true
-                },
-                {
-                    "title": "How often do you use a computer?",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
-                    "display-options": true,
-                    "required": true
-                },
-                {
-                    "title": "How often do you play computer games?",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
-                    "display-options": true,
-                    "required": true
-                },
-                {
-                    "title": "What types of computer games do you play the most?",
-                    "type": "text",
-                    "required": false
-                },
-                {
-                    "title": "What device or interface are you using to move the cursor on your computer?",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["A mouse", "A trackpad", "A pointing stick", "An assistive device", "Other"],
-                    "display-options": true,
-                    "required": true
-                },
-                {
-                    "title": "Please describe any relevant details about the device or interface you use for moving the cursor.",
-                    "type": "text",
-                    "required": false
-                },
-                {
-                    "title": "What device or interface are you using for 'clicking' on your computer?",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["Mouse buttons", "Trackpad buttons", "Keyboard", "An assistive device", "Other"],
-                    "display-options": true,
-                    "required": true
-                },
-                {
-                    "title": "Please describe any relevant details about the device or interface you use for clicking.",
-                    "type": "text",
-                    "required": false
-                },
-            ]
-        },
-        {
-            "title": "Please state your agreement with the following statements based on the tests you just performed, and answer related free-form questions.",
-            "questions": [
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface was intuitive.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface was easy to learn.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface was easy to use once I learned how it works.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "text",
-                    "title": "How could the interface be improved to be more intuitive?",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface allowed efficient control of the object.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "text",
-                    "title": "How could the interface be improved to allow faster control of the object?",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface was prone to errors.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface allowed easy recovery from errors.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "text",
-                    "title": "How could the interface be improved to reduce errors?",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "The control interface was accessible for people using an assistive device to control the cursor.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "text",
-                    "title": "How could the interface be improved for better accessibility?",
-                    "required": false
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Flexible targets were easier to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Far away targets were harder to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Targets with large rotation differences were harder to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true
-                },
-                {
-                    "type": "text",
-                    "title": "Any other ways in which the control interface could be improved?",
-                    "required": false
-                },
-            ]
-        },
-
-        {
             "title": "Please answer the following questions based on the tests you just performed.",
             "questions": [
                 {
@@ -369,6 +162,213 @@ var questions = {
                 }
             ]
         },
+        {
+            "title": "Please state your agreement with the following statements based on the tests you just performed, and answer related free-form questions.",
+            "questions": [
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was intuitive.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was easy to learn.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was easy to use once I learned how it works.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to be more intuitive?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface allowed efficient control of the object.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to allow faster control of the object?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was prone to errors.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface allowed easy recovery from errors.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to reduce errors?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was accessible for people using an assistive device to control the cursor.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved for better accessibility?",
+                    "required": false
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Flexible targets were easier to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Far away targets were harder to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Targets with large rotation differences were harder to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "Any other ways in which the control interface could be improved?",
+                    "required": false
+                },
+            ]
+        },
+        {
+            "title": "Please answer the following questions about yourself and the computer system you are using.",
+            "questions": [
+                {
+                    "title": "Age",
+                    "type": "input",
+                    "layout": "horizontal",
+                    "required": true
+                },
+                {
+                    "title": "Gender",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Male", "Female", "Non-binary", "Do not wish to share"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "How often do you use a computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "How often do you play computer games?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "What types of computer games do you play the most?",
+                    "type": "text",
+                    "required": false
+                },
+                {
+                    "title": "What device or interface are you using to move the cursor on your computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["A mouse", "A trackpad", "A pointing stick", "An assistive device", "Other"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "Please describe any relevant details about the device or interface you use for moving the cursor.",
+                    "type": "text",
+                    "required": false
+                },
+                {
+                    "title": "What device or interface are you using for 'clicking' on your computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Mouse buttons", "Trackpad buttons", "Keyboard", "An assistive device", "Other"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "Please describe any relevant details about the device or interface you use for clicking.",
+                    "type": "text",
+                    "required": false
+                },
+            ]
+        },
+
     ]
 };
 
