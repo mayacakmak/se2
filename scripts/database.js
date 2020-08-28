@@ -187,7 +187,7 @@ function Database() {
 
   Database.logEEPose = function () {
     if (Database.isLogging) {
-      if (cid != null) {
+      if (Database.cid != null) {
         var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/events";
         var dbRef = firebase.database().ref(dir);
         eventLog = {
