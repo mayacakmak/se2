@@ -6,22 +6,22 @@ var transitionTypes = ["press/release", "click"];
 var videoIds = {
     "arrow": {
         "press/release": "8jFbHrpaptU",
-        "click": "8jFbHrpaptU"
+        "click": "ADlGCOGRjxc"
     },
     "drag": {
         "press/release": "A-mzWlPjxDU",
-        "click": "A-mzWlPjxDU"
+        "click": "W2uMjeDp4LI"
     },
     "target": {
         "click": "-qUV753YINg"
     },
     "targetdrag": {
         "press/release": "YEVwIV0PPDE",
-        "click": "YEVwIV0PPDE"
+        "click": "VpbocBmKBLk"
     },
     "panel": {
         "press/release": "B8QkeA3O_RY",
-        "click": "B8QkeA3O_RY"
+        "click": "Y_t3GDRDD_s"
     }
 }
 

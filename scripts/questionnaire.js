@@ -4,103 +4,12 @@ var questions = {
     "description": "",
     "sections": [
         {
-            "title": "Please answer the following questions based on the tests you just performed.",
-            "questions": [
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Mental Demand",
-                    "text": "How much mental and perceptual activity was required? Was the task easy or demanding, simple or complex?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Very low",
-                    "right-text": "Very high",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Physical Demand",
-                    "text": "How much physical activity was required? Was the task easy or demanding, slack or strenuous?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Very low",
-                    "right-text": "Very high",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Temporal Demand",
-                    "text": "How much time pressure did you feel due to the pace at which the tasks or task elements occurred? Was the pace slow or rapid?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Very low",
-                    "right-text": "Very high",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Overall Performance",
-                    "text": "How successful were you in performing the task? How satisfied were you with your performance?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Perfect",
-                    "right-text": "Failure",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Effort",
-                    "text": "How hard did you have to work (mentally and physically) to accomplish your level of performance?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Very low",
-                    "right-text": "Very high",
-                    "required": true
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Frustration Level",
-                    "text": "How irritated, stressed, and annoyed versus content, relaxed, and complacent did you feel during the task?",
-                    "options": ["1", "2", "3", "4", "5", "6", "7"],
-                    "display-options": false,
-                    "left-text": "Very low",
-                    "right-text": "Very high",
-                    "required": true
-                }
-            ]
-        },
-        {
-            "title": "Open ended questions and statement agreement",
-            "questions": []
-        },
-        {
-            "title": "Suggestions and Recommendations",
-            "questions": [
-                {
-                    "type": "input",
-                    "title": "Is there any additional feature that you consider will make the interface more accessible to users who may have mobility impairments?",
-                    "required": true
-                },
-                {
-                    "type": "input",
-                    "title": "Are there any other recommendations that you wish to share with us?"
-                }
-            ]
-        },
-        {
-            "title": "Demographics - About you",
+            "title": "Please answer the following questions about yourself and the computer system you are using.",
             "questions": [
                 {
                     "title": "Age",
-                    "type": "radio",
-                    "layout": "vertical",
-                    "options": ["18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "above 75"],
-                    "display-options": true,
+                    "type": "input",
+                    "layout": "horizontal",
                     "required": true
                 },
                 {
@@ -120,15 +29,346 @@ var questions = {
                     "required": true
                 },
                 {
-                    "title": "How often do you use word processors such as Microsoft Word, Apple Page, Google Doc, etc.?",
+                    "title": "How often do you play computer games?",
                     "type": "radio",
                     "layout": "vertical",
-                    "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
+                    "options": ["Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
                     "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "What types of computer games do you play the most?",
+                    "type": "text",
+                    "required": false
+                },
+                {
+                    "title": "What device or interface are you using to move the cursor on your computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["A mouse", "A trackpad", "A pointing stick", "An assistive device", "Other"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "Please describe any relevant details about the device or interface you use for moving the cursor.",
+                    "type": "text",
+                    "required": false
+                },
+                {
+                    "title": "What device or interface are you using for 'clicking' on your computer?",
+                    "type": "radio",
+                    "layout": "vertical",
+                    "options": ["Mouse buttons", "Trackpad buttons", "Keyboard", "An assistive device", "Other"],
+                    "display-options": true,
+                    "required": true
+                },
+                {
+                    "title": "Please describe any relevant details about the device or interface you use for clicking.",
+                    "type": "text",
+                    "required": false
+                },
+            ]
+        },
+        {
+            "title": "Please state your agreement with the following statements based on the tests you just performed, and answer related free-form questions.",
+            "questions": [
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was intuitive.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was easy to learn.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was easy to use once I learned how it works.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to be more intuitive?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface allowed efficient control of the object.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to allow faster control of the object?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was prone to errors.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface allowed easy recovery from errors.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved to reduce errors?",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "The control interface was accessible for people using an assistive device to control the cursor.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "How could the interface be improved for better accessibility?",
+                    "required": false
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Flexible targets were easier to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Far away targets were harder to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Targets with large rotation differences were harder to reach.",
+                    "text": "",
+                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
+                    "display-options": true,
+                    "left-text": "",
+                    "right-text": "",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "title": "Any other ways in which the control interface could be improved?",
+                    "required": false
+                },
+            ]
+        },
+
+        {
+            "title": "Please answer the following questions based on the tests you just performed.",
+            "questions": [
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Mental Demand:",
+                    "text": "How much mental and perceptual activity was required?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very low",
+                    "right-text": "Very high",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Mental Demand:",
+                    "text": "Was the task easy or demanding?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very easy",
+                    "right-text": "Very demanding",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Mental Demand:",
+                    "text": "Was the task simple or complex?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very simple",
+                    "right-text": "Very complex",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Physical Demand:",
+                    "text": "How much physical activity was required?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very low",
+                    "right-text": "Very high",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Physical Demand:",
+                    "text": "Was the task easy or demanding?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very easy",
+                    "right-text": "Very demanding",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Physical Demand:",
+                    "text": "Was the task slack or strenuous?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very slack",
+                    "right-text": "Very strenuous",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Temporal Demand:",
+                    "text": "How much time pressure did you feel due to the pace at which the tasks or task elements occurred?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very low",
+                    "right-text": "Very high",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Temporal Demand:",
+                    "text": "Was the pace slow or rapid?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very slow",
+                    "right-text": "Very rapid",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Overall Performance:",
+                    "text": "How successful were you in performing the task?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Perfect",
+                    "right-text": "Failure",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Overall Performance:",
+                    "text": "How satisfied were you with your performance?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very satisfied",
+                    "right-text": "Very dissatisfied",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Effort:",
+                    "text": "How hard did you have to work (mentally and physically) to accomplish your level of performance?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very low",
+                    "right-text": "Very high",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Frustration Level:",
+                    "text": "How irritated versus content did you feel during the task?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very irritated",
+                    "right-text": "Very content",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Frustration Level:",
+                    "text": "How stressed versus relaxed did you feel during the task?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very stressed",
+                    "right-text": "Very relaxed",
+                    "required": true
+                },
+                {
+                    "type": "radio",
+                    "layout": "horizontal",
+                    "title": "Frustration Level:",
+                    "text": "How complacent versus annoyed did you feel during the task?",
+                    "options": ["1", "2", "3", "4", "5", "6", "7"],
+                    "display-options": false,
+                    "left-text": "Very complacent",
+                    "right-text": "Very annoyed",
                     "required": true
                 }
             ]
-        }
+        },
     ]
 };
 
@@ -197,7 +437,7 @@ function generateForm(form_data) {
                     var horizontal = ((question_data.layout == "horizontal") ? "-inline" : "");
                     var required = ((question_data.required) ? `<span class="font-weight-bold text-danger h4">*</span>` : "");
 
-                    var title = question_data.title + ((question_data.title.slice(-1) == "?") ? "" : ":");
+                    var title = question_data.title;
 
                     question_container.append(`<div class='mb-2'><b>${title}</b> ${((question_data.text) ? question_data.text : "")} ${required}</div>`);
                     var question_id = `section-${section}-question-${question}`;
@@ -226,13 +466,28 @@ function generateForm(form_data) {
                     }
                     break;
 
-                case "input":
+                case "text":
                     var question_id = `section-${section}-question-${question}-input`;
                     var placeholder = ((question_data.placeholder) ? `placeholder="${question_data.placeholder}"` : "");
                     var required = ((question_data.required) ? `<span class="font-weight-bold text-danger h4">*</span>` : "");
                     question_container.append(`
                     <div class="form-group">
                         <label for="${question_id}">${question_data.title} ${required}</label>
+                        <textarea class="form-control" id="${question_id}" ${placeholder}/>
+                    </div>
+                    `);
+                    if (question_data.required) {
+                        required_questions.push(question_id);
+                    }
+                    break;
+
+                case "input":
+                    var question_id = `section-${section}-question-${question}-input`;
+                    var placeholder = ((question_data.placeholder) ? `placeholder="${question_data.placeholder}"` : "");
+                    var required = ((question_data.required) ? `<span class="font-weight-bold text-danger h4">*</span>` : "");
+                    question_container.append(`
+                    <div class="form-group">
+                        <label for="${question_id}"><b>${question_data.title}</b> ${required}</label>
                         <input class="form-control" id="${question_id}" ${placeholder}/>
                     </div>
                     `);
@@ -240,6 +495,7 @@ function generateForm(form_data) {
                         required_questions.push(question_id);
                     }
                     break;
+
             }
         }
     }
