@@ -125,7 +125,9 @@ function Database() {
     if (Database.isLogging) {
       var dir = 'users/' + Database.uid + '/sessions';
       var dbRef = firebase.database().ref(dir);
-      var sessionInfo = {};
+      var sessionInfo = {
+        url: window.location.href
+      };
       Database.insertTime(sessionInfo);
       Database.sid = dbRef.push(sessionInfo).key;
       console.log("Session Started", sessionInfo);
