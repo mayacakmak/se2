@@ -42,10 +42,14 @@
   <script src="scripts/navigation.js"></script>
   <script src="scripts/instructions.js"></script>
   <script>
-    Database.readyCallback = function () {
-      Database.getAndUpdateInterfaceNum(loadVideo);
-    };
-    db.initialize();
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      moveToPage("mobile.html")
+    } else {
+      Database.readyCallback = function () {
+        Database.getAndUpdateInterfaceNum(loadVideo);
+      };
+      db.initialize();
+    }
   </script>
 </body>
 
