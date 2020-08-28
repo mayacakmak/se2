@@ -58,7 +58,8 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1598561814.367759
+snapshot_timestamp = 1598642923.545525
+uids = ["dgb7CWy7rSNWIAZHXEYDRAt3O2b2", "6qW2fw5bT5hLvsAUO7MaR82ZqOu1", "3gz7ZfC2YVWEL83csaHrnHLqet42", "7TIOuYmg42MtgXKvf7YcfCYX9l52", "403NovdIENcvmKY9PoakqivpyP53", "pfZvthWm1iY4Cm11co2LgBEnimj1", "OEoHdni4GFXI6iKVbbW1pOGNXps2", "J2eQ4D9j9wVgj0oNOpZLWCenWnh1", "iTccwNLgo2OCqpG2BR565G1iUtA2"]
 
 # %% [markdown]
 ## Load data from Firebase
@@ -93,53 +94,58 @@ cycle_data = []
 action_list = {}
 
 for uid in json_snapshot:
-    for sid in json_snapshot[uid]['sessions']:
-        if 'cycles' in json_snapshot[uid]['sessions'][sid]:
-            for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
-                cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
+    if uid in uids:
+        for sid in json_snapshot[uid]['sessions']:
+            if 'cycles' in json_snapshot[uid]['sessions'][sid]:
+                for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
+                    cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
+                    
+                    if 'isTest' not in cycle:
+                        print(cid, sid, uid)
+                        continue
 
-                if cycle['isTest']:
-                    # Update cycle_data with general information about the cycle
-                    startTime = cycle['startTime']['timestamp'] / 1000
-                    status = cycle['status']
+                    if cycle['isTest']:
+                        # Update cycle_data with general information about the cycle
+                        startTime = cycle['startTime']['timestamp'] / 1000
+                        status = cycle['status']
 
-                    # There is no end timestamp if the cycle is incomplete
-                    endTime = startTime
-                    if status == "complete":
-                        endTime = cycle['endTime']['timestamp'] / 1000
+                        # There is no end timestamp if the cycle is incomplete
+                        endTime = startTime
+                        if status == "complete":
+                            endTime = cycle['endTime']['timestamp'] / 1000
 
-                    control = cycle['control']
-                    transitionType = cycle['transitionType']
-                    interfaceID = control + "." +transitionType
+                        control = cycle['control']
+                        transitionType = cycle['transitionType']
+                        interfaceID = control + "." +transitionType
 
-                    interfaceIDs.add(interfaceID)
+                        interfaceIDs.add(interfaceID)
 
-                    targetX = cycle['targetPose']['x']
-                    targetY = cycle['targetPose']['y']
-                    targetTheta = cycle['targetPose']['theta']
-                    threshXY = cycle['targetPose']['threshXY']
-                    threshTheta = cycle['targetPose']['threshTheta']
+                        targetX = cycle['targetPose']['x']
+                        targetY = cycle['targetPose']['y']
+                        targetTheta = cycle['targetPose']['theta']
+                        threshXY = cycle['targetPose']['threshXY']
+                        threshTheta = cycle['targetPose']['threshTheta']
 
-                    cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta, threshXY, threshTheta])
+                        cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta, threshXY, threshTheta])
 
-                    # Update action_list with the set of actions for this cycle
-                    if 'events' in cycle: # Sometimes the last cycle of a session has no action so we skip it
-                        actions = []
-                        for aid in cycle['events']:
+                        # Update action_list with the set of actions for this cycle
+                        if 'events' in cycle: # Sometimes the last cycle of a session has no action so we skip it
+                            actions = []
+                            for aid in cycle['events']:
 
-                            # We want to ignore any events that are just ee pose logs, and only keep user actions
-                            if cycle['events'][aid]['type'] != 'pose':
-                                # We want to remove any actions that are just a release of the cursor
-                                action_type = cycle['events'][aid]['newState']
-                                if action_type != "cursor-free":
-                                    actions.append(action_type)
-                                elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
-                                    actions.append(action_type)
-                        
-                        if interfaceID in action_list:
-                            action_list[interfaceID].append(actions)
-                        else:
-                            action_list[interfaceID] = [actions]
+                                # We want to ignore any events that are just ee pose logs, and only keep user actions
+                                if cycle['events'][aid]['type'] != 'pose':
+                                    # We want to remove any actions that are just a release of the cursor
+                                    action_type = cycle['events'][aid]['newState']
+                                    if action_type != "cursor-free":
+                                        actions.append(action_type)
+                                    elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
+                                        actions.append(action_type)
+                            
+                            if interfaceID in action_list:
+                                action_list[interfaceID].append(actions)
+                            else:
+                                action_list[interfaceID] = [actions]
 
 # %%
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)

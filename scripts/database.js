@@ -187,19 +187,21 @@ function Database() {
 
   Database.logEEPose = function () {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/events";
-      var dbRef = firebase.database().ref(dir);
-      eventLog = {
-        type: "pose",
-        eePose: {
-          x: ee.pose.x,
-          y: ee.pose.y,
-          theta: ee.pose.theta
-        }
-      };
-      Database.insertTime(eventLog);
-      dbRef.push(eventLog);
-      console.log(eventLog);
+      if (cid != null) {
+        var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/events";
+        var dbRef = firebase.database().ref(dir);
+        eventLog = {
+          type: "pose",
+          eePose: {
+            x: ee.pose.x,
+            y: ee.pose.y,
+            theta: ee.pose.theta
+          }
+        };
+        Database.insertTime(eventLog);
+        dbRef.push(eventLog);
+        console.log(eventLog);
+      }
     }
   }
 
