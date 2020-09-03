@@ -21,6 +21,14 @@ var interface_nums_inverse = {
   }
 }
 
+
+let controlType = getURLParameter("c");
+let transitionType = getURLParameter("t");
+if (controlType == undefined)
+  controlType = 0;
+if (transitionType == undefined)
+  transitionType = 1;
+
 function moveToPage(location) {
   window.location.href = location;
 }
