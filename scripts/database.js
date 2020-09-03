@@ -9,7 +9,7 @@ function Database() {
   Database.cid = null; // Cycle ID
   Database.isLogging = true;
 
-  Database.in_progess_timeout = 2; // in minutes, how long before a user is automatically assumed to be inactive
+  Database.in_progess_timeout = 32; // in minutes, how long before a user is automatically assumed to be inactive
   Database.in_progess_timeout = Database.in_progess_timeout * 60 * 1000; // Convert to milliseconds
   /*
   * If somethings need to be initialized only after the database connection 
@@ -102,7 +102,7 @@ function Database() {
       // Create directory in database to save this user's data
       Database.logSessionStart();
 
-      // Update the interface in_progress/cancelled state
+      // Update the interface in_progress/canceled state
       Database.updateInterfaceStates((new Date).getTime());
 
       if (Database.readyCallback != null)
@@ -233,10 +233,10 @@ function Database() {
       firebase.database().ref(`state/${interface_num}/in_progress/${Database.uid}`).once('value', function (snapshot) {
         var state = snapshot.val();
 
-        // Delete the user from [in_progess, cancelled] Add them to [completed]
+        // Delete the user from [in_progess, canceled] Add them to [completed]
         firebase.database().ref(`state/${interface_num}/in_progress/${Database.uid}`).remove();
-        firebase.database().ref(`state/${interface_num}/cancelled/${Database.uid}`).remove();
-        firebase.database().ref(`state/${interface_num}/complete/${Database.uid}`).set(state);
+        firebase.database().ref(`state/${interface_num}/canceled/${Database.uid}`).remove();
+        firebase.database().ref(`state/${interface_num}/complete/${Database.uid}`).set({timestamp: (state ? state : (new Date).getTime()) });
       });
 
       // Decrement the total left to do for this interface
@@ -261,8 +261,8 @@ function Database() {
               if (currentTime - state[i].in_progress[user_id].timestamp > Database.in_progess_timeout) {
                 // Delete the user from [in_progess] 
                 firebase.database().ref(`state/${i}/in_progress/${user_id}`).remove();
-                // Add them to [cancelled]
-                firebase.database().ref(`state/${i}/cancelled/${user_id}`).set(state[i].in_progress[user_id]);
+                // Add them to [canceled]
+                firebase.database().ref(`state/${i}/canceled/${user_id}`).set(state[i].in_progress[user_id]);
               }
             });
           }
