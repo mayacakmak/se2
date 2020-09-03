@@ -9,6 +9,8 @@ function Database() {
   Database.cid = null; // Cycle ID
   Database.isLogging = true;
 
+  Database.in_progess_timeout = 2; // in minutes, how long before a user is automatically assumed to be inactive
+  Database.in_progess_timeout = Database.in_progess_timeout * 60 * 1000; // Convert to milliseconds
   /*
   * If somethings need to be initialized only after the database connection 
   * has been established, the Database.readyCallback static variable should be
@@ -18,7 +20,7 @@ function Database() {
   Database.readyCallback = null;
 
   /* 
-  * Firebase configuration information obntained from the Firebase console
+  * Firebase configuration information obtained from the Firebase console
   */
   Database.config = {
     apiKey: "AIzaSyBLQXA1Lwlp6SgfQ3HAos_kCL4flCNc004",
@@ -99,6 +101,9 @@ function Database() {
 
       // Create directory in database to save this user's data
       Database.logSessionStart();
+
+      // Update the interface in_progress/cancelled state
+      Database.updateInterfaceStates((new Date).getTime());
 
       if (Database.readyCallback != null)
         Database.readyCallback();
@@ -215,6 +220,54 @@ function Database() {
       }
       Database.insertTime(questionnaireInfo.time);
       dbRef.push(questionnaireInfo);
+
+      // Get the current interface from the URL
+      let controlType = getURLParameter("c");
+      let transitionType = getURLParameter("t");
+      if (controlType == undefined)
+        controlType = 0;
+      if (transitionType == undefined)
+        transitionType = 1;
+      var interface_num = interface_nums_inverse[controlType][transitionType];
+
+      firebase.database().ref(`state/${interface_num}/in_progress/${Database.uid}`).once('value', function (snapshot) {
+        var state = snapshot.val();
+
+        // Delete the user from [in_progess, cancelled] Add them to [completed]
+        firebase.database().ref(`state/${interface_num}/in_progress/${Database.uid}`).remove();
+        firebase.database().ref(`state/${interface_num}/cancelled/${Database.uid}`).remove();
+        firebase.database().ref(`state/${interface_num}/complete/${Database.uid}`).set(state);
+      });
+
+      // Decrement the total left to do for this interface
+      //  * (This is done using a transaction to prevent two users overwriting each others changes)
+      firebase.database().ref(`state/${interface_num}/todo`).transaction(function (todo) {
+        if (todo) {
+          todo--;
+        }
+        return todo;
+      });
+    }
+  }
+
+  Database.updateInterfaceStates = function (currentTime) {
+    if (Database.isLogging) {
+      firebase.database().ref('state').once('value').then(function (snapshot) {
+        var state = snapshot.val();
+        for (var i = 0; i < state.length; i++) {
+          // Update the current state of the database to move users around
+          if (state[i].in_progress) {
+            Object.keys(state[i].in_progress).forEach(function (user_id) {
+              if (currentTime - state[i].in_progress[user_id].timestamp > Database.in_progess_timeout) {
+                // Delete the user from [in_progess] 
+                firebase.database().ref(`state/${i}/in_progress/${user_id}`).remove();
+                // Add them to [cancelled]
+                firebase.database().ref(`state/${i}/cancelled/${user_id}`).set(state[i].in_progress[user_id]);
+              }
+            });
+          }
+        }
+      });
     }
   }
 
@@ -222,22 +275,48 @@ function Database() {
     if (Database.isLogging) {
       var dir = 'state';
       var dbRef = firebase.database().ref(dir);
-      dbRef.once('value').then( function (snapshot) {
+      var currentTime = (new Date).getTime();
+
+      Database.updateInterfaceStates(currentTime);
+
+      var neededTests = [];
+      dbRef.once('value').then(function (snapshot) {
         var state = snapshot.val();
-        if (state != null) {
-          firebase.database().ref('state').set({
-            interface_num: (state.interface_num + 1) % 9
-          });
-          callback(state.interface_num);
-        } else {
-          firebase.database().ref('state').set({
-            interface_num: 1
-          });
-          callback(0);
+
+        for (var i = 0; i < state.length; i++) {
+          neededTests.push(state[i].todo);
+          if (state[i].in_progress) {
+            neededTests[i] -= Object.keys(state[i].in_progress).length;
+          }
         }
+        
+        // Select the interface that currently needs the most tests
+        var chosen_interface = loc_max(neededTests);
+        firebase.database().ref(`${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });
+        callback(chosen_interface);
       });
     }
   }
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function loc_max(arr) {
+  // We want to make sure that if all are equal, a starting location is chosen
+  var loc = getRandomInt(0, arr.length - 1);
+  var max = arr[loc];
+
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] > max) {
+      loc = i;
+      max = arr[i];
+    }
+  }
+  return loc;
 }
 
 /*
