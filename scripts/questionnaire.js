@@ -403,7 +403,7 @@ $(document).ready(function () {
 
         if (validateForm() && current_section == num_sections - 1) {
             Database.logQuestionnaire(getFormData());
-            
+
             $("#mturk-key").html(`<h3>Thank you!</h3> <br> Here is your AMT completion code: <kbd>${Database.uid}</kbd>`);
             setSection(-1);
         }
@@ -525,7 +525,7 @@ function setSection(sect_num) {
         $("#submit").hide()
     }
 
-    
+
     if (sect_num == -1) {
         $("#back").hide()
         $("#next").hide()
@@ -537,12 +537,20 @@ function setSection(sect_num) {
 }
 
 function getFormData() {
-    var data = $('#form').serializeArray().reduce(function (obj, item) {
+
+    var radios = $('#form').serializeArray().reduce(function (obj, item) {
         obj[item.name] = item.value;
         return obj;
     }, {});
 
-    return data;
+    var input = {}
+    $("#form textarea, #form input").each(function (i, obj) {
+        if ($(obj).attr('id').search("input") >= 0) {
+            input[$(obj).attr('id')] = $(obj).val();
+        }
+    });
+
+    return Object.assign({}, radios, input);
 }
 
 function validateForm() {
