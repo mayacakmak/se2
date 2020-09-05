@@ -29,12 +29,24 @@ div.container-fixed {
 }
 
 div.workspace-div {
-  width: 750px;
-  height: 500px;
+  width: 1100px;
+  height: 733px;
 }
 
 svg.workspace {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+  width: 1100px;
+  height: 733px;
+  position: absolute;
+  pointer-events: none;
+}
+
+table, td, th {
+  border: 2px solid black;
 }

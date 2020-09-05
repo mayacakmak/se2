@@ -42,7 +42,7 @@ var ee = null;
 var control = null;
 
 // Enable/Disable logging
-var offline = false;
+var offline = true;
 var hasTimer = false;
 var isTest = false;
 var testConfigs = null;
