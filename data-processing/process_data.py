@@ -58,8 +58,55 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1598642923.545525
-uids = ["dgb7CWy7rSNWIAZHXEYDRAt3O2b2", "6qW2fw5bT5hLvsAUO7MaR82ZqOu1", "3gz7ZfC2YVWEL83csaHrnHLqet42", "7TIOuYmg42MtgXKvf7YcfCYX9l52", "403NovdIENcvmKY9PoakqivpyP53", "pfZvthWm1iY4Cm11co2LgBEnimj1", "OEoHdni4GFXI6iKVbbW1pOGNXps2", "J2eQ4D9j9wVgj0oNOpZLWCenWnh1", "iTccwNLgo2OCqpG2BR565G1iUtA2"]
+snapshot_timestamp = 1599149218.2695348
+uids = [
+"5GRB38CXknhkxg6TOJbIcv2nXzA3",
+"yjK8ULyntGPoDEAVHNTTN9Nqfm22",
+"JuK3dGRjGtaiAE5tEbENZ5uYEgL2",
+"R38A4sW0hPeZrf5gGP3LlkOGvN42",
+"RYXaa5nARFMPqC9lZlhtxjoWhT63",
+"2g3T3iXiK5ZAzDnfXsw48gz51U13",
+"koOh4ai537ck1bicewiBDXbsvT32",
+"BYP2GZ3dMcOaxOQe3LzTG8mExNg1",
+"iAfRVyE5zBVDaCJaHQy8eXy4UFt2",
+"lcQ2LyJnZYYOiVkUdn74Vlg5cFO2",
+"Szx7JQSiAJZ3Jrc1qtWMkzjpf1r2",
+"HAyJn9wjYoNyZbAZQvRSgEPVTBC2",
+"GI13cLqmg0e8fvQHNLbNFaDmj3B3",
+"yXc9k4hHTfVTgFB2vofsvtp4iar2",
+"IytvG29WMiVzbwB3LD3CB6A7L2C2",
+"6sNdm497rGOH8Zaxrf6R2RAnen12",
+"YuIhl3MUG9SoctZBfojblQrzGYV2",
+"63nBGBk0lIUg2uTHjKFZ1QLSA3k1",
+"JhA9pw1gtOaoCEqfRi1tovqQI0n2",
+"Szx7JQSiAJZ3Jrc1qtWMkzjpf1r2",
+"erlxfdLlZTZn92ezvmBLaOsGSaY2",
+"NrMq1plFgONhVkws64ERStImxm92",
+"kc4EpEGlKeQ3IqHhwop1BQ8Sns23",
+"OuZXXUa0PBS3TAYE1F57zKPrloj2",
+"BBNBAdETSFbMsJn9gDqsoVWl5eX2",
+"XToQ1O8D7wa4jvMOEoakj9b4MC43",
+"nMMOu7Etu1ZqvXCSqSIVLoEph2i1",
+"olgTWiva9YhGjnlAhCxOjcwGexu2",
+"u7l3t5DLMVafkJAIhTh419wbrYB2",
+"Pg0WtxkkvafBMeeQpn4amV5Qxlp2",
+"ddIBVrHAzMbAuDB2pXLXm9HJlZX2",
+"iaCIBURD8ZgSt3y33E3WHT70sfH2",
+"edOwBLqhK2g3rlRfp6wLB1n3qvF2",
+"6FI56PH5O4Zezb02QVteRn9eFVV2",
+"elKMsbzEutNcpBY6JFgUA3E05Bj2",
+"J2eQ4D9j9wVgj0oNOpZLWCenWnh1",
+"X6VjwiI94tef2FXw9MMFolQYrYp1",
+"el1LL3Iyc7X2CNma2yYgswZr4Zl2",
+"1lKYBHe3pwS1uQndpwxe3LOlWv82",
+"edOwBLqhK2g3rlRfp6wLB1n3qvF2",
+"Fsii053aoTUhqumz1vMK867h7ko1",
+"5W0paREQZBNfhxUOJfB9eGOQPAD3",
+"rjyk9m3Qs6fTSzfG1m8UQHK9fTI3",
+"BLikrZve4nMMwPOWZegBihFZthI3",
+"wZDNjgM6U3XD78Ek1tiDEWuE3q63",
+"nOpsxid8GVaWVGyguvNJ48qCvol2"
+]
 
 # %% [markdown]
 ## Load data from Firebase
@@ -93,12 +140,12 @@ cycle_data = []
 
 action_list = {}
 
-for uid in json_snapshot:
+for uid in json_snapshot['users']:
     if uid in uids:
-        for sid in json_snapshot[uid]['sessions']:
-            if 'cycles' in json_snapshot[uid]['sessions'][sid]:
-                for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
-                    cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
+        for sid in json_snapshot['users'][uid]['sessions']:
+            if 'cycles' in json_snapshot['users'][uid]['sessions'][sid]:
+                for cid in json_snapshot['users'][uid]['sessions'][sid]['cycles']:
+                    cycle = json_snapshot['users'][uid]['sessions'][sid]['cycles'][cid]
                     
                     if 'isTest' not in cycle:
                         print(cid, sid, uid)
@@ -190,11 +237,13 @@ for i, interfaceID in enumerate(interface_dfs):
     interface_df = interface_dfs[interfaceID]
     ax.scatter(interface_df['cycleLength'], interface_df['targetDistance'], c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance to Target')
+
+    ax.set_xlim([0, 35])
 
 # %% [markdown]
 ### Orientation vs Time
@@ -210,8 +259,8 @@ for i, interfaceID in enumerate(interface_dfs):
     interface_df = interface_dfs[interfaceID]
     ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']), c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
+    #ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Target Rotation')
@@ -231,8 +280,8 @@ for i, interfaceID in enumerate(interface_dfs):
     interface_df = interface_dfs[interfaceID]
     ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance + Orientation')
@@ -247,7 +296,7 @@ sample_num = 1000
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
-for i, interfaceID in enumerate(action_list):
+for i, interfaceID in enumerate(interfaceIDs):
     rotation = np.array([])
     translation = np.array([])
     click = np.array([])
