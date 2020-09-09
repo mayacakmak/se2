@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from scipy import interpolate
 import numpy as np
+import seaborn as sns
+from sklearn.preprocessing import normalize
+
 
 # General
 import os
@@ -197,9 +200,14 @@ for uid in json_snapshot['users']:
 # %%
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
+
+cycles_df['flexibility'] = np.interp(cycles_df['threshXY'], (5, 30), (0, 1)) + np.interp(cycles_df['threshTheta'], (5, 60), (0, 1))
+
 # Calculate the euclidean distace between where the ee starts (357, 249) and the target
 cycles_df['targetDistance'] = ((cycles_df['targetX'] - 357) ** 2 + (cycles_df['targetY'] - 249) ** 2) ** 0.5
 cycles_df = cycles_df[cycles_df["status"] == "complete"]
+
+cycles_df['targetPosTheta'] = np.degrees(np.arccos((cycles_df['targetX'] - 357)/cycles_df['targetDistance']))
 
 interface_dfs = {}
 for interfaceID in interfaceIDs:
@@ -277,7 +285,7 @@ for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
     
-    interface_df = interface_dfs[interfaceID]
+    interface_df = interface_dfs[interfaceID]#
     ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], c="tab:blue")
     
     #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
@@ -285,6 +293,44 @@ for i, interfaceID in enumerate(interface_dfs):
 
     ax.set_xlabel('Cycle Time')
     ax.set_ylabel('Distance + Orientation')
+
+#%% [markdown]
+### Distance / Time / Flex Correlation
+
+# %%
+fig = plt.figure(figsize=(20,20))
+fig.subplots_adjust(hspace=0.1, wspace=0.1)
+
+for i, interfaceID in enumerate(interface_dfs):
+    ax = plt.subplot("33"+str(i+1))
+    ax.set_title(interfaceID)
+
+    interface_df = interface_dfs[interfaceID]
+    
+    corr_matrix = interface_df[['cycleLength', 'targetDistance', 'flexibility']].corr()
+    sns.heatmap(corr_matrix, annot = True, fmt='.2',cmap= 'coolwarm', ax=ax, vmin=-0.5, vmax=0.2)
+plt.show()
+
+#%% [markdown]
+### Distance vs Target Position Angle
+
+# %%
+fig = plt.figure(figsize=(16,10))
+fig.subplots_adjust(hspace=0.6, wspace=0.3)
+
+for i, interfaceID in enumerate(interface_dfs):
+    ax = plt.subplot("33"+str(i+1))
+    ax.set_title(interfaceID)
+
+    interface_df = interface_dfs[interfaceID]
+    ax.scatter(interface_df['targetPosTheta'], interface_df['cycleLength'], c="tab:blue")
+    
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
+
+    ax.set_xlabel('Target Position Angle')
+    ax.set_ylabel('Cycle Time')
+plt.show()
 
 # %% [markdown]
 ## Action stats per interface
