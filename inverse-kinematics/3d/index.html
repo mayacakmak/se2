@@ -103,18 +103,22 @@
         var enableIK = true;
 
         $(document).ready(function () {
+            // Display iteration count
             $("#iter-display").text(iterations);
 
+            // Update the iterations based on the slider
+            // This is exponential instead of linear to allow easier testing of a wider range
             $("#iter").change(function () {
                 iterations = Math.pow(10, this.value);
                 $("#iter-display").text(iterations);
             });
 
+            // Handle enable/disable IK for debugging
             $("#ik").change(function () {
                 enableIK = $("#ik").is(':checked');
-                //console.log(enableIK);
             })
 
+            // Switch between translate and rotate Gimbal modes
             $(document).keypress(function (event) {
                 if (event.key == "t") {
                     transformControls.setMode("translate");
@@ -130,7 +134,7 @@
         function init() {
             scene = new THREE.Scene();
 
-            //var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+            // Setup the THREE.js camera, render and scene
             var SCREEN_WIDTH = 600, SCREEN_HEIGHT = 600;
             var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
             camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
@@ -142,10 +146,11 @@
             container = document.getElementById('ThreeJS');
             container.appendChild(renderer.domElement);
 
+            // Setup the control for navigating in the viewport
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.reset();
 
-            // Lights
+            // Setup Lights
             var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
             particleLight.position.set(2611.7403539515544, 3454.272981693232, 1494.286894656113);
             scene.add(particleLight);
@@ -156,18 +161,20 @@
             var pointLight = new THREE.PointLight(0xffffff, 0.7);
             particleLight.add(pointLight);
 
-
             var skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
             var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
             var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
 
+            // Setup the Collada Loader to load the PR2 Model
             var loader = new THREE.ColladaLoader();
             loader.options.convertUpAxis = true;
             loader.load('openrave-pr2.dae', function (_collada) {
                 collada = _collada;
 
+                // Get the THREE.js object from the loader
                 dae = collada.scene;
 
+                // Turn on flat shading for every part of the robot
                 dae.traverse(function (child) {
 
                     if (child instanceof THREE.Mesh) {
@@ -179,32 +186,35 @@
 
                 });
 
+                // Scale PR2 up by 10
                 dae.scale.x = dae.scale.y = dae.scale.z = 10.0;
                 dae.updateMatrix();
 
+                // Get the kinematic information from the loader
                 kinematics = collada.kinematics;
                 console.log("Kinematics:");
                 console.log(kinematics);
 
-                // Add the COLLADA
+                // Add PR2 to the scene
                 THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
                 dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
                 //dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x669966); } }, 0);
                 scene.add(dae);
 
-                // Arm index
+                // Find the joint index of the arm
                 arm_joint_idx = findJointByName(arm_link_name);
                 console.log(arm_joint_idx);
             });
 
 
-            // Add the target
+            // Add the target to the scene
             var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
             var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
 
             target = new THREE.Mesh(geometry, material);
             scene.add(target);
 
+            // Attach the Gibal to the target
             transformControls = new THREE.TransformControls(camera, renderer.domElement);
             transformControls.addEventListener('change', render);
 
@@ -217,6 +227,8 @@
             scene.add(transformControls);
         }
 
+        // This fuction is called automatically in a loop by the browser
+        // It renders the scene, and updates the IK
         function animate() {
             requestAnimationFrame(animate);
             render();
@@ -226,6 +238,8 @@
 
         function update() {
             controls.update();
+            // It is possible for this function to be called before the model is fully loaded
+            // So we need to make sure that the kinematics object actually exists
             if (kinematics && enableIK) {
                 solveIK(target, iterations);
             }
@@ -235,6 +249,7 @@
             renderer.render(scene, camera);
         }
 
+        // Find the index of a joint based in its name
         function findJointByName(nodeName) {
             for (var i = 0; i < 87; i++) {
                 if (kinematics.jointMap[i].node.name == nodeName) {
@@ -243,6 +258,7 @@
             }
         }
 
+        // Get the angle of a joint
         function getJointAngles() {
             var jointAngles = [];
             for (var i = 0; i < NUM_JOINTS; i++) {
@@ -255,6 +271,7 @@
             return jointAngles;
         }
 
+        // Calculate the euclidean distance between two THREE.js vectors
         function calcDist(v1, v2) {
             var dx = v1.x - v2.x;
             var dy = v1.y - v2.y;
@@ -263,6 +280,7 @@
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        // Calculate the distance between two quaternions
         function calcQuaternionDist(q1, q2) {
             var dx = q1._x - q2._x;
             var dy = q1._y - q2._y;
@@ -272,6 +290,8 @@
             return Math.sqrt(dx * dx + dy * dy + dz * dz + dw * dw);
         }
 
+        // Calculate the distance between two arrays of values
+        // TODO: Right now, this is not a euclidean distance, that should be tested.
         function calcAngleDist(a1, a2) {
             var sum = 0;
             for (var i = 0; i < NUM_JOINTS; i++) {
@@ -286,6 +306,7 @@
             return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
         }
 
+        // Get the position and rotatin o fhte EE
         function getEEPose() {
 
             // Set the endpoint to the tip of the hand
@@ -303,11 +324,13 @@
             return { position: position, quaternion: quaternion };
         }
 
+        // Starting angles for the arm
         var lastAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
         function solveIK(target, iter) {
             function loss(angles) {
                 var constrainLoss = 0;
                 var updatedAngles = [];
+                // Update the position o the arm based in the input angles
                 for (var i = 0; i < NUM_JOINTS; i++) {
                     var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
 
@@ -328,10 +351,11 @@
                     kinematics.setJointValue(arm_joint_idx + i, newAngle);
                 }
 
+                // Get the new ee pose
                 dae.updateMatrixWorld(true);
-
                 var eePose = getEEPose()
 
+                // Calculate all 3 loss values
                 var posLoss = calcDist(target.position, eePose.position);
                 var rotLoss = calcQuaternionDist(target.quaternion, eePose.quaternion)
 
@@ -345,10 +369,12 @@
 
             var tempLastAngles = [];
 
+            // There are 3 options for the starting position: all zeroes, the current state of the arm, and a predefined "good" position
             var startingAngles = Array(NUM_JOINTS).fill(0);
             startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Realistic angles (without range mapping)
             //startingAngles = getJointAngles();
 
+            // Solve the IK
             var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
 
             lastAngles = tempLastAngles;
