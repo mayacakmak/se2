@@ -13,7 +13,7 @@ var views, scene, renderer;
 var mouseX = 0, mouseY = 0;
 
 var windowWidth = 1100, windowHeight = 733;
-var cameraScale = 30;
+var cameraScale = 65;
 
 var xScale = 1.222;
 var zScale = 0.8;
@@ -28,8 +28,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [15, 7, 0],
-        rotation: new THREE.Vector3(0, Math.PI / 2, 0)
+        eye: [15, 7, -3],
+        rotation: new THREE.Vector3(0, Math.PI / 2, 0),
+        cameraScale: 65
     },
     {
         screenPos: "top-left",
@@ -39,8 +40,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [0, 20, 0],
-        rotation: new THREE.Vector3(-Math.PI / 2, 0, 0)
+        eye: [5, 20, -3],
+        rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
+        cameraScale: 60
     },
     {
         screenPos: "bottom-right",
@@ -50,8 +52,8 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [10, 10, 10],
-        target: new THREE.Vector3(0, 4, 0),
+        eye: [10, 10, -10],
+        target: new THREE.Vector3(0, 5, 0),
         fov: 60
     },
     {
@@ -62,8 +64,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [0, 5, 15],
-        rotation: new THREE.Vector3(0, 0, 0)
+        eye: [5, 5, 15],
+        rotation: new THREE.Vector3(0, 0, 0),
+        cameraScale: 65
     }
 ];
 
@@ -83,8 +86,8 @@ function init() {
             camera.lookAt(view.target);
             view.camera = camera;
         } else if (view.type == "orthographic") {
-            var w = windowWidth / cameraScale;
-            var h = windowHeight / cameraScale;
+            var w = windowWidth / view.cameraScale;
+            var h = windowHeight / view.cameraScale;
             var camera = new THREE.OrthographicCamera(w / - 2, w / 2, h / 2, h / - 2, 1, 10000);
             camera.position.fromArray(view.eye);
             camera.rotation.setFromVector3(view.rotation);
@@ -144,7 +147,13 @@ function init() {
 
         // Arm index
         arm_joint_idx = findJointByName(arm_link_name);
-        console.log(arm_joint_idx);
+
+        // Move the right arm down
+        r_arm_joint_idx = findJointByName("r_shoulder_pan_link");
+        kinematics.setJointValue(r_arm_joint_idx, -90);
+        kinematics.setJointValue(r_arm_joint_idx+1, 80);
+        kinematics.setJointValue(r_arm_joint_idx+2, -180);
+
     });
 
 
@@ -235,13 +244,14 @@ function calcQuaternionDist(q1, q2) {
     return Math.sqrt(dx * dx + dy * dy + dz * dz + dw * dw);
 }
 
+// Calculate the distance between two arrays of values
 function calcAngleDist(a1, a2) {
     var sum = 0;
     for (var i = 0; i < NUM_JOINTS; i++) {
-        sum += Math.abs(a1[i] - a2[i]);
+        sum += Math.abs(a1[i] - a2[i]) ** 2;
     }
 
-    return sum
+    return Math.sqrt(sum);
 }
 
 function map_range(raw_value, low1, high1, low2, high2) {
@@ -255,7 +265,7 @@ function getEEPose() {
     var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node;
 
     // Set the endpoint to the wrist
-    // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS - 1].node;
+    var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS].node;
 
     var position = new THREE.Vector3();
     var quaternion = new THREE.Quaternion();
