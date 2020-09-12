@@ -11,12 +11,26 @@ function Control(name, ee, target, transitionType) {
 
   // Ring is not used for all control,
   // but still there for dimension consistency
-  Control.ring = new Ring();
-  Control.handle = new Handle();
-  Control.ghost = new Ghost();
-  Control.xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
-  Control.yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
-  Control.panel = new Panel();
+  Control.t_ring = new Ring();
+  Control.t_handle = new Handle();
+  Control.t_ghost = new Ghost();
+  Control.t_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
+  Control.t_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.t_panel = new Panel();
+
+  Control.f_ring = new Ring();
+  Control.f_handle = new Handle();
+  Control.f_ghost = new Ghost();
+  Control.f_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
+  Control.f_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.f_panel = new Panel();
+  
+  Control.s_ring = new Ring();
+  Control.s_handle = new Handle();
+  Control.s_ghost = new Ghost();
+  Control.s_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
+  Control.s_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.s_panel = new Panel();
 
   /*
   * Utility function to check if the end effector has reached the target

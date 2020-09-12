@@ -4,7 +4,7 @@
 function ArrowControl(ee, target, transitionType) {
   Control.call(this, "arrow", ee, target, transitionType);
 
-  Control.fsm = new FSM(["cursor-free", "translating-x", "translating-y", "rotating"], 
+  Control.fsm = new FSM(["cursor-free", "translating-x", "translating-y", "rotating"],
     [new Transition("cursor-free", "x-arrow-press", "translating-x"),
     new Transition("cursor-free", "y-arrow-press", "translating-y"),
     new Transition("cursor-free", "ring-press", "rotating"),
@@ -12,42 +12,88 @@ function ArrowControl(ee, target, transitionType) {
     new Transition("translating-y", "y-arrow-release", "cursor-free"),
     new Transition("rotating", "ring-release", "cursor-free")]);
 
-  Control.initialize = function(eePose) {
-    
+  Control.initialize = function (eePose) {
+
     var ws = document.getElementById("workspace");
 
     // Register events
     if (Control.transitionType == "click") {
-      Control.xArrows.group.addEventListener("click", Control.handleEvent);
-      Control.yArrows.group.addEventListener("click", Control.handleEvent);
-      Control.ring.group.addEventListener("click", Control.handleEvent);
+      Control.t_xArrows.group.addEventListener("click", Control.handleEvent);
+      Control.t_yArrows.group.addEventListener("click", Control.handleEvent);
+      Control.t_ring.group.addEventListener("click", Control.handleEvent);
+
+      Control.f_xArrows.group.addEventListener("click", Control.handleEvent);
+      Control.f_yArrows.group.addEventListener("click", Control.handleEvent);
+      Control.f_ring.group.addEventListener("click", Control.handleEvent);
+
+      Control.s_xArrows.group.addEventListener("click", Control.handleEvent);
+      Control.s_yArrows.group.addEventListener("click", Control.handleEvent);
+      Control.s_ring.group.addEventListener("click", Control.handleEvent);
       ws.addEventListener("click", Control.handleEvent);
     }
     else {
-      Control.xArrows.group.addEventListener("mousedown", Control.handleEvent);
-      Control.xArrows.group.addEventListener("mouseup", Control.handleEvent);
-      Control.yArrows.group.addEventListener("mousedown", Control.handleEvent);
-      Control.yArrows.group.addEventListener("mouseup", Control.handleEvent);
-      Control.ring.group.addEventListener("mousedown", Control.handleEvent);
-      Control.ring.group.addEventListener("mouseup", Control.handleEvent);
+      Control.t_xArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.t_xArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.t_yArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.t_yArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.t_ring.group.addEventListener("mousedown", Control.handleEvent);
+      Control.t_ring.group.addEventListener("mouseup", Control.handleEvent);
+
+      Control.f_xArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.f_xArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.f_yArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.f_yArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.f_ring.group.addEventListener("mousedown", Control.handleEvent);
+      Control.f_ring.group.addEventListener("mouseup", Control.handleEvent);
+
+      Control.s_xArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.s_xArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.s_yArrows.group.addEventListener("mousedown", Control.handleEvent);
+      Control.s_yArrows.group.addEventListener("mouseup", Control.handleEvent);
+      Control.s_ring.group.addEventListener("mousedown", Control.handleEvent);
+      Control.s_ring.group.addEventListener("mouseup", Control.handleEvent);
       ws.addEventListener("mouseup", Control.handleEvent);
     }
 
     // Add elements to workspace
-    ws.appendChild(Control.ring.group);
-    Control.ring.setPose(eePose);    
-    ws.appendChild(Control.xArrows.group);
-    ws.appendChild(Control.yArrows.group);
-    Control.xArrows.setPose(eePose);        
-    Control.yArrows.setPose(eePose);        
+    ws.appendChild(Control.t_ring.group);
+    Control.t_ring.setPose(eePose);
+    ws.appendChild(Control.t_xArrows.group);
+    ws.appendChild(Control.t_yArrows.group);
+    Control.t_xArrows.setPose(eePose);
+    Control.t_yArrows.setPose(eePose);
 
     ws.style.cursor = "default";
-    Control.ring.group.style.cursor = "pointer";
-    Control.xArrows.group.style.cursor = "pointer";
-    Control.yArrows.group.style.cursor = "pointer";
+    Control.t_ring.group.style.cursor = "pointer";
+    Control.t_xArrows.group.style.cursor = "pointer";
+    Control.t_yArrows.group.style.cursor = "pointer";
+
+    ws.appendChild(Control.f_ring.group);
+    Control.f_ring.setPose(eePose);
+    ws.appendChild(Control.f_xArrows.group);
+    ws.appendChild(Control.f_yArrows.group);
+    Control.f_xArrows.setPose(eePose);
+    Control.f_yArrows.setPose(eePose);
+
+    ws.style.cursor = "default";
+    Control.f_ring.group.style.cursor = "pointer";
+    Control.f_xArrows.group.style.cursor = "pointer";
+    Control.f_yArrows.group.style.cursor = "pointer";
+
+    ws.appendChild(Control.s_ring.group);
+    Control.s_ring.setPose(eePose);
+    ws.appendChild(Control.s_xArrows.group);
+    ws.appendChild(Control.s_yArrows.group);
+    Control.s_xArrows.setPose(eePose);
+    Control.s_yArrows.setPose(eePose);
+
+    ws.style.cursor = "default";
+    Control.s_ring.group.style.cursor = "pointer";
+    Control.s_xArrows.group.style.cursor = "pointer";
+    Control.s_yArrows.group.style.cursor = "pointer";
   }
 
-  Control.unregisterEvents = function() {
+  Control.unregisterEvents = function () {
     var ws = document.getElementById("workspace");
     if (Control.transitionType == "click") {
       Control.xArrows.group.removeEventListener("mousedown", Control.handleEvent);
@@ -62,15 +108,15 @@ function ArrowControl(ee, target, transitionType) {
       Control.xArrows.group.removeEventListener("click", Control.handleEvent);
       Control.yArrows.group.removeEventListener("click", Control.handleEvent);
       Control.ring.group.removeEventListener("click", Control.handleEvent);
-      ws.removeEventListener("click", Control.handleEvent);      
+      ws.removeEventListener("click", Control.handleEvent);
     }
   }
-  
+
   /*
   * Static callback function for different events that this Controller
   * cares about (i.e. results in FSM state changes)
   */
-  Control.handleEvent = function(event) {
+  Control.handleEvent = function (event) {
     Control.firstClickPoint = getMousePosition(event);
 
     if (event.target.id != "workspace")
@@ -108,9 +154,9 @@ function ArrowControl(ee, target, transitionType) {
         fsmEvent = "x-arrow-press";
       else if (event.target.parentNode.id == "yArrows")
         fsmEvent = "y-arrow-press";
-    } else if (event.type == "click") {  
+    } else if (event.type == "click") {
       if (event.target.id == "button" ||
-            event.target.id == "button-text") {
+        event.target.id == "button-text") {
         // Do nothing
       }
       else if (event.target.id == "workspace") {
@@ -161,61 +207,163 @@ function ArrowControl(ee, target, transitionType) {
       Control.fsm.emitEvent(fsmEvent);
 
   }
-  
+
   /*
   * Static callback function that will be called every time the mouse is moved
   * on the workspace and will translate that mouse movement to meaningful input
   * based on the state of the FSM.
   */
-  Control.update = function(event) {
-    
-    Control.ring.resetColor();
-    Control.xArrows.resetColor();
-    Control.yArrows.resetColor();
+  Control.update = function (event) {
 
-    if (Control.fsm.currentState == "cursor-free") {
-      if (event.target.parentNode.id == 'xArrows'){
-        //Highlight horizontal arrows
-        Control.xArrows.highlight();
-      }
-      else if (event.target.parentNode.id == 'yArrows'){
-        //Highlight vertical arrows
-        Control.yArrows.highlight();
-      }
-      else if (event.target.id == 'ring'){
-        //Highlight ring
-        Control.ring.highlight();
-      }
-      return false;
+    switch (selectedView) {
+      case "top":
+        Control.t_ring.resetColor();
+        Control.t_xArrows.resetColor();
+        Control.t_yArrows.resetColor();
+
+        if (Control.fsm.currentState == "cursor-free") {
+          if (event.target.parentNode.id == 'xArrows') {
+            //Highlight horizontal arrows
+            Control.t_xArrows.highlight();
+          }
+          else if (event.target.parentNode.id == 'yArrows') {
+            //Highlight vertical arrows
+            Control.t_yArrows.highlight();
+          }
+          else if (event.target.id == 'ring') {
+            //Highlight ring
+            Control.t_ring.highlight();
+          }
+          return false;
+        }
+        else if (Control.fsm.currentState == "translating-x") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateXBy(a);
+          Control.ee.moveNow();
+          Control.t_ring.setPose(Control.ee.pose);
+          Control.t_xArrows.setPosition(Control.ee.getPosition());
+          Control.t_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.t_xArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "translating-y") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateYBy(a);
+          Control.ee.moveNow();
+          Control.t_ring.setPose(Control.ee.pose);
+          Control.t_xArrows.setPosition(Control.ee.getPosition());
+          Control.t_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.t_yArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "rotating") {
+          Control.t_ring.highlight();
+          Control.rotateFromRing(event);
+        }
+        else
+          console.log("Invalid state.");
+        break;
+      case "front":
+        Control.f_ring.resetColor();
+        Control.f_xArrows.resetColor();
+        Control.f_yArrows.resetColor();
+
+        if (Control.fsm.currentState == "cursor-free") {
+          if (event.target.parentNode.id == 'xArrows') {
+            //Highlight horizontal arrows
+            Control.f_xArrows.highlight();
+          }
+          else if (event.target.parentNode.id == 'yArrows') {
+            //Highlight vertical arrows
+            Control.f_yArrows.highlight();
+          }
+          else if (event.target.id == 'ring') {
+            //Highlight ring
+            Control.f_ring.highlight();
+          }
+          return false;
+        }
+        else if (Control.fsm.currentState == "translating-x") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateXBy(a);
+          Control.ee.moveNow();
+          Control.f_ring.setPose(Control.ee.pose);
+          Control.f_xArrows.setPosition(Control.ee.getPosition());
+          Control.f_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.f_xArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "translating-y") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateYBy(a);
+          Control.ee.moveNow();
+          Control.f_ring.setPose(Control.ee.pose);
+          Control.f_xArrows.setPosition(Control.ee.getPosition());
+          Control.f_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.f_yArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "rotating") {
+          Control.f_ring.highlight();
+          Control.rotateFromRing(event);
+        }
+        else
+          console.log("Invalid state.");
+        break;
+      case "side":
+        Control.s_ring.resetColor();
+        Control.s_xArrows.resetColor();
+        Control.s_yArrows.resetColor();
+
+        if (Control.fsm.currentState == "cursor-free") {
+          if (event.target.parentNode.id == 'xArrows') {
+            //Highlight horizontal arrows
+            Control.s_xArrows.highlight();
+          }
+          else if (event.target.parentNode.id == 'yArrows') {
+            //Highlight vertical arrows
+            Control.s_yArrows.highlight();
+          }
+          else if (event.target.id == 'ring') {
+            //Highlight ring
+            Control.s_ring.highlight();
+          }
+          return false;
+        }
+        else if (Control.fsm.currentState == "translating-x") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateXBy(a);
+          Control.ee.moveNow();
+          Control.s_ring.setPose(Control.ee.pose);
+          Control.s_xArrows.setPosition(Control.ee.getPosition());
+          Control.s_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.s_xArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "translating-y") {
+          var newClickPoint = getMousePosition(event);
+          var a = newClickPoint.diff(Control.firstClickPoint);
+          Control.ee.translateYBy(a);
+          Control.ee.moveNow();
+          Control.s_ring.setPose(Control.ee.pose);
+          Control.s_xArrows.setPosition(Control.ee.getPosition());
+          Control.s_yArrows.setPosition(Control.ee.getPosition());
+          Control.checkEEatTarget();
+          Control.s_yArrows.highlight();
+        }
+        else if (Control.fsm.currentState == "rotating") {
+          Control.s_ring.highlight();
+          Control.rotateFromRing(event);
+        }
+        else
+          console.log("Invalid state.");
+        break;
     }
-    else if (Control.fsm.currentState == "translating-x") {
-      var newClickPoint = getMousePosition(event);
-      var a = newClickPoint.diff(Control.firstClickPoint);
-      Control.ee.translateXBy(a);
-      Control.ee.moveNow();
-      Control.ring.setPose(Control.ee.pose);
-      Control.xArrows.setPosition(Control.ee.getPosition());
-      Control.yArrows.setPosition(Control.ee.getPosition());
-      Control.checkEEatTarget();
-      Control.xArrows.highlight();
-    }
-    else if (Control.fsm.currentState == "translating-y") {
-      var newClickPoint = getMousePosition(event);
-      var a = newClickPoint.diff(Control.firstClickPoint);
-      Control.ee.translateYBy(a);
-      Control.ee.moveNow();
-      Control.ring.setPose(Control.ee.pose);
-      Control.xArrows.setPosition(Control.ee.getPosition());
-      Control.yArrows.setPosition(Control.ee.getPosition());
-      Control.checkEEatTarget();
-      Control.yArrows.highlight();
-    }
-    else if (Control.fsm.currentState == "rotating") {
-      Control.ring.highlight();
-      Control.rotateFromRing(event);
-    }
-    else
-      console.log("Invalid state.");
     return true;
-  }  
+  }
 }

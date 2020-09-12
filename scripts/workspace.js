@@ -16,10 +16,36 @@ window.clearInterval = function (intervalId) {
   return window.originalClearInterval(intervalId);
 };
 
+function updateSelectedView(view) {
+  var alpha = 0.3;
+  switch (view) {
+    case "top":
+      $("#top-td").css("background", "");
+      $("#side-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#front-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      break;
+    case "front":
+      $("#front-td").css("background", "");
+      $("#side-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#top-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      break;
+    case "side":
+      $("#side-td").css("background", "");
+      $("#front-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#top-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      break;
+  }
+}
+
 var selectedView = "top";
+updateSelectedView(selectedView);
 
 $('input[type=radio][name=view]').change(function () {
   selectedView = this.id;
+  updateSelectedView(selectedView);
 });
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
