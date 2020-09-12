@@ -154,6 +154,10 @@ function init() {
         kinematics.setJointValue(r_arm_joint_idx+1, 80);
         kinematics.setJointValue(r_arm_joint_idx+2, -180);
 
+        // Open the gripper
+        kinematics.setJointValue(findJointByName("l_gripper_r_finger_link"), 20);
+        kinematics.setJointValue(findJointByName("l_gripper_l_finger_link"), 20);
+
     });
 
 

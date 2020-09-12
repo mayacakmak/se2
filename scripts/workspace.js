@@ -2,21 +2,25 @@
 window.originalSetInterval = window.setInterval;
 window.originalClearInterval = window.clearInterval;
 window.activeIntervals = 0;
-window.setInterval = function (func, delay)
-{
-    if(func && delay){
-            window.activeIntervals++;
-    }
-    return window.originalSetInterval(func,delay);
+window.setInterval = function (func, delay) {
+  if (func && delay) {
+    window.activeIntervals++;
+  }
+  return window.originalSetInterval(func, delay);
 };
-window.clearInterval = function (intervalId)
-{
-    // JQuery sometimes hands in true which doesn't count
-    if(intervalId !== true){
-        window.activeIntervals--;
-    }
-    return window.originalClearInterval(intervalId);
+window.clearInterval = function (intervalId) {
+  // JQuery sometimes hands in true which doesn't count
+  if (intervalId !== true) {
+    window.activeIntervals--;
+  }
+  return window.originalClearInterval(intervalId);
 };
+
+var selectedView = "top";
+
+$('input[type=radio][name=view]').change(function () {
+  selectedView = this.id;
+});
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
@@ -67,7 +71,7 @@ function loadInterface(isTestInterface) {
     currentTransitionType = transitionParam;
 
   isTest = isTestInterface;
-  
+
   // For debugging, fast forward to the ending--
   //currentTest = 34;
 
@@ -89,15 +93,15 @@ function startTest() {
 }
 
 function initializeTest() {
-	if (isTest) {
-	  // There is a timer during tests, but not during practice
+  if (isTest) {
+    // There is a timer during tests, but not during practice
     var timer = new Timer();
     Timer.timerDoneCallback = setupEnvironment;
-    timer.reset((currentTest+1) + "/" + testConfigs.length);
-	}
-	else {
-		setupEnvironment();
-	}
+    timer.reset((currentTest + 1) + "/" + testConfigs.length);
+  }
+  else {
+    setupEnvironment();
+  }
 }
 
 function startTimer() {
@@ -112,7 +116,7 @@ function setupEnvironment() {
   let threshXY = null;
   let threshTheta = null;
 
-  if (isTest){
+  if (isTest) {
     let currentConfig = testConfigs[currentTest];
     threshXY = currentConfig.thresh_xy;
     threshTheta = currentConfig.thresh_theta;
@@ -125,12 +129,12 @@ function setupEnvironment() {
 
     threshXY = 5;
     threshTheta = 5;
-    
+
     if (!isExact) {
-      if (Math.random()<0.75)
-        threshXY += Math.random()*25;
-      if (Math.random()<0.75)
-        threshTheta += Math.random()*85;      
+      if (Math.random() < 0.75)
+        threshXY += Math.random() * 25;
+      if (Math.random() < 0.75)
+        threshTheta += Math.random() * 85;
     }
   }
 
@@ -145,18 +149,18 @@ function setupEnvironment() {
   // Create control and initialize to add it to the workspace
 
   if (controlTypes[currentControl] == "arrow")
-    control = new ArrowControl(ee, target, 
+    control = new ArrowControl(ee, target,
       transitionTypes[currentTransitionType]);
   else if (controlTypes[currentControl] == "drag")
-    control = new DragControl(ee, target, 
+    control = new DragControl(ee, target,
       transitionTypes[currentTransitionType]);
   else if (controlTypes[currentControl] == "target")
     control = new TargetControl(ee, target);
   else if (controlTypes[currentControl] == "targetdrag")
-    control = new TargetDragControl(ee, target, 
+    control = new TargetDragControl(ee, target,
       transitionTypes[currentTransitionType]);
   else if (controlTypes[currentControl] == "panel")
-    control = new PanelControl(ee, target, 
+    control = new PanelControl(ee, target,
       transitionTypes[currentTransitionType]);
 
   // Place the EE and the target in the workspace
@@ -179,10 +183,10 @@ function setupEnvironment() {
 
   if (!offline) {
     var targetInfo = target.pose;
-    targetInfo.threshXY =  threshXY;
+    targetInfo.threshXY = threshXY;
     targetInfo.threshTheta = threshTheta;
 
-    Database.logCycleStart(controlTypes[currentControl], 
+    Database.logCycleStart(controlTypes[currentControl],
       transitionTypes[currentTransitionType], targetInfo);
     if (logClock == null)
       logClock = window.setInterval(Database.logEEPose, 500);
@@ -190,7 +194,7 @@ function setupEnvironment() {
 }
 
 function setTargetPose() {
-  if (isTest){
+  if (isTest) {
     let currentConfig = testConfigs[currentTest];
     target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
     // DEBUGGING
@@ -261,7 +265,7 @@ function success() {
   if (!offline) {
     Database.logCycleFinish();
   }
-  
+
   ee.resetColor();
   clearWorkspace();
 
@@ -275,14 +279,13 @@ function success() {
     }
   }
   else {
-    if (currentTest == 5)
-    {
+    if (currentTest == 5) {
       let btn = document.getElementById("next-button");
       btn.disabled = false;
     }
   }
 
   if (!isTest || currentTest < testConfigs.length) {
-    initializeTest();      
-  }    
+    initializeTest();
+  }
 }
