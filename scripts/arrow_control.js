@@ -91,6 +91,8 @@ function ArrowControl(ee, target, transitionType) {
     Control.s_ring.group.style.cursor = "pointer";
     Control.s_xArrows.group.style.cursor = "pointer";
     Control.s_yArrows.group.style.cursor = "pointer";
+
+    Control.updateControlPositions();
   }
 
   Control.unregisterEvents = function () {
@@ -338,20 +340,7 @@ function ArrowControl(ee, target, transitionType) {
         break;
     }
 
-    var t_pose = world_to_screen_space(ik_target, views[1])
-    Control.t_ring.setPose(t_pose);
-    Control.t_xArrows.setPosition(t_pose);
-    Control.t_yArrows.setPosition(t_pose);
-
-    /*
-    Control.f_ring.setPose(Control.ee.pose);
-    Control.f_xArrows.setPosition(Control.ee.getPosition());
-    Control.f_yArrows.setPosition(Control.ee.getPosition());
-    
-    Control.s_ring.setPose(Control.ee.pose);
-    Control.s_xArrows.setPosition(Control.ee.getPosition());
-    Control.s_yArrows.setPosition(Control.ee.getPosition());
-    */
+    Control.updateControlPositions();
 
     //Control.checkEEatTarget();
 

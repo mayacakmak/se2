@@ -75,6 +75,23 @@ function Control(name, ee, target, transitionType) {
     }
   }
 
+  Control.updateControlPositions = function () {
+    var t_pose = world_to_screen_space(ik_target, views[1])
+    Control.t_ring.setPose(t_pose);
+    Control.t_xArrows.setPosition(t_pose);
+    Control.t_yArrows.setPosition(t_pose);
+
+    var f_pose = world_to_screen_space(ik_target, views[0])
+    Control.f_ring.setPose(f_pose);
+    Control.f_xArrows.setPosition(f_pose);
+    Control.f_yArrows.setPosition(f_pose);
+    
+    var s_pose = world_to_screen_space(ik_target, views[3])
+    Control.s_ring.setPose(s_pose);
+    Control.s_xArrows.setPosition(s_pose);
+    Control.s_yArrows.setPosition(s_pose);
+  }
+
 }
 
 /*

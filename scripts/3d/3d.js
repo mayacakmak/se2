@@ -166,6 +166,7 @@ function init() {
     var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
 
     ik_target = new THREE.Mesh(geometry, material);
+    ik_target.position.set(6, 7, -1);
     scene.add(ik_target);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
