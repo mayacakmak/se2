@@ -147,7 +147,7 @@ function getMousePosition(event) {
 */
 function screen_to_world_space(mousePos, view) {
   var x = map_range(mousePos.x, windowWidth * view.left, windowWidth * (view.left + view.width), -1, 1);
-  var y = map_range(mousePos.y, windowHeight * (view.bottom - view.height), windowHeight * view.bottom, 1, -1);
+  var y = map_range(mousePos.y, windowHeight * (1 - view.bottom - view.height), windowHeight * (1 - view.bottom), 1, -1);
   return new THREE.Vector3(x, y, -1).unproject(view.camera);
 }
 
@@ -162,7 +162,7 @@ function world_to_screen_space(object, view) {
 
   return new Pose(
     Math.round(map_range(vector.x, -1, 1, windowWidth * view.left, windowWidth * (view.left + view.width))), 
-    Math.round(map_range(vector.y, 1, -1, windowHeight * (view.bottom - view.height), windowHeight * view.bottom, limit_range = false)),
+    Math.round(map_range(vector.y, 1, -1, windowHeight * (1 - view.bottom - view.height), windowHeight * (1 - view.bottom), limit_range = false)),
     0);
 }
 
