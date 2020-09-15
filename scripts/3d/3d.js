@@ -1,5 +1,5 @@
 
-var target, dae, kinematics, collada;
+var ik_target, dae, kinematics, collada;
 var arm_link_name = 'l_shoulder_pan_link';
 var NUM_JOINTS = 7;
 
@@ -165,8 +165,8 @@ function init() {
     var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
     var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
 
-    target = new THREE.Mesh(geometry, material);
-    scene.add(target);
+    ik_target = new THREE.Mesh(geometry, material);
+    scene.add(ik_target);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     //renderer.setPixelRatio(windowWidth / windowHeight);
@@ -178,18 +178,8 @@ function animate() {
 
     render();
 
-    try {
-        var remapX = (ee.pose.x / (windowWidth / 2)) - 0.5; // remap the ee x coordinate from (0, windowWidth) to (-0.5, 0.5)
-        var remapY = (ee.pose.y / (windowHeight / 2)) - 0.5; // remap the ee y coordinate from (0, windowHeight) to (-0.5, 0.5)
-        target.position.x = remapX * cameraScale * xScale;
-        target.position.z = remapY * cameraScale * zScale;
-    }
-    catch (e) {
-        console.error(e);
-    }
-
     if (kinematics) {
-        solveIK(target, iterations);
+        solveIK(ik_target, iterations);
     }
 
 
@@ -258,8 +248,10 @@ function calcAngleDist(a1, a2) {
     return Math.sqrt(sum);
 }
 
-function map_range(raw_value, low1, high1, low2, high2) {
-    var value = Math.min(Math.max(raw_value, low1), high1);
+function map_range(raw_value, low1, high1, low2, high2, limit_range = true) {
+    var value = raw_value;
+    if (limit_range)
+        var value = Math.min(Math.max(raw_value, low1), high1);
     return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 

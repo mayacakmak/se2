@@ -118,6 +118,7 @@ function ArrowControl(ee, target, transitionType) {
   */
   Control.handleEvent = function (event) {
     Control.firstClickPoint = getMousePosition(event);
+    Control.firstEELocation = world_to_screen_space(ik_target, views[1]);
 
     if (event.target.id != "workspace")
       event.stopPropagation();
@@ -238,25 +239,17 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "translating-x") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateXBy(a);
-          Control.ee.moveNow();
-          Control.t_ring.setPose(Control.ee.pose);
-          Control.t_xArrows.setPosition(Control.ee.getPosition());
-          Control.t_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.t_xArrows.highlight();
+
+          Control.ee.threejs_object.position.x = screen_to_world_space(a, views[1]).x;
         }
         else if (Control.fsm.currentState == "translating-y") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateYBy(a);
-          Control.ee.moveNow();
-          Control.t_ring.setPose(Control.ee.pose);
-          Control.t_xArrows.setPosition(Control.ee.getPosition());
-          Control.t_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.t_yArrows.highlight();
+          
+          Control.ee.threejs_object.position.z = screen_to_world_space(a, views[1]).z;
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.t_ring.highlight();
@@ -289,22 +282,12 @@ function ArrowControl(ee, target, transitionType) {
           var newClickPoint = getMousePosition(event);
           var a = newClickPoint.diff(Control.firstClickPoint);
           Control.ee.translateXBy(a);
-          Control.ee.moveNow();
-          Control.f_ring.setPose(Control.ee.pose);
-          Control.f_xArrows.setPosition(Control.ee.getPosition());
-          Control.f_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
           Control.f_xArrows.highlight();
         }
         else if (Control.fsm.currentState == "translating-y") {
           var newClickPoint = getMousePosition(event);
           var a = newClickPoint.diff(Control.firstClickPoint);
           Control.ee.translateYBy(a);
-          Control.ee.moveNow();
-          Control.f_ring.setPose(Control.ee.pose);
-          Control.f_xArrows.setPosition(Control.ee.getPosition());
-          Control.f_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
           Control.f_yArrows.highlight();
         }
         else if (Control.fsm.currentState == "rotating") {
@@ -338,22 +321,12 @@ function ArrowControl(ee, target, transitionType) {
           var newClickPoint = getMousePosition(event);
           var a = newClickPoint.diff(Control.firstClickPoint);
           Control.ee.translateXBy(a);
-          Control.ee.moveNow();
-          Control.s_ring.setPose(Control.ee.pose);
-          Control.s_xArrows.setPosition(Control.ee.getPosition());
-          Control.s_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
           Control.s_xArrows.highlight();
         }
         else if (Control.fsm.currentState == "translating-y") {
           var newClickPoint = getMousePosition(event);
           var a = newClickPoint.diff(Control.firstClickPoint);
           Control.ee.translateYBy(a);
-          Control.ee.moveNow();
-          Control.s_ring.setPose(Control.ee.pose);
-          Control.s_xArrows.setPosition(Control.ee.getPosition());
-          Control.s_yArrows.setPosition(Control.ee.getPosition());
-          Control.checkEEatTarget();
           Control.s_yArrows.highlight();
         }
         else if (Control.fsm.currentState == "rotating") {
@@ -364,6 +337,24 @@ function ArrowControl(ee, target, transitionType) {
           console.log("Invalid state.");
         break;
     }
+
+    var t_pose = world_to_screen_space(ik_target, views[1])
+    Control.t_ring.setPose(t_pose);
+    Control.t_xArrows.setPosition(t_pose);
+    Control.t_yArrows.setPosition(t_pose);
+
+    /*
+    Control.f_ring.setPose(Control.ee.pose);
+    Control.f_xArrows.setPosition(Control.ee.getPosition());
+    Control.f_yArrows.setPosition(Control.ee.getPosition());
+    
+    Control.s_ring.setPose(Control.ee.pose);
+    Control.s_xArrows.setPosition(Control.ee.getPosition());
+    Control.s_yArrows.setPosition(Control.ee.getPosition());
+    */
+
+    //Control.checkEEatTarget();
+
     return true;
   }
 }

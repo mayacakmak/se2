@@ -24,7 +24,7 @@ function Control(name, ee, target, transitionType) {
   Control.f_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
   Control.f_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
   Control.f_panel = new Panel();
-  
+
   Control.s_ring = new Ring();
   Control.s_handle = new Handle();
   Control.s_ghost = new Ghost();
@@ -124,6 +124,31 @@ function getMousePosition(event) {
   return new Position(mouseX, mouseY);
 }
 
+
+/*
+* Utility function to get the 3d position of a object from the camera and mouse coordinates
+*/
+function screen_to_world_space(mousePos, view) {
+  var x = map_range(mousePos.x, windowWidth * view.left, windowWidth * (view.left + view.width), -1, 1);
+  var y = map_range(mousePos.y, windowHeight * (view.bottom - view.height), windowHeight * view.bottom, 1, -1);
+  return new THREE.Vector3(x, y, -1).unproject(view.camera);
+}
+
+
+/*
+* Utility function to get the 2d position of a object from the camera and object coordinates
+*/
+function world_to_screen_space(object, view) {
+
+  var vector = new THREE.Vector3();
+  vector.setFromMatrixPosition(object.matrixWorld).project(view.camera);
+
+  return new Pose(
+    Math.round(map_range(vector.x, -1, 1, windowWidth * view.left, windowWidth * (view.left + view.width))), 
+    Math.round(map_range(vector.y, 1, -1, windowHeight * (view.bottom - view.height), windowHeight * view.bottom, limit_range = false)),
+    0);
+}
+
 /*
 * Utility class for the "ring" element for some of the controllers
 */
@@ -164,7 +189,7 @@ function Handle() {
   this.group.setAttribute("id", "handle");
   this.group.setAttribute('x', 0);
   this.group.setAttribute('y', 0);
-  this.group.setAttribute('r', SE2.lineLength + SE2.lineWidth);
+  this.group.setAttribute('r', SE3.lineLength + SE3.lineWidth);
   this.group.setAttribute('stroke-width', 0);
   this.group.setAttribute("fill-opacity", 0.5);
 
@@ -236,7 +261,7 @@ function Timer() {
   Timer.button = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   Timer.button.setAttribute("id", "button");
   Timer.button.setAttribute('x', Panel.width / 4);
-  Timer.button.setAttribute('y', 4*Panel.height / 10);
+  Timer.button.setAttribute('y', 4 * Panel.height / 10);
   Timer.button.setAttribute('width', Panel.width / 2);
   Timer.button.setAttribute('height', Panel.height / 5);
   Timer.button.setAttribute('rx', 10);
@@ -260,8 +285,8 @@ function Timer() {
 
   Timer.countText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   Timer.countText.setAttribute("id", "button-text");
-  Timer.countText.setAttribute('x', 9*Panel.width/10);
-  Timer.countText.setAttribute('y', Panel.height/10);
+  Timer.countText.setAttribute('x', 9 * Panel.width / 10);
+  Timer.countText.setAttribute('y', Panel.height / 10);
   Timer.countText.setAttribute("fill", "#0275d8");
   Timer.countText.setAttribute("style", "font-family:Varela Round, sans-serif; font-size: 32px;");
   Timer.countText.setAttribute("text-anchor", "middle");
@@ -284,8 +309,8 @@ function Timer() {
     Timer.showText();
 
     let timerDuration = 3500;
-    var countDownDate = new Date().getTime()+ timerDuration;
-    Timer.setText(Math.floor(timerDuration/1000));
+    var countDownDate = new Date().getTime() + timerDuration;
+    Timer.setText(Math.floor(timerDuration / 1000));
     // Update the count down every 1 second
     var x = setInterval(function () {
       // Get today's date and time
@@ -313,15 +338,15 @@ function Timer() {
 
   Timer.showButton = function () {
     while (Timer.group.lastChild)
-        Timer.group.removeChild(Timer.group.lastChild);
+      Timer.group.removeChild(Timer.group.lastChild);
     Timer.group.appendChild(Timer.button);
     Timer.group.appendChild(Timer.buttonText);
-    Timer.group.appendChild(Timer.countText);    
+    Timer.group.appendChild(Timer.countText);
   }
 
   Timer.showText = function () {
     while (Timer.group.lastChild)
-        Timer.group.removeChild(Timer.group.lastChild);
+      Timer.group.removeChild(Timer.group.lastChild);
     Timer.group.appendChild(Timer.timer);
   }
 
@@ -340,7 +365,7 @@ function Timer() {
 */
 function Ghost() {
   Ghost.color = "#edb9d7";
-  SE2.call(this, "ghost", null, Ghost.color);
+  SE3.call(this, "ghost", null, Ghost.color);
 
   this.setVisible = function (isVisible) {
     var ws = document.getElementById("workspace");

@@ -165,15 +165,12 @@ function setupEnvironment() {
   }
 
   // Create target and place it in workspace
-  target = new SE2("target", new Pose(), "#AAA", threshXY, threshTheta);
-  target.addToWorkspace();
+  target = new SE3("target", new Pose(), "#AAA", threshXY, threshTheta);
 
   // Create end effector and place it in workspace
-  ee = new moveableSE2("ee", new Pose(), "#111");
-  ee.addToWorkspace();
+  ee = new moveableSE3("ee", new Pose(), "#111", ik_target);
 
   // Create control and initialize to add it to the workspace
-
   if (controlTypes[currentControl] == "arrow")
     control = new ArrowControl(ee, target,
       transitionTypes[currentTransitionType]);
@@ -232,8 +229,8 @@ function setTargetPose() {
     var rect = ws.getBoundingClientRect();
     var ringBuffer = Ring.innerR + Ring.ringRadius;
     var edgeBuffer = ringBuffer + (Arrow.arrowLengthTot);
-    var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
-    var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE2.lineLength;
+    var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE3.lineLength;
+    var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE3.lineLength;
 
     console.log("ringBuffer:" + ringBuffer);
     console.log("randomW:" + randomW);
@@ -247,8 +244,8 @@ function setTargetPose() {
 
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
-        randomX < Panel.width + SE2.lineLength
-        && randomY < Panel.height + SE2.lineLength)
+        randomX < Panel.width + SE3.lineLength
+        && randomY < Panel.height + SE3.lineLength)
         console.log("pose rejected");
       else
         poseFound = true;
