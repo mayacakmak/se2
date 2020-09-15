@@ -120,7 +120,6 @@ function ArrowControl(ee, target, transitionType) {
   */
   Control.handleEvent = function (event) {
     Control.firstClickPoint = getMousePosition(event);
-    Control.firstEELocation = world_to_screen_space(ik_target, views[1]);
 
     if (event.target.id != "workspace")
       event.stopPropagation();
@@ -204,7 +203,7 @@ function ArrowControl(ee, target, transitionType) {
       Control.ee.startRotating();
     if (fsmEvent == "x-arrow-press" ||
       fsmEvent == "y-arrow-press")
-      Control.ee.startTranslating();
+      Control.firstEELocation = world_to_screen_space(ik_target, views[1]);
 
     if (fsmEvent != null)
       Control.fsm.emitEvent(fsmEvent);
@@ -217,7 +216,7 @@ function ArrowControl(ee, target, transitionType) {
   * based on the state of the FSM.
   */
   Control.update = function (event) {
-
+    console.log(Control.ee.threejs_object.position);
     switch (selectedView) {
       case "top":
         Control.t_ring.resetColor();
@@ -282,15 +281,17 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "translating-x") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateXBy(a);
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.f_xArrows.highlight();
+
+          Control.ee.threejs_object.position.z = screen_to_world_space(a, views[0]).x;
         }
         else if (Control.fsm.currentState == "translating-y") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateYBy(a);
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.f_yArrows.highlight();
+
+          Control.ee.threejs_object.position.y = screen_to_world_space(a, views[0]).y;
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.f_ring.highlight();
@@ -321,15 +322,16 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "translating-x") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateXBy(a);
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.s_xArrows.highlight();
+          console.log("translate x", screen_to_world_space(a, views[3]));
+          Control.ee.threejs_object.position.x = screen_to_world_space(a, views[3]).x;
         }
         else if (Control.fsm.currentState == "translating-y") {
           var newClickPoint = getMousePosition(event);
-          var a = newClickPoint.diff(Control.firstClickPoint);
-          Control.ee.translateYBy(a);
+          var a = newClickPoint.diff(Control.firstClickPoint).sum(Control.firstEELocation);
           Control.s_yArrows.highlight();
+          Control.ee.threejs_object.position.y = screen_to_world_space(a, views[3]).y;
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.s_ring.highlight();

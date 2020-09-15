@@ -17,25 +17,24 @@ window.clearInterval = function (intervalId) {
 };
 
 function updateSelectedView(view) {
-  var alpha = 0.3;
   switch (view) {
     case "top":
-      $("#top-td").css("background", "");
-      $("#side-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#front-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#top-td").removeClass("background-block");
+      $("#side-td").addClass("background-block");
+      $("#front-td").addClass("background-block");
+      $("#perspective-td").addClass("background-block");
       break;
     case "front":
-      $("#front-td").css("background", "");
-      $("#side-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#top-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#front-td").removeClass("background-block");
+      $("#side-td").addClass("background-block");
+      $("#top-td").addClass("background-block");
+      $("#perspective-td").addClass("background-block");
       break;
     case "side":
-      $("#side-td").css("background", "");
-      $("#front-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#top-td").css("background", "rgba(0, 0, 0, "+alpha+")");
-      $("#perspective-td").css("background", "rgba(0, 0, 0, "+alpha+")");
+      $("#side-td").removeClass("background-block");
+      $("#front-td").addClass("background-block");
+      $("#top-td").addClass("background-block");
+      $("#perspective-td").addClass("background-block");
       break;
   }
 }

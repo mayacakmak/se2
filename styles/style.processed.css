@@ -50,3 +50,8 @@ table {
 table, td, th {
   border: 2px solid black;
 }
+
+.background-block {
+  background: rgba(0, 0, 0, 0.3); 
+  pointer-events: all;
+}
