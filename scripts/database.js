@@ -205,7 +205,7 @@ function Database() {
         };
         Database.insertTime(eventLog);
         dbRef.push(eventLog);
-        console.log(eventLog);
+//         console.log(eventLog);
       }
     }
   }
