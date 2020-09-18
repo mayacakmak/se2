@@ -5,16 +5,27 @@ import os
 import simplejson as json
 
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "accessible-teleop-export-9-11-study"
+snapshot_name = "accessible-teleop-export-9-17-study"
+snapshot_state_name = "accessible-teleop-export-9-17-study-state"
 
 # Load the json data
-json_snapshot = {}
+# json_snapshot = {}
+# with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
+#     json_snapshot = json.load(f)
+# user_data = json_snapshot['users'] 
+# state_data = json_snapshot['state'] 
+
+user_data = {}
 with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
-    json_snapshot = json.load(f)
+    user_data = json.load(f)
+
+state_data = {}
+with open(os.path.join(snapshot_folder, snapshot_name + "-state.json")) as f:
+    state_data = json.load(f)
 
 # Gather UIDs from states/`interface_num`/completed
 uids = []
-for interface_num in json_snapshot['state']:
+for interface_num in state_data:
     uids += interface_num['complete'].keys()
 
 cycle_data_columns = ["startTime", "endTime", "control", "transitionType", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta", "uid", "sid", "cid"]
@@ -23,12 +34,12 @@ cycle_data = []
 questionnaire_data_columns = ['uid-1000--00','sid-1000--00','section-0-question-0','section-0-question-1', 'section-0-question-10', 'section-0-question-11', 'section-0-question-12', 'section-0-question-13', 'section-0-question-2', 'section-0-question-3', 'section-0-question-4', 'section-0-question-5', 'section-0-question-6', 'section-0-question-7', 'section-0-question-8', 'section-0-question-9', 'section-1-question-0', 'section-1-question-1', 'section-1-question-10', 'section-1-question-11', 'section-1-question-12', 'section-1-question-13', 'section-1-question-14', 'section-1-question-2', 'section-1-question-3', 'section-1-question-4', 'section-1-question-5', 'section-1-question-6', 'section-1-question-7', 'section-1-question-8', 'section-1-question-9', 'section-2-question-0', 'section-2-question-1', 'section-2-question-2', 'section-2-question-3', 'section-2-question-4', 'section-2-question-5', 'section-2-question-6', 'section-2-question-7', 'section-2-question-8']
 questionnaire_data = []
 
-for uid in json_snapshot['users']:
+for uid in user_data:
     if uid in uids:
-        for sid in json_snapshot['users'][uid]['sessions']:
-            if 'cycles' in json_snapshot['users'][uid]['sessions'][sid]:
-                for cid in json_snapshot['users'][uid]['sessions'][sid]['cycles']:
-                    cycle = json_snapshot['users'][uid]['sessions'][sid]['cycles'][cid]
+        for sid in user_data[uid]['sessions']:
+            if 'cycles' in user_data[uid]['sessions'][sid]:
+                for cid in user_data[uid]['sessions'][sid]['cycles']:
+                    cycle = user_data[uid]['sessions'][sid]['cycles'][cid]
                     
                     # Ignore any null cycles
                     if 'isTest' not in cycle:
@@ -56,11 +67,11 @@ for uid in json_snapshot['users']:
 
                             cycle_data.append([startTime, endTime, control, transitionType, targetX, targetY, targetTheta, threshXY, threshTheta, uid, sid, cid])
 
-            if 'questionnaires' in json_snapshot['users'][uid]['sessions'][sid]:
-                for qid in json_snapshot['users'][uid]['sessions'][sid]['questionnaires']:
+            if 'questionnaires' in user_data[uid]['sessions'][sid]:
+                for qid in user_data[uid]['sessions'][sid]['questionnaires']:
                     answers = [uid, sid]
-                    for question_name in json_snapshot['users'][uid]['sessions'][sid]['questionnaires'][qid]['answers']:
-                        answers.append(json_snapshot['users'][uid]['sessions'][sid]['questionnaires'][qid]['answers'][question_name])
+                    for question_name in user_data[uid]['sessions'][sid]['questionnaires'][qid]['answers']:
+                        answers.append(user_data[uid]['sessions'][sid]['questionnaires'][qid]['answers'][question_name])
                     questionnaire_data.append(answers)
 
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
