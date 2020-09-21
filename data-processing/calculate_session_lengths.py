@@ -4,27 +4,33 @@ import time
 import numpy as np
 
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1598642923.545525
-uids = ["dgb7CWy7rSNWIAZHXEYDRAt3O2b2", "6qW2fw5bT5hLvsAUO7MaR82ZqOu1", "3gz7ZfC2YVWEL83csaHrnHLqet42", "7TIOuYmg42MtgXKvf7YcfCYX9l52", "403NovdIENcvmKY9PoakqivpyP53", "pfZvthWm1iY4Cm11co2LgBEnimj1", "OEoHdni4GFXI6iKVbbW1pOGNXps2", "J2eQ4D9j9wVgj0oNOpZLWCenWnh1", "iTccwNLgo2OCqpG2BR565G1iUtA2"]
+snapshot_name = "accessible-teleop-export-9-17-study"
 
-with open(os.path.join(snapshot_folder, str(snapshot_timestamp) + ".json")) as f:
+json_snapshot = {}
+with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
     json_snapshot = json.load(f)
+user_data = json_snapshot['users'] 
+state_data = json_snapshot['state'] 
+
+# Gather UIDs from states/`interface_num`/completed
+uids = []
+for interface_num in state_data:
+    uids += interface_num['complete'].keys()
 
 session_lengths = []
 session_order = []
 
-for uid in json_snapshot:
+for uid in user_data:
     if uid in uids:
         session_timestamps = []
-        for sid in json_snapshot[uid]['sessions']:
-            session_timestamps.append(json_snapshot[uid]['sessions'][sid]['timestamp'])
-            if 'questionnaires' in json_snapshot[uid]['sessions'][sid]:
-                session_timestamps.append(json_snapshot[uid]['sessions'][sid]['questionnaires'][list(json_snapshot[uid]['sessions'][sid]['questionnaires'].keys())[0]]['time']['timestamp'])
+        for sid in user_data[uid]['sessions']:
+            session_timestamps.append(user_data[uid]['sessions'][sid]['timestamp'])
+            if 'questionnaires' in user_data[uid]['sessions'][sid]:
+                session_timestamps.append(user_data[uid]['sessions'][sid]['questionnaires'][list(user_data[uid]['sessions'][sid]['questionnaires'].keys())[0]]['time']['timestamp'])
         session_lengths.append(int((max(session_timestamps) - min(session_timestamps))/(1000 * 60)))
         session_order.append(uid)
 
-print("MTurk:", list((np.array([1796, 2070, 2684, 1365, 2588, 2090, 1689, 1825, 2367])/60).astype(int)))
-print("   Us:",session_lengths)
-#print(session_order)
-print("Mean:",np.mean(session_lengths))
-print("StDev:",np.std(session_lengths))
+print("All units are in minutes")
+print("Lengths:",session_lengths)
+print("   Mean:",np.mean(session_lengths))
+print("  StDev:",np.std(session_lengths))

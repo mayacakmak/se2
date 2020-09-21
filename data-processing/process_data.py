@@ -61,168 +61,7 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1600407502.12
-uids = [
-"5GRB38CXknhkxg6TOJbIcv2nXzA3",
-"yjK8ULyntGPoDEAVHNTTN9Nqfm22",
-"JuK3dGRjGtaiAE5tEbENZ5uYEgL2",
-"R38A4sW0hPeZrf5gGP3LlkOGvN42",
-"RYXaa5nARFMPqC9lZlhtxjoWhT63",
-"2g3T3iXiK5ZAzDnfXsw48gz51U13",
-"koOh4ai537ck1bicewiBDXbsvT32",
-"BYP2GZ3dMcOaxOQe3LzTG8mExNg1",
-"iAfRVyE5zBVDaCJaHQy8eXy4UFt2",
-"lcQ2LyJnZYYOiVkUdn74Vlg5cFO2",
-"Szx7JQSiAJZ3Jrc1qtWMkzjpf1r2",
-"HAyJn9wjYoNyZbAZQvRSgEPVTBC2",
-"GI13cLqmg0e8fvQHNLbNFaDmj3B3",
-"yXc9k4hHTfVTgFB2vofsvtp4iar2",
-"IytvG29WMiVzbwB3LD3CB6A7L2C2",
-"6sNdm497rGOH8Zaxrf6R2RAnen12",
-"YuIhl3MUG9SoctZBfojblQrzGYV2",
-"63nBGBk0lIUg2uTHjKFZ1QLSA3k1",
-"JhA9pw1gtOaoCEqfRi1tovqQI0n2",
-"Szx7JQSiAJZ3Jrc1qtWMkzjpf1r2",
-"erlxfdLlZTZn92ezvmBLaOsGSaY2",
-"NrMq1plFgONhVkws64ERStImxm92",
-"kc4EpEGlKeQ3IqHhwop1BQ8Sns23",
-"OuZXXUa0PBS3TAYE1F57zKPrloj2",
-"BBNBAdETSFbMsJn9gDqsoVWl5eX2",
-"XToQ1O8D7wa4jvMOEoakj9b4MC43",
-"nMMOu7Etu1ZqvXCSqSIVLoEph2i1",
-"olgTWiva9YhGjnlAhCxOjcwGexu2",
-"u7l3t5DLMVafkJAIhTh419wbrYB2",
-"Pg0WtxkkvafBMeeQpn4amV5Qxlp2",
-"ddIBVrHAzMbAuDB2pXLXm9HJlZX2",
-"iaCIBURD8ZgSt3y33E3WHT70sfH2",
-"edOwBLqhK2g3rlRfp6wLB1n3qvF2",
-"6FI56PH5O4Zezb02QVteRn9eFVV2",
-"elKMsbzEutNcpBY6JFgUA3E05Bj2",
-"J2eQ4D9j9wVgj0oNOpZLWCenWnh1",
-"X6VjwiI94tef2FXw9MMFolQYrYp1",
-"el1LL3Iyc7X2CNma2yYgswZr4Zl2",
-"1lKYBHe3pwS1uQndpwxe3LOlWv82",
-"edOwBLqhK2g3rlRfp6wLB1n3qvF2",
-"Fsii053aoTUhqumz1vMK867h7ko1",
-"5W0paREQZBNfhxUOJfB9eGOQPAD3",
-"rjyk9m3Qs6fTSzfG1m8UQHK9fTI3",
-"BLikrZve4nMMwPOWZegBihFZthI3",
-"wZDNjgM6U3XD78Ek1tiDEWuE3q63",
-"nOpsxid8GVaWVGyguvNJ48qCvol2", ## Batch #1 ends here (but how come there are only 40ish before this?)
-"yIrDZKrcI9ZyNcrF4H2tgSj4iVE3",
-"0BPAoSr877bPCxDmD0EztyNROaD2",
-"DNj5cg13xHcwGkIFyohU0fZ1K7u2",
-"9NiqfLwkg4UH22X9c4bxszZGFUl2",
-"i2HlWoPB4BWJ2T2mzllLi2OGJ5K2",
-"XTE1E6MhlPe5IOxjefk5BcqYWke2",
-"aTPSNAP418UMfV892YIIf0OhjNB3",
-"Z2ZplTRAd8YoxIeLsFYaylbtX4h2",
-"lY0x0xPXxddg66krC5H9nmKoVjB3",
-"i0lH5J577YOZvkdvi54ZIuVO5g63",
-"IDZLjdW1SkQrSnAOXBLuMtkynGJ2",
-"AkCUwiZIVTeOEmxYZqqFjjDJdtw2",
-"lI7KXZXuDJWYuP8ykEVgQ5EXoYY2",
-"dK7tCNHvNjUIywancYtXbPBvyCh1",
-"1dtBapNzkqOJ5vH6TfDi9LfGpmf2",
-"H4ZdMVZcuFeStwyjUufyq0eNiJa2",
-"Pjk7M7JWveTOXsaWzZNJ78TQK4m2",
-"SJX8B8pi1pYEcb1LSNdjQT5ICrw1",
-"4VmoCLqfPYP8tLu3ojuvD2Yyp7n1",
-"sKWxFck8oNaFhlZyhrfzbagZ1rd2",
-"fDYi6zzi6PWZKJqHqlFkgjgvD9W2",
-"K3DabqdJCKZwKflJYUVI8fkJHHB2",
-"N2W0GeTOUCZjVJrDtdzNci4bbiD2",
-"5GUKZiUq8PbtoAqleKZHlL1yQ6I3",
-"p7GDiPrUenOpvapdBGkb1Ht6ZOe2",
-"a8tciMQrJuhMtLLZp9hhMsfdjEg2",
-"P3fsHwnfB0aIICchs0qWh2n5abB3",
-"2sVhSYgqAIR4DwyOOHikVXNLwmE2",
-"qMwVeH3ZC0amcOOjh2OLoJOcOwF3",
-"pEdRCriJZ7fzZ2JI55YaMvjwQ503",
-"CoupVjaX2wgntMiU1CWu4noeeUS2",
-"rxk809uzEkflVA2BskxUYknkKqv1",
-"VvphcOw6bNfQae8DA5yZrom0MOE2",
-"UJEsuZE4dndKwpgKwGr8rUyQ4Xz1",
-"3yBXjuj3ZmSKXmmeuvzjUHTfwW52",
-"PrwwqSg9sGdOgGSjmYIgke2aHAD3",
-"ihqmaJVFYNapL6QXcDLWeQnOwdk1",
-"EGvmjs0KWjYQZAva1LkPSkpW1Xx2",
-"ZuVhFC4Ou7W7ATH5eDFZcWKdr5g1",
-"0x1KZW6hDCcIAXNcXZrO6ca8Q3v1",
-"YyKkAVLsCETLQvCzA4yYJE9b4ht1",
-"iK03GJhWNThW2uDo6pZnk684GBe2",
-"PRKaGTNJtyVnNM9wH4RiBs254uu1",
-"AunfrNePWkPeRiHtSA99EiBh7Q43",
-"QLrRp6Urt6Ym8wylsb91fGQASzz2",
-"BoVKrBvkOUdG5Vv7ZXP3POA7TO02",
-"r1dLxh5iBybSiTrTr8Gvzupj9QR2",
-"jKsWXj9wBPaBx4lf8Eu54ptdZt92",
-"CYntsPPlB2MPy5a1ceN1C0OaUpl2",
-"s7N0lpHjqDbxzbiu0PMovUnJcXq1",
-"D1lyyxyOAwem7zh9U1z6PAVGwNq2",
-"iCFMGtTIhVe5ypcmGQ4qZ8MkTjq2",
-"iTfwoINHajgtU3LqG5iDOKVKtpA3",
-"CCmv32oarVcGi3qt6dbDXHBCCzX2",
-"tuRUp4dzKffM4vIKCyndDw78OQz2",
-"pejDJHG7DyeMCoWZAPd4wm53s3s1",
-"i11mdlNQWfa5rZPnTx9Z0nxGrWD2",
-"HTlUsLj8LGYNlEdtEVdzWtiaiQq2",
-"lrJK1ACgGuhvpcRzbHWjLQmmtKz2",
-"hpQCCzLfbxU17uCtcTEA8boKsm83",
-"RNe8lVy1aaX8U2ITnqvIj8TiVpU2",
-"n3IaI2dEulciScGje3nvc0VI9Sg1",
-"arXQ3rVEwqVSQqj2LnsfGRKNqCh1",
-"WA4UJhPoybOuFXnJQJrE7KR00b53",
-"GfiuoLJc3KVBewklK4WX1Lf2Tr22",
-"v2DhhrTBK1eBdtdrMLVjQZcMjU02",
-"GqJD0eoIhBg7VLK23y02owgppS33",
-"if8YpIUYBgZVqeSdgHD2eKcxcnp1",
-"Xz6rbXdFqMgYHMnvxfc7KfaadRT2",
-"Tl56kkCOvrODlKxcebfceeqvxoM2",
-"3fl1ZT8Sb4b74StoYgl334PDVqv2",
-"JzFhKQCPWPMVZfEYneBd4og88T72",
-"dNawxj8nZCR8ivZO1Yocm4kkfJB3",
-"3DGdhJxi6jTZB7hdkj3054OzYST2",
-"gkPltHbGKtebLfiFdvisH7xIj5g1",
-"MBnJfrS7Gdei7sLW9U1KA6T2Gwg1",
-"wAElFNGy4vaC7jbTVe1wAyIrVZB3",
-"2g3T3iXiK5ZAzDnfXsw48gz51U13",
-"Dcl3rR1XQpOJXOvMZo1fmlAgbJ42",
-"Zh6lzldNruYfHhWl32Z21ZwHmZ43",
-"bdd3pHsnkyLqU1OehLawNNR6mCL2",
-"RUoitXT0YSd9zTOLVOOOxXQ5iRz1",
-"5m0cQdS6PwUJb0dPFkDhdEAow5E2",
-"AHi9dT39XwW16GsHvsQKlM2RABU2",
-"FW3Yuwzp1SYQ49D5xy5r53ewMIg1",
-"xgmIBDkrWRa0Y3sSvcAci7UbudC2",
-"pqbn9G64UzfuIk62GIpFAFEdN1J2",
-"HZwhbfP5r0WNut8XVO4H32n60Bo2",
-"bCVoet7eS0beWut8b64Da2VB0Fk1",
-"qa6QZa47ncQRKryQU9r9APDxy533",
-"RkMTP3i0FnO4TKKGnxgkInzqZZj1",
-"H0Awcp4Eosc5s2zMbrc56BWngK33",
-"7LpVskhH9xe0OqL6MehVQFVkwd13",
-"uI7DUNfga1aOAB9s9uLTqem4wlS2",
-"LWAzUclg4OZQvYlQ890gYCtGaGz2",
-"IU8vhE2DSoNlAhbbA8tKK5kFLL73",
-"jx8NomDFx4TPbvxClJfRJeHxAgy2",
-"DSTCtWtSXadSNC8zxkYP4bILNM03",
-"xtGgZq7N87SSlx7tneSiISkTqBj1",
-"3YQjjraX20SdoiYWmOeRIHOFtdc2",
-"tv6YYZoYIPbJ7DA87CHWCWjHrPV2",
-"pRy44jh1blXeCsQbssAGmbsIMRS2",
-"EdzR0H042xMKjt87BDjVqsDe15G2",
-"CFVsA8lkIeNK0HYzF4MsO7swXap1",
-"6GmaUe0cwyOlUCONYhkQIvC5NPp2",
-"zFBLSaxpiefJ887UIvodBmSnFLh2",
-"bHTjtr3sq2gVjPwsaXVqtzMgD7C3",
-"jO9X5Pe8i4fL1Nlx9mrhQPgLzy32",
-"iRh2gycmKJM44GWOJxXxsPLYSrz1",
-"kb18bBD9jfbE6mVAUWd2lGpOc4B3",
-"TH5b751VqygGgG0sYEyo71hhiuD2",
-"1MWy0rHInTNVRRqBfNIq9T86Qyx2",
-"JuYWld9ScBUuutBfe46Jrbj8u5I3"
-]
+snapshot_name = "accessible-teleop-export-9-17-study"
 
 # %% [markdown]
 ## Load data from Firebase
@@ -240,15 +79,20 @@ uids = [
 #It is used to calcuate specific data about specific actions (for example % of time spent orienting vs translating)
 #
 # %%
-
-with open(os.path.join(snapshot_folder, str(snapshot_timestamp) + ".json")) as f:
+json_snapshot = {}
+with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
     json_snapshot = json.load(f)
+user_data = json_snapshot['users'] 
+state_data = json_snapshot['state'] 
 
-print("Loaded snapshot {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(snapshot_timestamp))))
+# Gather UIDs from states/`interface_num`/completed
+uids = []
+for interface_num in state_data:
+    uids += interface_num['complete'].keys()
 
 # %%
 # [interfaceIDs] is a set that contains one of each ID
-# We use it later on to sparate the dataframe by interface
+# We use it later on to separate the dataframe by interface
 interfaceIDs = set()
 
 cycle_data_columns = ["startTime", "endTime", "status", "control", "transitionType", "interfaceID", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta"]
@@ -256,15 +100,14 @@ cycle_data = []
 
 action_list = {}
 
-for uid in json_snapshot['users']:
+for uid in user_data:
     if uid in uids:
-        for sid in json_snapshot['users'][uid]['sessions']:
-            if 'cycles' in json_snapshot['users'][uid]['sessions'][sid]:
-                for cid in json_snapshot['users'][uid]['sessions'][sid]['cycles']:
-                    cycle = json_snapshot['users'][uid]['sessions'][sid]['cycles'][cid]
+        for sid in user_data[uid]['sessions']:
+            if 'cycles' in user_data[uid]['sessions'][sid]:
+                for cid in user_data[uid]['sessions'][sid]['cycles']:
+                    cycle = user_data[uid]['sessions'][sid]['cycles'][cid]
                     
                     if 'isTest' not in cycle:
-                        print(cid, sid, uid)
                         continue
 
                     if cycle['isTest']:
@@ -314,8 +157,6 @@ for uid in json_snapshot['users']:
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
 
-cycles_df['flexibility'] = np.interp(cycles_df['threshXY'], (5, 30), (0, 1)) + np.interp(cycles_df['threshTheta'], (5, 60), (0, 1))
-
 # Calculate the euclidean distace between where the ee starts (357, 249) and the target
 cycles_df['targetDistance'] = ((cycles_df['targetX'] - 357) ** 2 + (cycles_df['targetY'] - 249) ** 2) ** 0.5
 cycles_df = cycles_df[cycles_df["status"] == "complete"]
@@ -356,15 +197,16 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], interface_df['targetDistance'], c="tab:blue")
+    ax.scatter(interface_df['targetDistance'], interface_df['cycleLength'], c="tab:blue")
     
     #line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
     #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Distance to Target')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Distance to Target')
 
-    ax.set_xlim([0, 35])
+    ax.set_ylim([0, 50])
+
 
 # %% [markdown]
 ### Orientation vs Time
@@ -378,13 +220,15 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']), c="tab:blue")
+    ax.scatter(np.abs(interface_df['targetTheta']), interface_df['cycleLength'], c="tab:blue")
     
     #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
     #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Target Rotation')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Target Rotation')
+
+    ax.set_ylim([0, 50])
 
 # %% [markdown]
 ### Distance + Orientation vs Time
@@ -399,13 +243,15 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]#
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], c="tab:blue")
+    ax.scatter(np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], interface_df['cycleLength'], c="tab:blue")
     
     #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
     #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Distance + Orientation')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Distance + Orientation')
+
+    ax.set_ylim([0, 50])
 
 #%% [markdown]
 ### Distance / Time / Flex Correlation
@@ -420,12 +266,14 @@ for i, interfaceID in enumerate(interface_dfs):
 
     interface_df = interface_dfs[interfaceID]
     
-    corr_matrix = interface_df[['cycleLength', 'targetDistance', 'flexibility']].corr()
-    sns.heatmap(corr_matrix, annot = True, fmt='.2',cmap= 'coolwarm', ax=ax, vmin=-0.5, vmax=0.2)
+    corr_matrix = interface_df[['cycleLength', 'targetDistance', 'threshXY', 'threshTheta']].corr()
+    sns.heatmap(corr_matrix, annot = True, fmt='.2',cmap= 'coolwarm', ax=ax, vmin=-0.3, vmax=0.3)
 plt.show()
 
 #%% [markdown]
-### Distance vs Target Position Angle
+### Cycle Time vs Target Position Angle
+# Target Position Angle is the angle made between the location of the target and the center.
+# A target all straight right would have an angel of 0, touching the top would be 90, etc.
 
 # %%
 fig = plt.figure(figsize=(16,10))
@@ -443,6 +291,9 @@ for i, interfaceID in enumerate(interface_dfs):
 
     ax.set_xlabel('Target Position Angle')
     ax.set_ylabel('Cycle Time')
+
+    
+    ax.set_ylim([0, 50])
 plt.show()
 
 # %% [markdown]
@@ -506,6 +357,8 @@ for i, interfaceID in enumerate(interfaceIDs):
         drawn_lines.append(copy.copy(numbered_cycle))
         
         numbered_cycle.append(0)
+        numbered_cycle.append(0)
+        cycle_width.append(0)
         cycle_width.append(0)
 
         color = np.array([])

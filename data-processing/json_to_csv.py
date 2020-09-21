@@ -6,22 +6,21 @@ import simplejson as json
 
 snapshot_folder = "firebase-snapshots"
 snapshot_name = "accessible-teleop-export-9-17-study"
-snapshot_state_name = "accessible-teleop-export-9-17-study-state"
 
 # Load the json data
-# json_snapshot = {}
-# with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
-#     json_snapshot = json.load(f)
-# user_data = json_snapshot['users'] 
-# state_data = json_snapshot['state'] 
-
-user_data = {}
+json_snapshot = {}
 with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
-    user_data = json.load(f)
+    json_snapshot = json.load(f)
+user_data = json_snapshot['users'] 
+state_data = json_snapshot['state'] 
 
-state_data = {}
-with open(os.path.join(snapshot_folder, snapshot_name + "-state.json")) as f:
-    state_data = json.load(f)
+# user_data = {}
+# with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
+#     user_data = json.load(f)
+
+# state_data = {}
+# with open(os.path.join(snapshot_folder, snapshot_name + "-state.json")) as f:
+#     state_data = json.load(f)
 
 # Gather UIDs from states/`interface_num`/completed
 uids = []
@@ -31,8 +30,10 @@ for interface_num in state_data:
 cycle_data_columns = ["startTime", "endTime", "control", "transitionType", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta", "uid", "sid", "cid"]
 cycle_data = []
 
-questionnaire_data_columns = ['uid-1000--00','sid-1000--00','section-0-question-0','section-0-question-1', 'section-0-question-10', 'section-0-question-11', 'section-0-question-12', 'section-0-question-13', 'section-0-question-2', 'section-0-question-3', 'section-0-question-4', 'section-0-question-5', 'section-0-question-6', 'section-0-question-7', 'section-0-question-8', 'section-0-question-9', 'section-1-question-0', 'section-1-question-1', 'section-1-question-10', 'section-1-question-11', 'section-1-question-12', 'section-1-question-13', 'section-1-question-14', 'section-1-question-2', 'section-1-question-3', 'section-1-question-4', 'section-1-question-5', 'section-1-question-6', 'section-1-question-7', 'section-1-question-8', 'section-1-question-9', 'section-2-question-0', 'section-2-question-1', 'section-2-question-2', 'section-2-question-3', 'section-2-question-4', 'section-2-question-5', 'section-2-question-6', 'section-2-question-7', 'section-2-question-8']
+#questionnaire_data_columns = ['uid-1000--00','sid-1000--00','section-0-question-0','section-0-question-1', 'section-0-question-10', 'section-0-question-11', 'section-0-question-12', 'section-0-question-13', 'section-0-question-2', 'section-0-question-3', 'section-0-question-4', 'section-0-question-5', 'section-0-question-6', 'section-0-question-7', 'section-0-question-8', 'section-0-question-9', 'section-1-question-0', 'section-1-question-1', 'section-1-question-10', 'section-1-question-11', 'section-1-question-12', 'section-1-question-13', 'section-1-question-14', 'section-1-question-2', 'section-1-question-3', 'section-1-question-4', 'section-1-question-5', 'section-1-question-6', 'section-1-question-7', 'section-1-question-8', 'section-1-question-9', 'section-2-question-0', 'section-2-question-1', 'section-2-question-2', 'section-2-question-3', 'section-2-question-4', 'section-2-question-5', 'section-2-question-6', 'section-2-question-7', 'section-2-question-8']
+questionnaire_data_columns = []
 questionnaire_data = []
+
 
 for uid in user_data:
     if uid in uids:
@@ -70,9 +71,12 @@ for uid in user_data:
             if 'questionnaires' in user_data[uid]['sessions'][sid]:
                 for qid in user_data[uid]['sessions'][sid]['questionnaires']:
                     answers = [uid, sid]
+                    questionnaire_data_columns = user_data[uid]['sessions'][sid]['questionnaires'][qid]['answers'].keys()
                     for question_name in user_data[uid]['sessions'][sid]['questionnaires'][qid]['answers']:
                         answers.append(user_data[uid]['sessions'][sid]['questionnaires'][qid]['answers'][question_name])
                     questionnaire_data.append(answers)
+
+questionnaire_data_columns = ['uid-1000--00','sid-1000--00'] + [s.replace("-input", "") for s in list(questionnaire_data_columns)]
 
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 

@@ -15,7 +15,7 @@ import os
 
 firebase = firebase.FirebaseApplication('https://accessible-teleop.firebaseio.com', None)
 
-result = firebase.get('/users', None)
+result = firebase.get('/', None)
 
 with open(os.path.join("firebase-snapshots", str(time.time()) + ".json"), "w") as f:
     json.dump(result, f)
