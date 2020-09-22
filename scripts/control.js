@@ -53,7 +53,7 @@ function Control(name, ee, target, transitionType) {
     if (Control.target.isSame(Control.ee)) success();
   }
 
-  Control.rotateFromRing = function () {
+  Control.getScreenSpaceRot = function () {
     var newClickPoint = getMousePosition(event);
     var centerPoint = Control.ee.getPosition();
     var a = newClickPoint.diff(Control.firstClickPoint);
@@ -69,10 +69,9 @@ function Control(name, ee, target, transitionType) {
     var alphaDeg = Math.round(180.0 * alpha / Math.PI);
 
     if (!isNaN(alpha)) {
-      Control.ee.rotateBy(alphaDeg);
-      Control.ee.moveNow();
-      Control.checkEEatTarget();
+      return alphaDeg;
     }
+    return false;
   }
 
   Control.updateControlPositions = function () {

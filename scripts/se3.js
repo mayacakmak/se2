@@ -1,3 +1,4 @@
+const DEG_TO_RAD = Math.PI / 180;
 /*
 * Position class to represent 2D points and do simple
 * operations on them
@@ -125,19 +126,33 @@ function SE3(name, pose, color, threejs_object, posThreshold = 0, rotThreshold =
 function moveableSE3(name, pose, color, threejs_object, hasHandle) {
   SE3.call(this, name, pose, color, threejs_object, 0, 0);
 
-  this.startPose = null;
+  this.startPose;
+  this.startRot;
   this.isMoving = false;
   this.isTranslating = false;
   this.isRotating = false;
 
+
   this.startTranslating = function () {
-    this.startPose = new Pose(this.pose.x, this.pose.y, this.pose.theta);
+    var viewNum;
+    switch (selectedView) {
+      case "top":
+        viewNum = 1;
+        break;
+      case "front":
+        viewNum = 0;
+        break;
+      case "side":
+        viewNum = 3;
+        break;
+    }
+    this.startPose = world_to_screen_space(this.threejs_object, views[viewNum]);
     this.isMoving = true;
     this.isTranslating = true;
   }
 
   this.startRotating = function () {
-    this.startPose = new Pose(this.pose.x, this.pose.y, this.pose.theta);
+    this.startRot = this.threejs_object.rotation;
     this.isMoving = true;
     this.isRotating = true;
   }
@@ -148,29 +163,35 @@ function moveableSE3(name, pose, color, threejs_object, hasHandle) {
     this.isRotating = false;
   }
 
-  this.rotateBy = function (degDiff) {
-    this.pose.theta = this.startPose.theta + degDiff;
-    if (this.pose.theta > 180)
-      this.pose.theta -= 360;
-    if (this.pose.theta < -180)
-      this.pose.theta += 360;
+  this.getLoc = function (firstClickPoint, newPoint, viewNum) {
+    var a = newPoint.diff(firstClickPoint).sum(this.startPose);
+    return screen_to_world_space(a, views[viewNum]);
   }
 
-  this.translateBy = function (positionDiff) {
-    this.pose.x = Math.min(Math.max(0, this.startPose.x + positionDiff.x), this.size.width);
-    this.pose.y = Math.min(Math.max(0, this.startPose.y + positionDiff.y), this.size.height);
+  this.translateXBy = function (firstClickPoint, newPoint, viewNum) {
+    this.threejs_object.position.x = this.getLoc(firstClickPoint, newPoint, viewNum).x;
   }
 
-  this.translateXBy = function (positionDiff) {
-    this.pose.x = this.startPose.x + positionDiff.x;
+  this.translateYBy = function (firstClickPoint, newPoint, viewNum) {
+    this.threejs_object.position.y = this.getLoc(firstClickPoint, newPoint, viewNum).y;
   }
 
-  this.translateYBy = function (positionDiff) {
-    this.pose.y = this.startPose.y + positionDiff.y;
+  this.translateZBy = function (firstClickPoint, newPoint, viewNum) {
+    this.threejs_object.position.z = this.getLoc(firstClickPoint, newPoint, viewNum).z;
+  }
+  
+  this.rotateXBy = function (rot) {
+    this.threejs_object.rotation.x = this.startRot.x + (rot * DEG_TO_RAD);
   }
 
-  this.translateZBy = function (positionDiff) {
-    this.pose.y = 0, this.startPose.y + positionDiff.y;
+  this.rotateYBy = function (rot) {
+    this.threejs_object.rotation.y = this.startRot.y + (rot * DEG_TO_RAD);
+  }
+
+  this.rotateZBy = function (rot) {
+    this.threejs_object.rotation.z = this.startRot.z + (rot * DEG_TO_RAD);
+    //moveObject(Control.s_ring.group, this.pose.x, this.pose.y, this.threejs_object.rotation.z/DEG_TO_RAD);
+    //console.log(this.threejs_object.rotation.z/DEG_TO_RAD, rot);
   }
 }
 
@@ -183,21 +204,6 @@ function moveObject(object, x, y, theta, isFlip) {
   if (isFlip)
     transform += " scale(-1, 1)";
   object.setAttribute("transform", transform);
-}
-
-/*
-* Utility function to generate a SVG path for a wedge (https://stackoverflow.com/a/17309908/6454085)
-*/
-function generateWedgeString(startX, startY, startAngle, endAngle, radius) {
-  var x1 = startX + radius * Math.cos(Math.PI * startAngle / 180);
-  var y1 = startY + radius * Math.sin(Math.PI * startAngle / 180);
-  var x2 = startX + radius * Math.cos(Math.PI * endAngle / 180);
-  var y2 = startY + radius * Math.sin(Math.PI * endAngle / 180);
-
-  var pathString = "M" + startX + " " + startY + " L" + x1 + " " + y1 + " A" + radius + " " + radius + " 0 0 1 " + x2 + " " + y2 + " z";
-
-  return pathString;
-
 }
 
 /*
