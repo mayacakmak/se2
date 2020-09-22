@@ -127,7 +127,11 @@ function moveableSE3(name, pose, color, threejs_object, hasHandle) {
   SE3.call(this, name, pose, color, threejs_object, 0, 0);
 
   this.startPose;
-  this.startRot;
+  this.startRot = {
+    x: 0,
+    y: 0,
+    z: 0
+  };
   this.isMoving = false;
   this.isTranslating = false;
   this.isRotating = false;
@@ -152,7 +156,9 @@ function moveableSE3(name, pose, color, threejs_object, hasHandle) {
   }
 
   this.startRotating = function () {
-    this.startRot = this.threejs_object.rotation;
+    this.startRot.x = this.threejs_object.rotation.x / DEG_TO_RAD;
+    this.startRot.y = this.threejs_object.rotation.y / DEG_TO_RAD;
+    this.startRot.z = this.threejs_object.rotation.z / DEG_TO_RAD;
     this.isMoving = true;
     this.isRotating = true;
   }
@@ -181,21 +187,19 @@ function moveableSE3(name, pose, color, threejs_object, hasHandle) {
   }
   
   this.rotateXBy = function (rot) {
-    this.threejs_object.rotation.x = this.startRot.x + (rot * DEG_TO_RAD);
+    this.threejs_object.rotation.x = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;
   }
 
   this.rotateYBy = function (rot) {
-    this.threejs_object.rotation.y = this.startRot.y + (rot * DEG_TO_RAD);
+    this.threejs_object.rotation.y = ((this.startRot.y - rot) % 360) * DEG_TO_RAD;
   }
 
   this.rotateZBy = function (rot) {
-    this.threejs_object.rotation.z = this.startRot.z + (rot * DEG_TO_RAD);
-    //moveObject(Control.s_ring.group, this.pose.x, this.pose.y, this.threejs_object.rotation.z/DEG_TO_RAD);
-    //console.log(this.threejs_object.rotation.z/DEG_TO_RAD, rot);
+    this.threejs_object.rotation.z = ((this.startRot.z - rot) % 360) * DEG_TO_RAD;
   }
 }
 
-/*
+/*  
 * Utility function to move an entity to a desired SE2 pose
 */
 function moveObject(object, x, y, theta, isFlip) {

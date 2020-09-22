@@ -53,9 +53,9 @@ function Control(name, ee, target, transitionType) {
     if (Control.target.isSame(Control.ee)) success();
   }
 
-  Control.getScreenSpaceRot = function () {
+  Control.getScreenSpaceRot = function (event, viewNum) {
     var newClickPoint = getMousePosition(event);
-    var centerPoint = Control.ee.getPosition();
+    var centerPoint = world_to_screen_space(ik_target, views[viewNum]);
     var a = newClickPoint.diff(Control.firstClickPoint);
     var aUnit = new Position(a.x / a.length(), a.y / a.length());
     var b = newClickPoint.diff(centerPoint);

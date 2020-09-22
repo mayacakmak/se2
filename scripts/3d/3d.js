@@ -163,7 +163,7 @@ function init() {
 
     // Add the target
     // TODO: Make invisible
-    var geometry = new THREE.BoxGeometry(0.5, 5, 0.5);
+    var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
     var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
 
     ik_target = new THREE.Mesh(geometry, material);

@@ -247,7 +247,7 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.t_ring.highlight();
-          var rot = Control.getScreenSpaceRot(event);
+          var rot = Control.getScreenSpaceRot(event, 1);
           if (rot)
             Control.ee.rotateYBy(rot);
         }
@@ -284,7 +284,7 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.f_ring.highlight();
-          var rot = Control.getScreenSpaceRot(event);
+          var rot = Control.getScreenSpaceRot(event, 0);
           if (rot)
             Control.ee.rotateXBy(rot);
         }
@@ -321,7 +321,7 @@ function ArrowControl(ee, target, transitionType) {
         }
         else if (Control.fsm.currentState == "rotating") {
           Control.s_ring.highlight();
-          var rot = Control.getScreenSpaceRot(event);
+          var rot = Control.getScreenSpaceRot(event, 3);
           if (rot)
             Control.ee.rotateZBy(rot);
         }
