@@ -42,6 +42,23 @@ function updateSelectedView(view) {
 var selectedView = "top";
 updateSelectedView(selectedView);
 
+$('#top-td').click(function() {
+  selectedView = "top";
+  updateSelectedView(selectedView);
+});
+
+
+$('#front-td').click(function() {
+  selectedView = "front";
+  updateSelectedView(selectedView);
+});
+
+
+$('#side-td').click(function() {
+  selectedView = "side";
+  updateSelectedView(selectedView);
+});
+
 $('input[type=radio][name=view]').change(function () {
   selectedView = this.id;
   updateSelectedView(selectedView);
