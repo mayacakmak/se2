@@ -63,7 +63,6 @@ function ArrowControl(ee, target, transitionType) {
     Control.t_xArrows.setPose(eePose);
     Control.t_yArrows.setPose(eePose);
 
-    ws.style.cursor = "default";
     Control.t_ring.group.style.cursor = "pointer";
     Control.t_xArrows.group.style.cursor = "pointer";
     Control.t_yArrows.group.style.cursor = "pointer";
@@ -75,7 +74,6 @@ function ArrowControl(ee, target, transitionType) {
     Control.f_xArrows.setPose(eePose);
     Control.f_yArrows.setPose(eePose);
 
-    ws.style.cursor = "default";
     Control.f_ring.group.style.cursor = "pointer";
     Control.f_xArrows.group.style.cursor = "pointer";
     Control.f_yArrows.group.style.cursor = "pointer";
@@ -87,29 +85,51 @@ function ArrowControl(ee, target, transitionType) {
     Control.s_xArrows.setPose(eePose);
     Control.s_yArrows.setPose(eePose);
 
-    ws.style.cursor = "default";
     Control.s_ring.group.style.cursor = "pointer";
     Control.s_xArrows.group.style.cursor = "pointer";
     Control.s_yArrows.group.style.cursor = "pointer";
 
+    ws.style.cursor = "default";
     Control.updateControlPositions();
   }
 
   Control.unregisterEvents = function () {
     var ws = document.getElementById("workspace");
     if (Control.transitionType == "click") {
-      Control.xArrows.group.removeEventListener("mousedown", Control.handleEvent);
-      Control.xArrows.group.removeEventListener("mouseup", Control.handleEvent);
-      Control.yArrows.group.removeEventListener("mousedown", Control.handleEvent);
-      Control.yArrows.group.removeEventListener("mouseup", Control.handleEvent);
-      Control.ring.group.removeEventListener("mousedown", Control.handleEvent);
-      Control.ring.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.t_xArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.t_xArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.t_yArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.t_yArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.t_ring.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.t_ring.group.removeEventListener("mouseup", Control.handleEvent);
+
+      Control.f_xArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.f_xArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.f_yArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.f_yArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.f_ring.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.f_ring.group.removeEventListener("mouseup", Control.handleEvent);
+
+      Control.s_xArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.s_xArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.s_yArrows.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.s_yArrows.group.removeEventListener("mouseup", Control.handleEvent);
+      Control.s_ring.group.removeEventListener("mousedown", Control.handleEvent);
+      Control.s_ring.group.removeEventListener("mouseup", Control.handleEvent);
       ws.removeEventListener("mouseup", Control.handleEvent);
     }
     else {
-      Control.xArrows.group.removeEventListener("click", Control.handleEvent);
-      Control.yArrows.group.removeEventListener("click", Control.handleEvent);
-      Control.ring.group.removeEventListener("click", Control.handleEvent);
+      Control.t_xArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.t_yArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.t_ring.group.removeEventListener("click", Control.handleEvent);
+
+      Control.f_xArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.f_yArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.f_ring.group.removeEventListener("click", Control.handleEvent);
+
+      Control.s_xArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.s_yArrows.group.removeEventListener("click", Control.handleEvent);
+      Control.s_ring.group.removeEventListener("click", Control.handleEvent);
       ws.removeEventListener("click", Control.handleEvent);
     }
   }
@@ -216,6 +236,7 @@ function ArrowControl(ee, target, transitionType) {
   * based on the state of the FSM.
   */
   Control.update = function (event) {
+    var mousePos = getMousePosition(event);
     switch (selectedView) {
       case "top":
         Control.t_ring.resetColor();
@@ -238,11 +259,11 @@ function ArrowControl(ee, target, transitionType) {
           return false;
         }
         else if (Control.fsm.currentState == "translating-x") {
-          Control.ee.translateXBy(Control.firstClickPoint, getMousePosition(event), 1);
+          Control.ee.translateXBy(Control.firstClickPoint, mousePos, 1);
           Control.t_xArrows.highlight();
         }
         else if (Control.fsm.currentState == "translating-y") {
-          Control.ee.translateZBy(Control.firstClickPoint, getMousePosition(event), 1);
+          Control.ee.translateZBy(Control.firstClickPoint, mousePos, 1);
           Control.t_yArrows.highlight();
         }
         else if (Control.fsm.currentState == "rotating") {
@@ -275,11 +296,11 @@ function ArrowControl(ee, target, transitionType) {
           return false;
         }
         else if (Control.fsm.currentState == "translating-x") {
-          Control.ee.translateZBy(Control.firstClickPoint, getMousePosition(event), 0);
+          Control.ee.translateZBy(Control.firstClickPoint, mousePos, 0);
           Control.f_xArrows.highlight();
         }
         else if (Control.fsm.currentState == "translating-y") {
-          Control.ee.translateYBy(Control.firstClickPoint, getMousePosition(event), 0);
+          Control.ee.translateYBy(Control.firstClickPoint, mousePos, 0);
           Control.f_yArrows.highlight();
         }
         else if (Control.fsm.currentState == "rotating") {
@@ -312,11 +333,11 @@ function ArrowControl(ee, target, transitionType) {
           return false;
         }
         else if (Control.fsm.currentState == "translating-x") {
-          Control.ee.translateXBy(Control.firstClickPoint, getMousePosition(event), 3);
+          Control.ee.translateXBy(Control.firstClickPoint, mousePos, 3);
           Control.s_xArrows.highlight();
         }
         else if (Control.fsm.currentState == "translating-y") {
-          Control.ee.translateYBy(Control.firstClickPoint, getMousePosition(event), 3);
+          Control.ee.translateYBy(Control.firstClickPoint, mousePos, 3);
           Control.s_yArrows.highlight();
         }
         else if (Control.fsm.currentState == "rotating") {
