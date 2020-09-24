@@ -246,6 +246,10 @@ function Panel() {
   Panel.getCenterPose = function () {
     return new Pose(Panel.width / 2, Panel.height / 2, 0);
   }
+
+  this.setPose = function (pose) {
+    moveObject(this.group, pose.x, pose.y, pose.theta);
+  }
 }
 
 /*
