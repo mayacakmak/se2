@@ -19,6 +19,11 @@ var xScale = 1.222;
 var zScale = 0.8;
 var yScale = 1.222;
 
+// IK Optimization Constants
+var kP = 1;
+var kR = 7;
+var kC = 1/325;
+
 var views = [
     {
         screenPos: "bottom-left",
@@ -195,6 +200,8 @@ function init() {
         child.material.transparent = true;
     });
 
+    ik_target_ghost.visible = false;
+
     scene.add(ik_target_ghost);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -290,7 +297,7 @@ function getEEPose() {
     var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node;
 
     // Set the endpoint to the wrist
-    var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS].node;
+    // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS].node;
 
     var position = new THREE.Vector3();
     var quaternion = new THREE.Quaternion();
@@ -336,7 +343,7 @@ function solveIK(target, iter) {
         var changeLoss = calcAngleDist(lastAngles, updatedAngles);
         tempLastAngles = updatedAngles;
 
-        return posLoss + rotLoss * 7 + changeLoss * 1 / 400;
+        return posLoss * kP + rotLoss * kR + changeLoss * kC;
     }
 
     dae.updateMatrixWorld(true);
@@ -347,7 +354,7 @@ function solveIK(target, iter) {
     startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Realistic angles (without range mapping)
     //startingAngles = getJointAngles();
 
-    var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
+    fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
 
     lastAngles = tempLastAngles;
 }
