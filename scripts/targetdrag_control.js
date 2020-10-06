@@ -53,20 +53,45 @@ function TargetDragControl(ee, target, transitionType) {
     }
 
     if(fsmEvent == "cursor-release") {
-      Control.ghost.setVisible(false);
-      Control.ee.setPose(Control.ghost.pose);
-      Control.ee.moveNow();
-      Control.checkAtTarget(Control.ghost);
-      Control.checkEEatTarget();
+      Control.ee.threejs_object_ghost.visible = false;
+      
+      Control.ee.threejs_object.position.x = Control.ee.threejs_object_ghost.position.x;
+      Control.ee.threejs_object.position.y = Control.ee.threejs_object_ghost.position.y;
+      Control.ee.threejs_object.position.z = Control.ee.threejs_object_ghost.position.z;
+
+      Control.ee.threejs_object.rotation.x = Control.ee.threejs_object_ghost.rotation.x;
+      Control.ee.threejs_object.rotation.y = Control.ee.threejs_object_ghost.rotation.y;
+      Control.ee.threejs_object.rotation.z = Control.ee.threejs_object_ghost.rotation.z;
+
+      //Control.checkAtTarget(Control.ghost);
+      //Control.checkEEatTarget();
       window.setTimeout(Control.checkSuccess, 200);
     }
 
     if (fsmEvent == "cursor-press") {
       Control.firstClickPoint = getMousePosition(event);
-      Control.ghost.setPose(Control.ee.pose);
-      Control.ghost.setPosition(Control.firstClickPoint);
-      Control.ghost.setVisible(true);
-      Control.checkAtTarget(Control.ghost);
+      switch (selectedView) {
+        case "top":
+          var newPos = screen_to_world_space(Control.firstClickPoint, views[1]);
+          console.log(Control.firstClickPoint, newPos, Control.ee.threejs_object_ghost.position)
+          Control.ee.threejs_object_ghost.position.x = newPos.x;
+          Control.ee.threejs_object_ghost.position.z = newPos.z;
+          Control.ee.threejs_object_ghost.visible = true;
+          break;
+        case "front":
+          var newPos = screen_to_world_space(Control.firstClickPoint, views[0]);
+          Control.ee.threejs_object_ghost.position.z = newPos.z;
+          Control.ee.threejs_object_ghost.position.y = newPos.y;
+          Control.ee.threejs_object_ghost.visible = true;
+          break;
+        case "side":
+          var newPos = screen_to_world_space(Control.firstClickPoint, views[3]);
+          Control.ee.threejs_object_ghost.position.x = newPos.x;
+          Control.ee.threejs_object_ghost.position.y = newPos.y;
+          Control.ee.threejs_object_ghost.visible = true;
+          break;
+      }
+      //Control.checkAtTarget(Control.ghost);
     }
 
     if(fsmEvent != null)
@@ -87,7 +112,19 @@ function TargetDragControl(ee, target, transitionType) {
     }
     else if (Control.fsm.currentState == "cursor-anchored") {
       var newClickPoint = getMousePosition(event);
-      var centerPoint = Control.ghost.pose.getPosition();
+
+      var centerPoint;
+      switch (selectedView) {
+        case "top":
+          centerPoint = world_to_screen_space(Control.ee.threejs_object_ghost, views[1]);
+          break;
+        case "front":
+          centerPoint = world_to_screen_space(Control.ee.threejs_object_ghost, views[0]);
+          break;
+        case "side":
+          centerPoint = world_to_screen_space(Control.ee.threejs_object_ghost, views[3]);
+          break;
+      }
 
       var deltaX = newClickPoint.x - centerPoint.x;
       var deltaY = newClickPoint.y - centerPoint.y;
@@ -99,8 +136,20 @@ function TargetDragControl(ee, target, transitionType) {
           angle += 360;
 
       if (!isNaN(angle)) {
-        Control.ghost.setRotation(angle);
-        Control.checkAtTarget(Control.ghost);
+        switch (selectedView) {
+          case "top":
+            Control.ee.threejs_object_ghost.rotation.y = -angle*DEG_TO_RAD;
+            break;
+          case "front":
+            Control.ee.threejs_object_ghost.rotation.x = -(angle+90)*DEG_TO_RAD;
+            break;
+          case "side":
+            Control.ee.threejs_object_ghost.rotation.z = -angle*DEG_TO_RAD;
+            break;
+        }
+        Control.updateControlPositions();
+        // Control.checkAtTarget(Control.ghost);
+        
         // Control.checkEEatTarget();
       }
     }

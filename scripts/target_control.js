@@ -112,8 +112,6 @@ function TargetControl(ee, target) {
       
       //Control.checkEEatTarget();
 
-      // Refresh the position of the ik_target
-      Control.ee.threejs_object.updateMatrixWorld();
       Control.updateControlPositions();
       
       Control.fsm.emitEvent("cursor-click");

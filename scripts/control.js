@@ -75,6 +75,9 @@ function Control(name, ee, target, transitionType) {
   }
 
   Control.updateControlPositions = function () {
+    // Refresh the position of the ik_target
+    Control.ee.threejs_object.updateMatrixWorld();
+    
     var t_pose = world_to_screen_space(ik_target, views[1])
     Control.t_ring.setPose(t_pose);
     Control.t_xArrows.setPosition(t_pose);

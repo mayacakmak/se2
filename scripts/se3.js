@@ -65,10 +65,11 @@ function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
 /*
 * Constructor for SE3 element class
 */
-function SE3(name, pose, color, threejs_object, posThreshold = 0, rotThreshold = 0) {
+function SE3(name, pose, color, threejs_object, threejs_object_ghost, posThreshold = 0, rotThreshold = 0) {
   this.pose = pose;
   this.color = color;
   this.threejs_object = threejs_object;
+  this.threejs_object_ghost = threejs_object_ghost;
 
   this.posThreshold = posThreshold;
   this.rotThreshold = rotThreshold;
@@ -123,8 +124,8 @@ function SE3(name, pose, color, threejs_object, posThreshold = 0, rotThreshold =
 /*
 * Constructor for moveable SE3, inherits SE3
 */
-function moveableSE3(name, pose, color, threejs_object, hasHandle) {
-  SE3.call(this, name, pose, color, threejs_object, 0, 0);
+function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, hasHandle) {
+  SE3.call(this, name, pose, color, threejs_object, threejs_object_ghost, 0, 0);
 
   this.startPose;
   this.startRot = {

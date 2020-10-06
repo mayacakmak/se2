@@ -59,11 +59,6 @@ $('#side-td').click(function() {
   updateSelectedView(selectedView);
 });
 
-$('input[type=radio][name=view]').change(function () {
-  selectedView = this.id;
-  updateSelectedView(selectedView);
-});
-
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
 var currentControl = 0;
@@ -184,7 +179,7 @@ function setupEnvironment() {
   target = new SE3("target", new Pose(), "#AAA", threshXY, threshTheta);
 
   // Create end effector and place it in workspace
-  ee = new moveableSE3("ee", new Pose(), "#111", ik_target);
+  ee = new moveableSE3("ee", new Pose(), "#111", ik_target, ik_target_ghost);
 
   // Create control and initialize to add it to the workspace
   if (controlTypes[currentControl] == "arrow")

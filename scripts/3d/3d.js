@@ -1,5 +1,5 @@
 
-var ik_target, dae, kinematics, collada;
+var ik_target, ik_target_ghost, dae, kinematics, collada;
 var arm_link_name = 'l_shoulder_pan_link';
 var NUM_JOINTS = 7;
 
@@ -163,12 +163,39 @@ function init() {
 
     // Add the target
     // TODO: Make invisible
-    var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    var material = new THREE.MeshBasicMaterial({ color: 'rgb(255,0,0)' });
+    var x_geo = new THREE.BoxGeometry(1.5, 0.2, 0.2);
+    var y_geo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
+    var z_geo = new THREE.BoxGeometry(0.2, 0.2, 0.7);
+    var red_mat = new THREE.MeshLambertMaterial({ color: 'rgb(255,0,0)' });
+    var green_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,255,0)' });
+    var blue_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,255)' });
 
-    ik_target = new THREE.Mesh(geometry, material);
+    var x_obj = new THREE.Mesh(x_geo, red_mat);
+    x_obj.position.x += 1.5/2;
+    var y_obj = new THREE.Mesh(y_geo, green_mat);
+    var z_obj = new THREE.Mesh(z_geo, blue_mat);
+
+    ik_target = new THREE.Group();
+    ik_target.add(x_obj);
+    ik_target.add(y_obj);
+    ik_target.add(z_obj);
     ik_target.position.set(6, 7, -1);
     scene.add(ik_target);
+
+    ik_target_ghost = new THREE.Group();
+    ik_target_ghost.add(x_obj.clone());
+    ik_target_ghost.add(y_obj.clone());
+    ik_target_ghost.add(z_obj.clone());
+    ik_target_ghost.position.set(ik_target.position.x, ik_target.position.y, ik_target.position.z);
+
+    // Clone materials and set opacity of ghost
+    ik_target_ghost.children.forEach(function (child) {
+        child.material = child.material.clone();
+        child.material.opacity = 0.3;
+        child.material.transparent = true;
+    });
+
+    scene.add(ik_target_ghost);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     //renderer.setPixelRatio(windowWidth / windowHeight);
