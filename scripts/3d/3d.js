@@ -147,7 +147,9 @@ function init() {
         // Add the COLLADA
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
         dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
-        //dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x669966); } }, 0);
+        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xB5B5B5); } }, 0);
+        // Move the whole robot down in preparation for the torso being moved up on line 169
+        dae.position.y = -4.6;
         scene.add(dae);
 
         // Arm index
@@ -163,6 +165,8 @@ function init() {
         kinematics.setJointValue(findJointByName("l_gripper_r_finger_link"), 20);
         kinematics.setJointValue(findJointByName("l_gripper_l_finger_link"), 20);
 
+        // Move the torso up
+        kinematics.setJointValue(findJointByName("torso_lift_link"), 0.33);
     });
 
 
