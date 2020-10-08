@@ -147,7 +147,7 @@ function init() {
         // Add the COLLADA
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
         dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
-        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xB5B5B5); } }, 0);
+        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
         // Move the whole robot down in preparation for the torso being moved up on line 169
         dae.position.y = -4.6;
         scene.add(dae);
@@ -218,7 +218,7 @@ function animate() {
 
     render();
 
-    if (kinematics) {
+    if (kinematics && enableIK  ) {
         solveIK(ik_target, iterations);
     }
 
@@ -312,7 +312,7 @@ function getEEPose() {
     return { position: position, quaternion: quaternion };
 }
 
-var lastAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
+var lastAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 180];
 function solveIK(target, iter) {
     function loss(angles) {
         var constrainLoss = 0;
