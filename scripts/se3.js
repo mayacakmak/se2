@@ -14,12 +14,16 @@ function rotateAroundWorldAxis(obj, axis, radians) {
 function intersect(obj1, obj2) {
   obj1.updateMatrixWorld();
   obj2.updateMatrixWorld();
-  var bounding1 = box1.geometry.boundingBox.clone();
-  bounding1.applyMatrix4(box1.matrixWorld);
-  var bounding2 = box2.geometry.boundingBox.clone();
-  bounding2.applyMatrix4(box2.matrixWorld);
+
+  var bounding1 = new THREE.Box3().setFromObject(obj1);
+  bounding1.applyMatrix4(obj1.matrixWorld);
+  var bounding2 = new THREE.Box3().setFromObject(obj2);
+  bounding2.applyMatrix4(obj2.matrixWorld);
   
-  return bounding1.intersectsBox(bounding2)
+  return bounding1.max.x < bounding2.min.x || bounding1.min.x > bounding2.max.x ||
+  bounding1.max.y < bounding2.min.y || bounding1.min.y > bounding2.max.y ||
+  bounding1.max.z < bounding2.min.z || bounding1.min.z > bounding2.max.z ? false : true;
+
 }
 
 /*
@@ -124,15 +128,11 @@ function SE3(name, pose, color, threejs_object, threejs_object_ghost, posThresho
   }
 
   this.setTempColor = function (color) {
-    this.dot.setAttribute("fill", color);
-    this.dot.setAttribute("stroke", color);
-    this.line.setAttribute("stroke", color);
+    dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(color); } }, 0);
   }
 
   this.resetColor = function () {
-    this.dot.setAttribute("fill", this.color);
-    this.dot.setAttribute("stroke", this.color);
-    this.line.setAttribute("stroke", this.color);
+    dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
   }
 
   this.isSame = function (other) {
@@ -233,6 +233,24 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
       rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - this.threejs_object.rotation.z);
     else
       this.threejs_object.rotation.z = rot;
+  }
+}
+
+function SE3Target(color, pos, rot, dim) {
+  var geo = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
+  var mat = new THREE.MeshLambertMaterial({ color: color });
+  this.threejs_object = new THREE.Mesh(geo, mat);
+  this.threejs_object.position.copy(pos);
+  this.threejs_object.rotation.copy(rot);
+  scene.add(this.threejs_object)
+
+  this.isSame = function (se3) {
+    var ee_threejs_object = se3.threejs_object;
+    var l_finger = ee_threejs_object.getObjectByName("l_finger_mesh");
+    var r_finger = ee_threejs_object.getObjectByName("r_finger_mesh");
+    var finger_between = ee_threejs_object.getObjectByName("finger_between");
+
+    return intersect(this.threejs_object, finger_between);
   }
 }
 

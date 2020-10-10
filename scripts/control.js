@@ -42,13 +42,13 @@ function Control(name, ee, target, transitionType) {
   }
 
   // Check whether any given object is at the target and update its color
-  Control.checkAtTarget = function (se2) {
-    var targetSuccessColor = "#393";
+  Control.checkAtTarget = function (se3) {
+    var targetSuccessColor = 0xA7D1A7;
 
-    if (Control.target.isSame(se2))
-      se2.setTempColor(targetSuccessColor);
+    if (Control.target.isSame(se3))
+      se3.setTempColor(targetSuccessColor);
     else
-      se2.resetColor();
+      se3.resetColor();
   }
 
   // Check whether the EE is at the target and start the next cycle
@@ -80,7 +80,7 @@ function Control(name, ee, target, transitionType) {
   Control.updateControlPositions = function () {
     // Refresh the position of the ik_target
     Control.ee.threejs_object.updateMatrixWorld();
-    
+
     var t_pose = world_to_screen_space(ik_target, views[1])
     Control.t_ring.setPose(t_pose);
     Control.t_xArrows.setPosition(t_pose);
@@ -92,7 +92,7 @@ function Control(name, ee, target, transitionType) {
     Control.f_xArrows.setPosition(f_pose);
     Control.f_yArrows.setPosition(f_pose);
     Control.f_handle.setPose(f_pose);
-    
+
     var s_pose = world_to_screen_space(ik_target, views[3])
     Control.s_ring.setPose(s_pose);
     Control.s_xArrows.setPosition(s_pose);
@@ -169,7 +169,7 @@ function world_to_screen_space(object, view) {
   vector.setFromMatrixPosition(object.matrixWorld).project(view.camera);
 
   return new Pose(
-    Math.round(map_range(vector.x, -1, 1, windowWidth * view.left, windowWidth * (view.left + view.width))), 
+    Math.round(map_range(vector.x, -1, 1, windowWidth * view.left, windowWidth * (view.left + view.width))),
     Math.round(map_range(vector.y, 1, -1, windowHeight * (1 - view.bottom - view.height), windowHeight * (1 - view.bottom), limit_range = false)),
     0);
 }

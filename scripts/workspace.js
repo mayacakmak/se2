@@ -42,19 +42,19 @@ function updateSelectedView(view) {
 var selectedView = "top";
 updateSelectedView(selectedView);
 
-$('#top-td').click(function() {
+$('#top-td').click(function () {
   selectedView = "top";
   updateSelectedView(selectedView);
 });
 
 
-$('#front-td').click(function() {
+$('#front-td').click(function () {
   selectedView = "front";
   updateSelectedView(selectedView);
 });
 
 
-$('#side-td').click(function() {
+$('#side-td').click(function () {
   selectedView = "side";
   updateSelectedView(selectedView);
 });
@@ -184,10 +184,14 @@ function setupEnvironment() {
   }
 
   // Create target and place it in workspace
-  target = new SE3("target", new Pose(), "#AAA", threshXY, threshTheta);
+  target = setTargetPose();
 
   // Create end effector and place it in workspace
   ee = new moveableSE3("ee", new Pose(), "#111", ik_target, ik_target_ghost);
+
+
+  // Place the EE and the target in the workspace
+  setEEPoseAtCenter();
 
   // Create control and initialize to add it to the workspace
   if (controlTypes[currentControl] == "arrow")
@@ -204,10 +208,6 @@ function setupEnvironment() {
   else if (controlTypes[currentControl] == "panel")
     control = new PanelControl(ee, target,
       transitionTypes[currentTransitionType]);
-
-  // Place the EE and the target in the workspace
-  setTargetPose();
-  setEEPoseAtCenter();
 
   // Initialize control
   Control.initialize(ee.pose);
@@ -236,29 +236,21 @@ function setupEnvironment() {
 }
 
 function setTargetPose() {
+  var pos = new THREE.Vector3(6, 7, -1);
+  var rot = new THREE.Euler(0, 0, 0);
+  var dim = new THREE.Vector3(1, 1, 1);
   if (isTest) {
     let currentConfig = testConfigs[currentTest];
-    target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
+    //target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
     // DEBUGGING
     // target.setPose(new Pose(currentConfig.x, currentConfig.y, 180));
   }
   else {
-    // During practice, set pose randomly
-    var ws = document.getElementById("workspace");
-    var rect = ws.getBoundingClientRect();
-    var ringBuffer = Ring.innerR + Ring.ringRadius;
-    var edgeBuffer = ringBuffer + (Arrow.arrowLengthTot);
-    var randomW = rect.width / 2 - Ring.ringRadius - edgeBuffer - SE3.lineLength;
-    var randomH = rect.height / 2 - Ring.ringRadius - edgeBuffer - SE3.lineLength;
-
-    console.log("ringBuffer:" + ringBuffer);
-    console.log("randomW:" + randomW);
-    console.log("randomH:" + randomH);
-
     let poseFound = false;
     while (!poseFound) {
-      var randomX = rect.width / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomW);
-      var randomY = rect.height / 2 + Math.sign(Math.random() - 0.5) * (ringBuffer + Math.random() * randomH);
+      pos.x = getRandomArbitrary(3, 8.5);
+      pos.y = getRandomArbitrary(0.5, 10);
+      pos.z = getRandomArbitrary(-6.5, 2);
       var randomTheta = Math.random() * 360 - 180;
 
       // If there it a panel, don't let the target fall behind it
@@ -271,16 +263,13 @@ function setTargetPose() {
     }
 
     // Set the pose of the created target
-    target.setPose(new Pose(randomX, randomY, randomTheta));
+    //target.setPose(new Pose(randomX, randomY, randomTheta));
   }
+  return tempTarget = new SE3Target("rgb(50, 50, 50)", pos, rot, dim);
 }
 
 function setEEPoseAtCenter() {
-  var ws = document.getElementById("workspace");
-  var rect = ws.getBoundingClientRect();
-  var centerX = Math.round(rect.width / 2);
-  var centerY = Math.round(rect.height / 2);
-  ee.setPose(new Pose(centerX, centerY, 0));
+  ee.threejs_object.position.set(6, 7, -1);
 }
 
 function clearWorkspace() {
@@ -288,6 +277,8 @@ function clearWorkspace() {
   while (ws.hasChildNodes()) {
     ws.removeChild(ws.firstChild);
   }
+
+  scene.remove(target.threejs_object);
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);

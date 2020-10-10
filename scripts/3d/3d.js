@@ -33,9 +33,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [15, 7, -3],
+        eye: [15, 5, -3],
         rotation: new THREE.Vector3(0, Math.PI / 2, 0),
-        cameraScale: 65
+        cameraScale: 60
     },
     {
         screenPos: "top-left",
@@ -47,7 +47,7 @@ var views = [
         background: new THREE.Color(0.8, 0.8, 0.8),
         eye: [5, 20, -3],
         rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
-        cameraScale: 60
+        cameraScale: 50
     },
     {
         screenPos: "bottom-right",
@@ -71,7 +71,7 @@ var views = [
         background: new THREE.Color(0.8, 0.8, 0.8),
         eye: [5, 5, 15],
         rotation: new THREE.Vector3(0, 0, 0),
-        cameraScale: 65
+        cameraScale: 60
     }
 ];
 
@@ -171,7 +171,6 @@ function init() {
 
 
     // Add the target
-    // TODO: Make invisible
     var x_geo = new THREE.BoxGeometry(1.5, 0.2, 0.2);
     var y_geo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
     var z_geo = new THREE.BoxGeometry(0.2, 0.2, 0.7);
@@ -183,12 +182,30 @@ function init() {
     x_obj.position.x += 1.5/2;
     var y_obj = new THREE.Mesh(y_geo, green_mat);
     var z_obj = new THREE.Mesh(z_geo, blue_mat);
+    z_obj.name = "finger_between";
 
     ik_target = new THREE.Group();
     ik_target.add(x_obj);
     ik_target.add(y_obj);
     ik_target.add(z_obj);
     ik_target.position.set(6, 7, -1);
+
+    var finger_geo = new THREE.BoxGeometry(0.5, 0.3, 0.3);
+    var black_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,0)' });
+    var l_finger = new THREE.Mesh(finger_geo, black_mat);
+    var r_finger = new THREE.Mesh(finger_geo, black_mat);
+    var finger_separation = 0.3;
+    
+    l_finger.position.z = -finger_separation;
+    r_finger.position.z = finger_separation;
+    l_finger.visible = false;
+    r_finger.visible = false;
+    l_finger.name = "l_finger_mesh";
+    r_finger.name = "r_finger_mesh";
+
+    ik_target.add(l_finger);
+    ik_target.add(r_finger);
+
     scene.add(ik_target);
 
     ik_target_ghost = new THREE.Group();
@@ -203,6 +220,9 @@ function init() {
         child.material.opacity = 0.3;
         child.material.transparent = true;
     });
+
+    ik_target_ghost.add(l_finger.clone());
+    ik_target_ghost.add(r_finger.clone());
 
     ik_target_ghost.visible = false;
 

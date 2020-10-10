@@ -12,7 +12,7 @@ function ArrowControl(ee, target, transitionType) {
     new Transition("translating-y", "y-arrow-release", "cursor-free"),
     new Transition("rotating", "ring-release", "cursor-free")]);
 
-  Control.initialize = function (eePose) {
+    Control.initialize = function (eePose) {
 
     var ws = document.getElementById("workspace");
 
@@ -353,7 +353,7 @@ function ArrowControl(ee, target, transitionType) {
 
     Control.updateControlPositions();
 
-    //Control.checkEEatTarget();
+    Control.checkEEatTarget();
 
     return true;
   }
