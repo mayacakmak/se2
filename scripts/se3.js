@@ -1,4 +1,15 @@
 const DEG_TO_RAD = Math.PI / 180;
+const X_AXIS = new THREE.Vector3(1, 0, 0);
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const Z_AXIS = new THREE.Vector3(0, 0, 1);
+function rotateAroundWorldAxis(obj, axis, radians) {
+  let rotWorldMatrix = new THREE.Matrix4();
+  rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+  rotWorldMatrix.multiply(obj.matrix);
+  obj.matrix = rotWorldMatrix;
+  obj.setRotationFromMatrix(obj.matrix);
+}
+
 /*
 * Position class to represent 2D points and do simple
 * operations on them
@@ -187,16 +198,29 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     this.threejs_object.position.z = this.getLoc(firstClickPoint, newPoint, viewNum).z;
   }
   
+
   this.rotateXBy = function (rot) {
-    this.threejs_object.rotation.x = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;
+    rot = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;
+    if (worldRotation)
+      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot - this.threejs_object.rotation.x);
+    else
+      this.threejs_object.rotation.x = rot;
   }
 
   this.rotateYBy = function (rot) {
-    this.threejs_object.rotation.y = ((this.startRot.y - rot) % 360) * DEG_TO_RAD;
+    rot = (((this.startRot.y - rot) % 360) * DEG_TO_RAD);
+    if (worldRotation)
+      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot - this.threejs_object.rotation.y);
+    else
+      this.threejs_object.rotation.y = rot;
   }
 
   this.rotateZBy = function (rot) {
-    this.threejs_object.rotation.z = ((this.startRot.z - rot) % 360) * DEG_TO_RAD;
+    rot = (((this.startRot.z - rot) % 360) * DEG_TO_RAD);
+    if (worldRotation)
+      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - this.threejs_object.rotation.z);
+    else
+      this.threejs_object.rotation.z = rot;
   }
 }
 

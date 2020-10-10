@@ -59,6 +59,14 @@ $('#side-td').click(function() {
   updateSelectedView(selectedView);
 });
 
+var worldRotation = true;
+$('input[type=radio][name=rAxis]').change(function () {
+  if (this.id == "world")
+    worldRotation = true;
+  else if (this.id == "local")
+    worldRotation = false;
+});
+
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
 var currentControl = 0;

@@ -39,6 +39,19 @@
         <p>Now you can practice getting the arrow to the target for as long as you like. When you feel comfortable using
           the interface, press Next to complete the interface tests.</p>
       </div>
+      <div class="row mb-3">
+        <div class="col-4 mx-auto">
+          <label for="basic-url">Rotation Axis: </label>
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary active">
+              <input type="radio" name="rAxis" id="world" autocomplete="off" checked>Camera/World
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="rAxis" id="local" autocomplete="off">Local
+            </label>
+          </div>
+        </div>
+      </div>
       <div class="row mx-5">
         <div id="ThreeJS"></div>
         <div class="workspace-div" id="workspace-container" style="position:absolute;">
@@ -47,11 +60,17 @@
         <!-- Add a outline around the 4 camera views using a table with borders -->
         <table class="workspace-div">
           <tr>
-            <td id="top-td" style="vertical-align:top; text-align:right"><div class="h3">1</div></td>
-            <td id="side-td" style="vertical-align:top; text-align:right"><div class="h3">2</div></td>
+            <td id="top-td" style="vertical-align:top; text-align:right">
+              <div class="h3">1</div>
+            </td>
+            <td id="side-td" style="vertical-align:top; text-align:right">
+              <div class="h3">2</div>
+            </td>
           </tr>
           <tr>
-            <td id="front-td" style="vertical-align:top; text-align:right"><div class="h3">3</div></td>
+            <td id="front-td" style="vertical-align:top; text-align:right">
+              <div class="h3">3</div>
+            </td>
             <td id="perspective-td"></td>
           </tr>
         </table>

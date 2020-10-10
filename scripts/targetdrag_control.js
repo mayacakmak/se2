@@ -3,12 +3,12 @@
 */
 function TargetDragControl(ee, target, transitionType) {
   Control.call(this, "target", ee, target, transitionType);
-  
-  Control.fsm = new FSM(["cursor-free", "cursor-anchored"], 
+
+  Control.fsm = new FSM(["cursor-free", "cursor-anchored"],
     [new Transition("cursor-free", "cursor-press", "cursor-anchored"),
     new Transition("cursor-anchored", "cursor-release", "cursor-free")]);
-  
-  Control.initialize = function(eePose) {
+
+  Control.initialize = function (eePose) {
     // Register events
     var ws = document.getElementById("workspace");
     if (Control.transitionType == "click")
@@ -19,8 +19,8 @@ function TargetDragControl(ee, target, transitionType) {
     }
     ws.style.cursor = "crosshair";
   }
-  
-  Control.unregisterEvents = function() {
+
+  Control.unregisterEvents = function () {
     var ws = document.getElementById("workspace");
     if (Control.transitionType == "click")
       ws.removeEventListener("click", Control.handleEvent);
@@ -34,7 +34,7 @@ function TargetDragControl(ee, target, transitionType) {
   * Static callback function for different events that this Controller
   * cares about (i.e. results in FSM state changes)
   */
-  Control.handleEvent = function(event) {
+  Control.handleEvent = function (event) {
 
     if (event.target.id != "workspace")
       event.stopPropagation();
@@ -52,9 +52,9 @@ function TargetDragControl(ee, target, transitionType) {
         fsmEvent = "cursor-release";
     }
 
-    if(fsmEvent == "cursor-release") {
+    if (fsmEvent == "cursor-release") {
       Control.ee.threejs_object_ghost.visible = false;
-      
+
       Control.ee.threejs_object.position.x = Control.ee.threejs_object_ghost.position.x;
       Control.ee.threejs_object.position.y = Control.ee.threejs_object_ghost.position.y;
       Control.ee.threejs_object.position.z = Control.ee.threejs_object_ghost.position.z;
@@ -94,7 +94,7 @@ function TargetDragControl(ee, target, transitionType) {
       //Control.checkAtTarget(Control.ghost);
     }
 
-    if(fsmEvent != null)
+    if (fsmEvent != null)
       Control.fsm.emitEvent(fsmEvent);
 
   }
@@ -104,9 +104,9 @@ function TargetDragControl(ee, target, transitionType) {
   * on the workspace and will translate that mouse movement to meaningful input
   * based on the state of the FSM.
   */
-  Control.update = function(event) {
+  Control.update = function (event) {
     //var mousePos = getMousePosition(event);
-    
+
     if (Control.fsm.currentState == "cursor-free") {
       return false;
     }
@@ -131,31 +131,43 @@ function TargetDragControl(ee, target, transitionType) {
       var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
       //angle -= 90;
       if (angle > 180)
-          angle -= 360;
+        angle -= 360;
       if (angle < -180)
-          angle += 360;
+        angle += 360;
 
       if (!isNaN(angle)) {
         switch (selectedView) {
           case "top":
-            Control.ee.threejs_object_ghost.rotation.y = -angle*DEG_TO_RAD;
+            rot = -angle * DEG_TO_RAD;
+            if (worldRotation)
+              rotateAroundWorldAxis(Control.ee.threejs_object_ghost, Y_AXIS, rot - Control.ee.threejs_object_ghost.rotation.y);
+            else
+              Control.ee.threejs_object_ghost.rotation.y = -angle*DEG_TO_RAD;
             break;
           case "front":
-            Control.ee.threejs_object_ghost.rotation.x = -(angle+90)*DEG_TO_RAD;
+            rot = -(angle + 90) * DEG_TO_RAD;
+            if (worldRotation)
+              rotateAroundWorldAxis(Control.ee.threejs_object_ghost, X_AXIS, rot - Control.ee.threejs_object_ghost.rotation.x);
+            else
+              Control.ee.threejs_object_ghost.rotation.x = -(angle+90)*DEG_TO_RAD;
             break;
           case "side":
-            Control.ee.threejs_object_ghost.rotation.z = -angle*DEG_TO_RAD;
+            rot = -angle * DEG_TO_RAD;
+            if (worldRotation)
+              rotateAroundWorldAxis(Control.ee.threejs_object_ghost, Z_AXIS, rot - Control.ee.threejs_object_ghost.rotation.z);
+            else
+              Control.ee.threejs_object_ghost.rotation.z = -angle*DEG_TO_RAD;
             break;
         }
         Control.updateControlPositions();
         // Control.checkAtTarget(Control.ghost);
-        
+
         // Control.checkEEatTarget();
       }
     }
     else
       console.log("Invalid state.");
     return true;
-  } 
+  }
 }
 
