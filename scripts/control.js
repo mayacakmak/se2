@@ -36,10 +36,12 @@ function Control(name, ee, target, transitionType) {
   * Utility function to check if the end effector has reached the target
   */
 
+  // Check whether specifically the actual EE is at the target and update its color
   Control.checkEEatTarget = function () {
     Control.checkAtTarget(Control.ee);
   }
 
+  // Check whether any given object is at the target and update its color
   Control.checkAtTarget = function (se2) {
     var targetSuccessColor = "#393";
 
@@ -49,6 +51,7 @@ function Control(name, ee, target, transitionType) {
       se2.resetColor();
   }
 
+  // Check whether the EE is at the target and start the next cycle
   Control.checkSuccess = function () {
     if (Control.target.isSame(Control.ee)) success();
   }

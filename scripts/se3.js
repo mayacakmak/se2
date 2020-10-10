@@ -2,12 +2,24 @@ const DEG_TO_RAD = Math.PI / 180;
 const X_AXIS = new THREE.Vector3(1, 0, 0);
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const Z_AXIS = new THREE.Vector3(0, 0, 1);
+
 function rotateAroundWorldAxis(obj, axis, radians) {
   let rotWorldMatrix = new THREE.Matrix4();
   rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
   rotWorldMatrix.multiply(obj.matrix);
   obj.matrix = rotWorldMatrix;
   obj.setRotationFromMatrix(obj.matrix);
+}
+
+function intersect(obj1, obj2) {
+  obj1.updateMatrixWorld();
+  obj2.updateMatrixWorld();
+  var bounding1 = box1.geometry.boundingBox.clone();
+  bounding1.applyMatrix4(box1.matrixWorld);
+  var bounding2 = box2.geometry.boundingBox.clone();
+  bounding2.applyMatrix4(box2.matrixWorld);
+  
+  return bounding1.intersectsBox(bounding2)
 }
 
 /*
@@ -65,7 +77,7 @@ function Pose(x, y, theta, posThreshold = 5, rotThreshold = 5) {
     var distErr = myPosition.dist(pose);
     var rotErr = angleDistance(this.theta, pose.theta);
     return (distErr < posThreshold &&
-      rotErr < rotThreshold/2);
+      rotErr < rotThreshold / 2);
   }
 
   this.getPosition = function () {
@@ -197,7 +209,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
   this.translateZBy = function (firstClickPoint, newPoint, viewNum) {
     this.threejs_object.position.z = this.getLoc(firstClickPoint, newPoint, viewNum).z;
   }
-  
+
 
   this.rotateXBy = function (rot) {
     rot = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;

@@ -297,19 +297,30 @@ function map_range(raw_value, low1, high1, low2, high2, limit_range = true) {
 
 function getEEPose() {
 
-    // Set the endpoint to the tip of the hand
-    var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 1].node;
-
     // Set the endpoint to the wrist
     // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS].node;
 
+    // Set the endpoint to the tip of the hand, the positions of the right and left fingers are averaged together
+    var lFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS+2].node;
+
+    var lposition = new THREE.Vector3();
+    var lquaternion = new THREE.Quaternion();
+    var lscale = new THREE.Vector3();
+
+    lFinger.matrixWorld.decompose(lposition, lquaternion, lscale);
+
+    var rFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS+3].node;
+
+    var rposition = new THREE.Vector3();
+    var rquaternion = new THREE.Quaternion();
+    var rscale = new THREE.Vector3();
+
+    rFinger.matrixWorld.decompose(rposition, rquaternion, rscale);
+
     var position = new THREE.Vector3();
-    var quaternion = new THREE.Quaternion();
-    var scale = new THREE.Vector3();
+    position.lerpVectors(rposition, lposition, 0.65);
 
-    eeJoint.matrixWorld.decompose(position, quaternion, scale);
-
-    return { position: position, quaternion: quaternion };
+    return { position: position, quaternion: lquaternion };
 }
 
 var lastAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 180];
