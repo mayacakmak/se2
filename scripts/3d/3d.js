@@ -1,9 +1,10 @@
 
 var ik_target, ik_target_ghost, dae, kinematics, collada;
-var arm_link_name = 'l_shoulder_pan_link';
-var NUM_JOINTS = 7;
+const arm_link_name = 'l_shoulder_pan_link';
+const NUM_JOINTS = 7;
+const initial_angle_state = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
 
-var iterations = 10000; // Default is ten thousand iterations
+var iterations = 10000;
 var enableIK = true;
 
 var container;
@@ -20,9 +21,10 @@ var zScale = 0.8;
 var yScale = 1.222;
 
 // IK Optimization Constants
-var kP = 1;
-var kR = 7;
-var kC = 1/325;
+var kPos = 2;
+var kRot = 10;
+var kChange = 1/325;
+var kConstraint = 1;
 
 var views = [
     {
@@ -45,9 +47,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [5, 20, -3],
+        eye: [3, 20, -3],
         rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
-        cameraScale: 50
+        cameraScale: 70
     },
     {
         screenPos: "bottom-right",
@@ -59,7 +61,7 @@ var views = [
         background: new THREE.Color(0.8, 0.8, 0.8),
         eye: [10, 10, -10],
         target: new THREE.Vector3(0, 5, 0),
-        fov: 60
+        fov: 50
     },
     {
         screenPos: "top-right",
@@ -69,9 +71,9 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color(0.8, 0.8, 0.8),
-        eye: [5, 5, 15],
+        eye: [3, 5, 15],
         rotation: new THREE.Vector3(0, 0, 0),
-        cameraScale: 60
+        cameraScale: 70
     }
 ];
 
@@ -148,6 +150,7 @@ function init() {
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
         dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
         dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
+        
         // Move the whole robot down in preparation for the torso being moved up on line 169
         dae.position.y = -4.6;
         scene.add(dae);
@@ -167,6 +170,9 @@ function init() {
 
         // Move the torso up
         kinematics.setJointValue(findJointByName("torso_lift_link"), 0.33);
+
+        // Put the arm in the correct starting position
+        setJointAngles(starting_position);
     });
 
 
@@ -238,7 +244,7 @@ function animate() {
 
     render();
 
-    if (kinematics && enableIK  ) {
+    if (kinematics && enableIK) {
         solveIK(ik_target, iterations);
     }
 
@@ -343,7 +349,27 @@ function getEEPose() {
     return { position: position, quaternion: lquaternion };
 }
 
-var lastAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 180];
+function getJointAngles() {
+    var jointAngles = [];
+    for (var i = 0; i < NUM_JOINTS; i++) {
+        // Map the input angle to the joint range
+        //var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
+        //var newAngle = map_range(kinematics.getJointValue(arm_joint_idx + i), jointLimits.min, jointLimits.max, 0, 1);
+        //jointAngles.push(newAngle);
+        jointAngles.push(kinematics.getJointValue(arm_joint_idx + i));
+    }
+    return jointAngles;
+}
+
+
+function setJointAngles(angles) {
+    for (var i = 0; i < NUM_JOINTS; i++) {
+        kinematics.setJointValue(arm_joint_idx + i, angles[i]);
+    }
+}
+
+var starting_position = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
+var lastAngles = starting_position;
 function solveIK(target, iter) {
     function loss(angles) {
         var constrainLoss = 0;
@@ -364,9 +390,9 @@ function solveIK(target, iter) {
             } else if (angles[i] > jointLimits.max) {
                 constrainLoss += angles[i] - jointLimits.max;
             }
-
-            kinematics.setJointValue(arm_joint_idx + i, newAngle);
         }
+
+        setJointAngles(updatedAngles);
 
         dae.updateMatrixWorld(true);
 
@@ -378,7 +404,7 @@ function solveIK(target, iter) {
         var changeLoss = calcAngleDist(lastAngles, updatedAngles);
         tempLastAngles = updatedAngles;
 
-        return posLoss * kP + rotLoss * kR + changeLoss * kC;
+        return posLoss * kPos + rotLoss * kRot + changeLoss * kChange + constrainLoss*kConstraint;
     }
 
     dae.updateMatrixWorld(true);
@@ -386,7 +412,7 @@ function solveIK(target, iter) {
     var tempLastAngles = [];
 
     var startingAngles = Array(NUM_JOINTS).fill(0);
-    startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Realistic angles (without range mapping)
+    startingAngles = starting_position; // Realistic angles (without range mapping)
     //startingAngles = getJointAngles();
 
     fmin.nelderMead(loss, startingAngles, { maxIterations: iter });

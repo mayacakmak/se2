@@ -138,25 +138,25 @@ function TargetDragControl(ee, target, transitionType) {
       if (!isNaN(angle)) {
         switch (selectedView) {
           case "top":
-            rot = -angle * DEG_TO_RAD;
+            rot = -angle*DEG_TO_RAD;
             if (worldRotation)
               rotateAroundWorldAxis(Control.ee.threejs_object_ghost, Y_AXIS, rot - Control.ee.threejs_object_ghost.rotation.y);
             else
-              Control.ee.threejs_object_ghost.rotation.y = -angle*DEG_TO_RAD;
+              Control.ee.threejs_object_ghost.rotation.y = rot;
             break;
           case "front":
-            rot = -(angle + 90) * DEG_TO_RAD;
+            rot = -(angle+90)*DEG_TO_RAD;
             if (worldRotation)
               rotateAroundWorldAxis(Control.ee.threejs_object_ghost, X_AXIS, rot - Control.ee.threejs_object_ghost.rotation.x);
             else
-              Control.ee.threejs_object_ghost.rotation.x = -(angle+90)*DEG_TO_RAD;
+              Control.ee.threejs_object_ghost.rotation.x = rot
             break;
           case "side":
-            rot = -angle * DEG_TO_RAD;
+            rot = -angle*DEG_TO_RAD;
             if (worldRotation)
               rotateAroundWorldAxis(Control.ee.threejs_object_ghost, Z_AXIS, rot - Control.ee.threejs_object_ghost.rotation.z);
             else
-              Control.ee.threejs_object_ghost.rotation.z = -angle*DEG_TO_RAD;
+              Control.ee.threejs_object_ghost.rotation.z = rot;
             break;
         }
         Control.updateControlPositions();

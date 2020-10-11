@@ -43,20 +43,26 @@ var selectedView = "top";
 updateSelectedView(selectedView);
 
 $('#top-td').click(function () {
-  selectedView = "top";
-  updateSelectedView(selectedView);
+  if (Control.fsm.currentState == "cursor-free") {
+    selectedView = "top";
+    updateSelectedView(selectedView);
+  }
 });
 
 
 $('#front-td').click(function () {
-  selectedView = "front";
-  updateSelectedView(selectedView);
+  if (Control.fsm.currentState == "cursor-free") {
+    selectedView = "front";
+    updateSelectedView(selectedView);
+  }
 });
 
 
 $('#side-td').click(function () {
-  selectedView = "side";
-  updateSelectedView(selectedView);
+  if (Control.fsm.currentState == "cursor-free") {
+    selectedView = "side";
+    updateSelectedView(selectedView);
+  }
 });
 
 var worldRotation = true;
@@ -147,6 +153,7 @@ function initializeTest() {
   else {
     setupEnvironment();
   }
+  setInterval(resetIK, 1500);
 }
 
 function startTimer() {
@@ -238,7 +245,7 @@ function setupEnvironment() {
 function setTargetPose() {
   var pos = new THREE.Vector3(6, 7, -1);
   var rot = new THREE.Euler(0, 0, 0);
-  var dim = new THREE.Vector3(1, 1, 1);
+  var dim = new THREE.Vector3(0.3, 0.15, 1);
   if (isTest) {
     let currentConfig = testConfigs[currentTest];
     //target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
@@ -248,10 +255,17 @@ function setTargetPose() {
   else {
     let poseFound = false;
     while (!poseFound) {
-      pos.x = getRandomArbitrary(3, 8.5);
-      pos.y = getRandomArbitrary(0.5, 10);
-      pos.z = getRandomArbitrary(-6.5, 2);
-      var randomTheta = Math.random() * 360 - 180;
+      pos.x = getRandomArbitrary(4.5, 7); // Max bounds: [3, 8.5]
+      pos.y = getRandomArbitrary(1, 9.5); // Max bounds: [0.5, 10]
+      pos.z = getRandomArbitrary(-7, 1.5); // Max bounds: [-6.5, 2]
+
+      dim.y = getRandomArbitrary(0.05, 0.18);
+      dim.x = getRandomArbitrary(0.2, 0.7);
+      dim.z = getRandomArbitrary(1, 2);
+
+      rot.x = getRandomArbitrary(0, 360);
+      rot.y = getRandomArbitrary(0, 360);
+      rot.z = getRandomArbitrary(0, 360);
 
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
@@ -270,6 +284,25 @@ function setTargetPose() {
 
 function setEEPoseAtCenter() {
   ee.threejs_object.position.set(6, 7, -1);
+  ee.threejs_object.rotation.set(0, 0, 0);
+
+  resetIK()
+}
+
+function resetIK() {
+  if (kinematics) {
+    setJointAngles(initial_angle_state)
+    dae.updateMatrixWorld(true);
+  }
+  starting_position = [...initial_angle_state];
+  lastAngles = [...initial_angle_state];
+  startingAngles = [...initial_angle_state];
+
+  if (kinematics && enableIK) {
+    solveIK(ik_target, iterations);
+    solveIK(ik_target, iterations);
+    solveIK(ik_target, iterations);
+  }
 }
 
 function clearWorkspace() {

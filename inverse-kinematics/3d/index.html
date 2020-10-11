@@ -370,8 +370,8 @@
 
             // There are 3 options for the starting position: all zeroes, the current state of the arm, and a predefined "good" position
             var startingAngles = Array(NUM_JOINTS).fill(0);
-            startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Realistic angles (without range mapping)
-            //startingAngles = getJointAngles();
+            //startingAngles = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Realistic angles (without range mapping)
+            startingAngles = getJointAngles();
 
             // Solve the IK
             var solution = fmin.nelderMead(loss, startingAngles, { maxIterations: iter });

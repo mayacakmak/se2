@@ -4,25 +4,38 @@ const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const Z_AXIS = new THREE.Vector3(0, 0, 1);
 
 function rotateAroundWorldAxis(obj, axis, radians) {
+  axis = axis.clone();
+  obj.updateMatrixWorld();
+
   let rotWorldMatrix = new THREE.Matrix4();
-  rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+  rotWorldMatrix.makeRotationAxis(axis, radians);
   rotWorldMatrix.multiply(obj.matrix);
   obj.matrix = rotWorldMatrix;
   obj.setRotationFromMatrix(obj.matrix);
+
+  /*
+  let invWorldRot = obj.getWorldQuaternion(new THREE.Quaternion()).inverse();
+  axis.applyQuaternion(invWorldRot);
+
+  let deltaLocalRot = new THREE.Quaternion();
+  deltaLocalRot.setFromAxisAngle(axis, radians);
+  obj.quaternion.multiply(deltaLocalRot);
+  */
+
 }
 
 function intersect(obj1, obj2) {
   obj1.updateMatrixWorld();
+  obj1.geometry.computeBoundingBox();
   obj2.updateMatrixWorld();
+  obj2.geometry.computeBoundingBox();
 
-  var bounding1 = new THREE.Box3().setFromObject(obj1);
+  var bounding1 = obj1.geometry.boundingBox.clone();
   bounding1.applyMatrix4(obj1.matrixWorld);
-  var bounding2 = new THREE.Box3().setFromObject(obj2);
+  var bounding2 = obj2.geometry.boundingBox.clone();
   bounding2.applyMatrix4(obj2.matrixWorld);
-  
-  return bounding1.max.x < bounding2.min.x || bounding1.min.x > bounding2.max.x ||
-  bounding1.max.y < bounding2.min.y || bounding1.min.y > bounding2.max.y ||
-  bounding1.max.z < bounding2.min.z || bounding1.min.z > bounding2.max.z ? false : true;
+
+  return bounding1.isIntersectionBox(bounding2);
 
 }
 
@@ -210,27 +223,44 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     this.threejs_object.position.z = this.getLoc(firstClickPoint, newPoint, viewNum).z;
   }
 
-
   this.rotateXBy = function (rot) {
     rot = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;
+    this.threejs_object.updateMatrixWorld();
+
+    var euler = new THREE.Euler();
+    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
+
     if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot - this.threejs_object.rotation.x);
+      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot - euler.x);
     else
       this.threejs_object.rotation.x = rot;
   }
 
   this.rotateYBy = function (rot) {
-    rot = (((this.startRot.y - rot) % 360) * DEG_TO_RAD);
+    var trot = rot;
+    rot = ((this.startRot.y - rot) % 360) * DEG_TO_RAD;
+    this.threejs_object.updateMatrixWorld();
+
+    var euler = new THREE.Euler();
+    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
+
+    console.log(trot, rot, this.threejs_object.rotation.y, euler.y)
+
     if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot - this.threejs_object.rotation.y);
+      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot - euler.y);
     else
       this.threejs_object.rotation.y = rot;
   }
 
   this.rotateZBy = function (rot) {
-    rot = (((this.startRot.z - rot) % 360) * DEG_TO_RAD);
+    rot = ((this.startRot.z - rot) % 360) * DEG_TO_RAD;
+    this.threejs_object.updateMatrixWorld();
+
+    var euler = new THREE.Euler();
+    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
+
     if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - this.threejs_object.rotation.z);
+      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - euler.z);
     else
       this.threejs_object.rotation.z = rot;
   }
@@ -250,7 +280,7 @@ function SE3Target(color, pos, rot, dim) {
     var r_finger = ee_threejs_object.getObjectByName("r_finger_mesh");
     var finger_between = ee_threejs_object.getObjectByName("finger_between");
 
-    return intersect(this.threejs_object, finger_between);
+    return intersect(this.threejs_object, finger_between) && !(intersect(this.threejs_object, l_finger) || intersect(this.threejs_object, r_finger));
   }
 }
 
