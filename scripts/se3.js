@@ -8,20 +8,27 @@ function rotateAroundWorldAxis(obj, axis, radians) {
   obj.updateMatrixWorld();
 
   let rotWorldMatrix = new THREE.Matrix4();
-  rotWorldMatrix.makeRotationAxis(axis, radians);
+  rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
   rotWorldMatrix.multiply(obj.matrix);
   obj.matrix = rotWorldMatrix;
   obj.setRotationFromMatrix(obj.matrix);
+}
 
-  /*
-  let invWorldRot = obj.getWorldQuaternion(new THREE.Quaternion()).inverse();
-  axis.applyQuaternion(invWorldRot);
+function getRotationComponentAboutAxis(rotation, direction) {
+  var rotationAxis = new THREE.Vector3(rotation.x, rotation.y, rotation.z);
+  var dotProd = direction.clone().dot(rotationAxis);
+  var projection = direction.clone().multiplyScalar(dotProd); 
 
-  let deltaLocalRot = new THREE.Quaternion();
-  deltaLocalRot.setFromAxisAngle(axis, radians);
-  obj.quaternion.multiply(deltaLocalRot);
-  */
+  var twist = new THREE.Quaternion(projection.x, projection.y, projection.z, rotation.w).normalize();
 
+  if (dotProd < 0.0) {
+    twist.x = -twist.x;
+    twist.y = -twist.y;
+    twist.z = -twist.z;
+    twist.w = -twist.w;
+  }
+  console.log(twist)
+  return 2*Math.acos(twist.w);
 }
 
 function intersect(obj1, obj2) {
@@ -141,11 +148,13 @@ function SE3(name, pose, color, threejs_object, threejs_object_ghost, posThresho
   }
 
   this.setTempColor = function (color) {
-    dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(color); } }, 0);
+    if (kinematics)
+      dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(color); } }, 0);
   }
 
   this.resetColor = function () {
-    dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
+    if (kinematics)
+      dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
   }
 
   this.isSame = function (other) {
@@ -193,9 +202,16 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
   }
 
   this.startRotating = function () {
-    this.startRot.x = this.threejs_object.rotation.x / DEG_TO_RAD;
-    this.startRot.y = this.threejs_object.rotation.y / DEG_TO_RAD;
-    this.startRot.z = this.threejs_object.rotation.z / DEG_TO_RAD;
+    if (worldRotation){
+      this.startRot.x = getRotationComponentAboutAxis(this.threejs_object.quaternion, X_AXIS) / DEG_TO_RAD;
+      this.startRot.y = getRotationComponentAboutAxis(this.threejs_object.quaternion, Y_AXIS) / DEG_TO_RAD;
+      this.startRot.z = getRotationComponentAboutAxis(this.threejs_object.quaternion, Z_AXIS) / DEG_TO_RAD;
+    }
+    else {
+      this.startRot.x = this.threejs_object.rotation.x / DEG_TO_RAD;
+      this.startRot.y = this.threejs_object.rotation.y / DEG_TO_RAD;
+      this.startRot.z = this.threejs_object.rotation.z / DEG_TO_RAD;
+    }
     this.isMoving = true;
     this.isRotating = true;
   }
@@ -227,42 +243,33 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     rot = ((this.startRot.x - rot) % 360) * DEG_TO_RAD;
     this.threejs_object.updateMatrixWorld();
 
-    var euler = new THREE.Euler();
-    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
-
-    if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot - euler.x);
-    else
+    if (worldRotation) {
+      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, X_AXIS));
+    } else {
       this.threejs_object.rotation.x = rot;
+    }
   }
 
   this.rotateYBy = function (rot) {
-    var trot = rot;
     rot = ((this.startRot.y - rot) % 360) * DEG_TO_RAD;
     this.threejs_object.updateMatrixWorld();
 
-    var euler = new THREE.Euler();
-    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
-
-    console.log(trot, rot, this.threejs_object.rotation.y, euler.y)
-
-    if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot - euler.y);
-    else
+    if (worldRotation) {
+      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, Y_AXIS));
+    } else {
       this.threejs_object.rotation.y = rot;
+    }
   }
 
   this.rotateZBy = function (rot) {
     rot = ((this.startRot.z - rot) % 360) * DEG_TO_RAD;
     this.threejs_object.updateMatrixWorld();
 
-    var euler = new THREE.Euler();
-    euler.setFromRotationMatrix(this.threejs_object.matrixWorld);
-
-    if (worldRotation)
-      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - euler.z);
-    else
+    if (worldRotation) {
+      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, Z_AXIS));
+    } else {
       this.threejs_object.rotation.z = rot;
+    }
   }
 }
 
