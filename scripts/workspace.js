@@ -312,6 +312,7 @@ function clearWorkspace() {
   }
 
   scene.remove(target.threejs_object);
+  target.threejs_object.dispose();
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);

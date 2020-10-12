@@ -14,6 +14,7 @@ function rotateAroundWorldAxis(obj, axis, radians) {
   obj.setRotationFromMatrix(obj.matrix);
 }
 
+// Decompose a quaternion around a specific axis using swing twist decomposition (https://stackoverflow.com/a/63502201/6454085)
 function getRotationComponentAboutAxis(rotation, direction) {
   var rotationAxis = new THREE.Vector3(rotation.x, rotation.y, rotation.z);
   var dotProd = direction.clone().dot(rotationAxis);
