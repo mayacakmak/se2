@@ -16,9 +16,10 @@ function rotateAroundWorldAxis(obj, axis, radians) {
 
 // Decompose a quaternion around a specific axis using swing twist decomposition (https://stackoverflow.com/a/63502201/6454085)
 function getRotationComponentAboutAxis(rotation, direction) {
+  rotation = rotation.normalize();
   var rotationAxis = new THREE.Vector3(rotation.x, rotation.y, rotation.z);
   var dotProd = direction.clone().dot(rotationAxis);
-  var projection = direction.clone().multiplyScalar(dotProd); 
+  var projection = direction.clone().multiplyScalar(dotProd);
 
   var twist = new THREE.Quaternion(projection.x, projection.y, projection.z, rotation.w).normalize();
 
@@ -28,23 +29,20 @@ function getRotationComponentAboutAxis(rotation, direction) {
     twist.z = -twist.z;
     twist.w = -twist.w;
   }
-  console.log(twist)
-  return 2*Math.acos(twist.w);
+  return 2 * Math.acos(twist.w);
 }
 
 function intersect(obj1, obj2) {
   obj1.updateMatrixWorld();
-  obj1.geometry.computeBoundingBox();
   obj2.updateMatrixWorld();
-  obj2.geometry.computeBoundingBox();
 
-  var bounding1 = obj1.geometry.boundingBox.clone();
-  bounding1.applyMatrix4(obj1.matrixWorld);
-  var bounding2 = obj2.geometry.boundingBox.clone();
-  bounding2.applyMatrix4(obj2.matrixWorld);
+  var obb1 = obj1.userData.obb.clone();
+  var obb2 = obj2.userData.obb.clone();
 
-  return bounding1.isIntersectionBox(bounding2);
+  obb1.applyMatrix4(obj1.matrixWorld);
+  obb2.applyMatrix4(obj2.matrixWorld);
 
+  return obb1.intersectsOBB(obb2);
 }
 
 /*
@@ -203,7 +201,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
   }
 
   this.startRotating = function () {
-    if (worldRotation){
+    if (worldRotation) {
       this.startRot.x = getRotationComponentAboutAxis(this.threejs_object.quaternion, X_AXIS) / DEG_TO_RAD;
       this.startRot.y = getRotationComponentAboutAxis(this.threejs_object.quaternion, Y_AXIS) / DEG_TO_RAD;
       this.startRot.z = getRotationComponentAboutAxis(this.threejs_object.quaternion, Z_AXIS) / DEG_TO_RAD;
@@ -245,7 +243,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     this.threejs_object.updateMatrixWorld();
 
     if (worldRotation) {
-      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, X_AXIS));
+      rotateAroundWorldAxis(this.threejs_object, X_AXIS, rot - getRotationComponentAboutAxis(this.threejs_object.quaternion, X_AXIS));
     } else {
       this.threejs_object.rotation.x = rot;
     }
@@ -256,7 +254,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     this.threejs_object.updateMatrixWorld();
 
     if (worldRotation) {
-      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, Y_AXIS));
+      rotateAroundWorldAxis(this.threejs_object, Y_AXIS, rot - getRotationComponentAboutAxis(this.threejs_object.quaternion, Y_AXIS));
     } else {
       this.threejs_object.rotation.y = rot;
     }
@@ -267,7 +265,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
     this.threejs_object.updateMatrixWorld();
 
     if (worldRotation) {
-      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot-getRotationComponentAboutAxis(this.threejs_object.quaternion, Z_AXIS));
+      rotateAroundWorldAxis(this.threejs_object, Z_AXIS, rot - getRotationComponentAboutAxis(this.threejs_object.quaternion, Z_AXIS));
     } else {
       this.threejs_object.rotation.z = rot;
     }
@@ -276,10 +274,13 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
 
 function SE3Target(color, pos, rot, dim) {
   var geo = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
+
   var mat = new THREE.MeshLambertMaterial({ color: color });
   this.threejs_object = new THREE.Mesh(geo, mat);
   this.threejs_object.position.copy(pos);
   this.threejs_object.rotation.copy(rot);
+  this.threejs_object.userData.obb = new OBB();
+  this.threejs_object.userData.obb.halfSize.copy(dim).multiplyScalar(0.5);
   scene.add(this.threejs_object)
 
   this.isSame = function (se3) {
@@ -287,7 +288,7 @@ function SE3Target(color, pos, rot, dim) {
     var l_finger = ee_threejs_object.getObjectByName("l_finger_mesh");
     var r_finger = ee_threejs_object.getObjectByName("r_finger_mesh");
     var finger_between = ee_threejs_object.getObjectByName("finger_between");
-
+    console.log(intersect(this.threejs_object, finger_between), intersect(this.threejs_object, l_finger), intersect(this.threejs_object, r_finger));
     return intersect(this.threejs_object, finger_between) && !(intersect(this.threejs_object, l_finger) || intersect(this.threejs_object, r_finger));
   }
 }

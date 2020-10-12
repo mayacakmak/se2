@@ -179,7 +179,10 @@ function init() {
     // Add the target
     var x_geo = new THREE.BoxGeometry(1.5, 0.2, 0.2);
     var y_geo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
-    var z_geo = new THREE.BoxGeometry(0.2, 0.2, 0.7);
+
+    var z_size = new THREE.Vector3(0.2, 0.2, 0.7);
+    var z_geo = new THREE.BoxGeometry(z_size.x, z_size.y, z_size.z);
+    
     var red_mat = new THREE.MeshLambertMaterial({ color: 'rgb(255,0,0)' });
     var green_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,255,0)' });
     var blue_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,255)' });
@@ -189,6 +192,8 @@ function init() {
     var y_obj = new THREE.Mesh(y_geo, green_mat);
     var z_obj = new THREE.Mesh(z_geo, blue_mat);
     z_obj.name = "finger_between";
+    z_obj.userData.obb = new OBB();
+    z_obj.userData.obb.halfSize.copy( z_size ).multiplyScalar( 0.5 );
 
     ik_target = new THREE.Group();
     ik_target.add(x_obj);
@@ -196,7 +201,8 @@ function init() {
     ik_target.add(z_obj);
     ik_target.position.set(6, 7, -1);
 
-    var finger_geo = new THREE.BoxGeometry(0.5, 0.3, 0.3);
+    var f_size = new THREE.Vector3(0.5, 0.3, 0.3);
+    var finger_geo = new THREE.BoxGeometry(f_size.x, f_size.y, f_size.z);
     var black_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,0)' });
     var l_finger = new THREE.Mesh(finger_geo, black_mat);
     var r_finger = new THREE.Mesh(finger_geo, black_mat);
@@ -208,6 +214,12 @@ function init() {
     r_finger.visible = false;
     l_finger.name = "l_finger_mesh";
     r_finger.name = "r_finger_mesh";
+    
+    l_finger.userData.obb = new OBB();
+    l_finger.userData.obb.halfSize.copy( f_size ).multiplyScalar( 0.5 );
+
+    r_finger.userData.obb = new OBB();
+    r_finger.userData.obb.halfSize.copy( f_size ).multiplyScalar( 0.5 );
 
     ik_target.add(l_finger);
     ik_target.add(r_finger);
