@@ -178,6 +178,8 @@ Object.assign(OBB.prototype, {
 		t[1] = v1.dot(a.u[1]);
 		t[2] = v1.dot(a.u[2]);
 
+		console.log(t)
+
 		// compute common subexpressions. Add in an epsilon term to
 		// counteract arithmetic errors when two edges are parallel and
 		// their cross product is (near) null
@@ -446,9 +448,9 @@ function clamp(value, min, max) {
 function extractBasis(matrix, x, y, z) {
 	var te = matrix.elements;
 
-	xAxis.set(te[0], te[1], te[2]);
-	yAxis.set(te[3], te[4], te[5]);
-	zAxis.set(te[6], te[7], te[8]);
+	x.set(te[0], te[1], te[2]);
+	y.set(te[3], te[4], te[5]);
+	z.set(te[6], te[7], te[8]);
 }
 
 function multiplyMatrix3(a, b) {

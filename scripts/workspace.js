@@ -263,11 +263,9 @@ function setTargetPose() {
       dim.x = getRandomArbitrary(0.2, 0.7);
       dim.z = getRandomArbitrary(1, 2);
 
-      /*
       rot.x = getRandomArbitrary(0, 360);
       rot.y = getRandomArbitrary(0, 360);
       rot.z = getRandomArbitrary(0, 360);
-      */
 
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
@@ -314,7 +312,6 @@ function clearWorkspace() {
   }
 
   scene.remove(target.threejs_object);
-  target.threejs_object.dispose();
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
