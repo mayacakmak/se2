@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from scipy import interpolate
 import numpy as np
+import seaborn as sns
+from sklearn.preprocessing import normalize
+
 
 # General
 import os
@@ -58,8 +61,7 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_timestamp = 1598642923.545525
-uids = ["dgb7CWy7rSNWIAZHXEYDRAt3O2b2", "6qW2fw5bT5hLvsAUO7MaR82ZqOu1", "3gz7ZfC2YVWEL83csaHrnHLqet42", "7TIOuYmg42MtgXKvf7YcfCYX9l52", "403NovdIENcvmKY9PoakqivpyP53", "pfZvthWm1iY4Cm11co2LgBEnimj1", "OEoHdni4GFXI6iKVbbW1pOGNXps2", "J2eQ4D9j9wVgj0oNOpZLWCenWnh1", "iTccwNLgo2OCqpG2BR565G1iUtA2"]
+snapshot_name = "accessible-teleop-export-9-17-study"
 
 # %% [markdown]
 ## Load data from Firebase
@@ -77,15 +79,20 @@ uids = ["dgb7CWy7rSNWIAZHXEYDRAt3O2b2", "6qW2fw5bT5hLvsAUO7MaR82ZqOu1", "3gz7ZfC
 #It is used to calcuate specific data about specific actions (for example % of time spent orienting vs translating)
 #
 # %%
-
-with open(os.path.join(snapshot_folder, str(snapshot_timestamp) + ".json")) as f:
+json_snapshot = {}
+with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
     json_snapshot = json.load(f)
+user_data = json_snapshot['users'] 
+state_data = json_snapshot['state'] 
 
-print("Loaded snapshot {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(snapshot_timestamp))))
+# Gather UIDs from states/`interface_num`/completed
+uids = []
+for interface_num in state_data:
+    uids += interface_num['complete'].keys()
 
 # %%
 # [interfaceIDs] is a set that contains one of each ID
-# We use it later on to sparate the dataframe by interface
+# We use it later on to separate the dataframe by interface
 interfaceIDs = set()
 
 cycle_data_columns = ["startTime", "endTime", "status", "control", "transitionType", "interfaceID", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta"]
@@ -93,15 +100,14 @@ cycle_data = []
 
 action_list = {}
 
-for uid in json_snapshot:
+for uid in user_data:
     if uid in uids:
-        for sid in json_snapshot[uid]['sessions']:
-            if 'cycles' in json_snapshot[uid]['sessions'][sid]:
-                for cid in json_snapshot[uid]['sessions'][sid]['cycles']:
-                    cycle = json_snapshot[uid]['sessions'][sid]['cycles'][cid]
+        for sid in user_data[uid]['sessions']:
+            if 'cycles' in user_data[uid]['sessions'][sid]:
+                for cid in user_data[uid]['sessions'][sid]['cycles']:
+                    cycle = user_data[uid]['sessions'][sid]['cycles'][cid]
                     
                     if 'isTest' not in cycle:
-                        print(cid, sid, uid)
                         continue
 
                     if cycle['isTest']:
@@ -150,9 +156,12 @@ for uid in json_snapshot:
 # %%
 cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
+
 # Calculate the euclidean distace between where the ee starts (357, 249) and the target
 cycles_df['targetDistance'] = ((cycles_df['targetX'] - 357) ** 2 + (cycles_df['targetY'] - 249) ** 2) ** 0.5
 cycles_df = cycles_df[cycles_df["status"] == "complete"]
+
+cycles_df['targetPosTheta'] = np.degrees(np.arccos((cycles_df['targetX'] - 357)/cycles_df['targetDistance']))
 
 interface_dfs = {}
 for interfaceID in interfaceIDs:
@@ -188,13 +197,16 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], interface_df['targetDistance'], c="tab:blue")
+    ax.scatter(interface_df['targetDistance'], interface_df['cycleLength'], c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Distance to Target')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Distance to Target')
+
+    ax.set_ylim([0, 50])
+
 
 # %% [markdown]
 ### Orientation vs Time
@@ -208,13 +220,15 @@ for i, interfaceID in enumerate(interface_dfs):
     ax.set_title(interfaceID)
     
     interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']), c="tab:blue")
+    ax.scatter(np.abs(interface_df['targetTheta']), interface_df['cycleLength'], c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']))
+    #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Target Rotation')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Target Rotation')
+
+    ax.set_ylim([0, 50])
 
 # %% [markdown]
 ### Distance + Orientation vs Time
@@ -228,14 +242,59 @@ for i, interfaceID in enumerate(interface_dfs):
     ax = plt.subplot("33"+str(i+1))
     ax.set_title(interfaceID)
     
-    interface_df = interface_dfs[interfaceID]
-    ax.scatter(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], c="tab:blue")
+    interface_df = interface_dfs[interfaceID]#
+    ax.scatter(np.abs(interface_df['targetTheta']) + interface_df['targetDistance'], interface_df['cycleLength'], c="tab:blue")
     
-    line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
-    ax.plot(line[0], line[1], c="tab:purple")
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
 
-    ax.set_xlabel('Cycle Time')
-    ax.set_ylabel('Distance + Orientation')
+    ax.set_ylabel('Cycle Time')
+    ax.set_xlabel('Distance + Orientation')
+
+    ax.set_ylim([0, 50])
+
+#%% [markdown]
+### Distance / Time / Flex Correlation
+
+# %%
+fig = plt.figure(figsize=(20,20))
+fig.subplots_adjust(hspace=0.1, wspace=0.1)
+
+for i, interfaceID in enumerate(interface_dfs):
+    ax = plt.subplot("33"+str(i+1))
+    ax.set_title(interfaceID)
+
+    interface_df = interface_dfs[interfaceID]
+    
+    corr_matrix = interface_df[['cycleLength', 'targetDistance', 'threshXY', 'threshTheta']].corr()
+    sns.heatmap(corr_matrix, annot = True, fmt='.2',cmap= 'coolwarm', ax=ax, vmin=-0.3, vmax=0.3)
+plt.show()
+
+#%% [markdown]
+### Cycle Time vs Target Position Angle
+# Target Position Angle is the angle made between the location of the target and the center.
+# A target all straight right would have an angel of 0, touching the top would be 90, etc.
+
+# %%
+fig = plt.figure(figsize=(16,10))
+fig.subplots_adjust(hspace=0.6, wspace=0.3)
+
+for i, interfaceID in enumerate(interface_dfs):
+    ax = plt.subplot("33"+str(i+1))
+    ax.set_title(interfaceID)
+
+    interface_df = interface_dfs[interfaceID]
+    ax.scatter(interface_df['targetPosTheta'], interface_df['cycleLength'], c="tab:blue")
+    
+    #line = fit_line(interface_df['cycleLength'], np.abs(interface_df['targetTheta']) + interface_df['targetDistance'])
+    #ax.plot(line[0], line[1], c="tab:purple")
+
+    ax.set_xlabel('Target Position Angle')
+    ax.set_ylabel('Cycle Time')
+
+    
+    ax.set_ylim([0, 50])
+plt.show()
 
 # %% [markdown]
 ## Action stats per interface
@@ -247,7 +306,7 @@ sample_num = 1000
 fig = plt.figure(figsize=(16,10))
 fig.subplots_adjust(hspace=0.6, wspace=0.3)
 
-for i, interfaceID in enumerate(action_list):
+for i, interfaceID in enumerate(interfaceIDs):
     rotation = np.array([])
     translation = np.array([])
     click = np.array([])
@@ -298,6 +357,8 @@ for i, interfaceID in enumerate(action_list):
         drawn_lines.append(copy.copy(numbered_cycle))
         
         numbered_cycle.append(0)
+        numbered_cycle.append(0)
+        cycle_width.append(0)
         cycle_width.append(0)
 
         color = np.array([])
