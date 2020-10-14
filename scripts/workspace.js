@@ -223,7 +223,6 @@ function setupEnvironment() {
 
   // Initialize control
   Control.initialize(ee.pose);
-
   // Register callback on mouse movements
   var ws = document.getElementById("workspace");
   ws.addEventListener("mousemove", Control.update);
@@ -274,7 +273,6 @@ function setTargetPose() {
       rot.z = getRandomArbitrary(0, 360);
 
       // TODO: Update this to convert the 3d positin of the target to 2d screen space to ensure that the panel never blocks the target
-      /*
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
         randomX < Panel.width + SE3.lineLength
@@ -282,10 +280,7 @@ function setTargetPose() {
         console.log("pose rejected");
       else
         poseFound = true;
-      */
-      posefound = true;
     }
-
   }
   return new SE3Target("rgb(50, 50, 50)", pos, rot, dim);
 }
