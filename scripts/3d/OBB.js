@@ -1,4 +1,6 @@
 // This is a verson of OBB from newer versions of THREE.js ported back to r73
+// I have only verified that `intersectsOBB` works correctly. Other fuctions such as `intersectRay` or `intersectBox` may not.
+
 var a = {
 	c: null, // center
 	u: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], // basis vectors

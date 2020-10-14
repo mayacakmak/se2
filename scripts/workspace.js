@@ -16,6 +16,7 @@ window.clearInterval = function (intervalId) {
   return window.originalClearInterval(intervalId);
 };
 
+// Selet a specific camera view in the 3d interface
 function updateSelectedView(view) {
   switch (view) {
     case "top":
@@ -65,6 +66,7 @@ $('#side-td').click(function () {
   }
 });
 
+// Switch between world and local rotation axes
 var worldRotation = true;
 $('input[type=radio][name=rAxis]').change(function () {
   if (this.id == "world")
@@ -113,6 +115,7 @@ var updateClock = null;
 */
 var logClock = null;
 
+// Load the interface and setup data logging. This function is called one when the page is loaded
 function loadInterface(isTestInterface) {
   let controlParam = getURLParameter("c");
   let transitionParam = getURLParameter("t");
@@ -143,6 +146,7 @@ function startTest() {
   moveToTestPage(currentControl, currentTransitionType);
 }
 
+// Initialize the first interface
 function initializeTest() {
   if (isTest) {
     // There is a timer during tests, but not during practice
@@ -153,6 +157,7 @@ function initializeTest() {
   else {
     setupEnvironment();
   }
+  // The IK can sometimes get messed up so it is automatically reset every 1.5 seconds (from the user POV, this should be barely noticeable)
   setInterval(resetIK, 1500);
 }
 
@@ -243,6 +248,7 @@ function setupEnvironment() {
 }
 
 function setTargetPose() {
+  // Setup the default state of the target
   var pos = new THREE.Vector3(6, 7, -1);
   var rot = new THREE.Euler(0, 0, 0);
   var dim = new THREE.Vector3(0.3, 0.15, 1);
@@ -267,6 +273,8 @@ function setTargetPose() {
       rot.y = getRandomArbitrary(0, 360);
       rot.z = getRandomArbitrary(0, 360);
 
+      // TODO: Update this to convert the 3d positin of the target to 2d screen space to ensure that the panel never blocks the target
+      /*
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
         randomX < Panel.width + SE3.lineLength
@@ -274,12 +282,12 @@ function setTargetPose() {
         console.log("pose rejected");
       else
         poseFound = true;
+      */
+      posefound = true;
     }
 
-    // Set the pose of the created target
-    //target.setPose(new Pose(randomX, randomY, randomTheta));
   }
-  return tempTarget = new SE3Target("rgb(50, 50, 50)", pos, rot, dim);
+  return new SE3Target("rgb(50, 50, 50)", pos, rot, dim);
 }
 
 function setEEPoseAtCenter() {
@@ -289,6 +297,8 @@ function setEEPoseAtCenter() {
   resetIK()
 }
 
+// The IK can sometimes get stuck in a weird state
+// This function fully resets it
 function resetIK() {
   if (kinematics) {
     setJointAngles(initial_angle_state)
