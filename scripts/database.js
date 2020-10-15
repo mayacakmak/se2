@@ -8,6 +8,7 @@ function Database() {
   Database.sid = null; // Session ID
   Database.cid = null; // Cycle ID
   Database.isLogging = true;
+  Database.rootPath = "se3/";
 
   Database.in_progess_timeout = 32; // in minutes, how long before a user is automatically assumed to be inactive
   Database.in_progess_timeout = Database.in_progess_timeout * 60 * 1000; // Convert to milliseconds
@@ -128,7 +129,7 @@ function Database() {
 
   Database.logSessionStart = function () {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + '/sessions';
+      var dir = Database.rootPath + 'users/' + Database.uid + '/sessions';
       var dbRef = firebase.database().ref(dir);
       var sessionInfo = {
         url: window.location.href
@@ -141,7 +142,7 @@ function Database() {
 
   Database.logCycleStart = function (control, transitionType, targetPose) {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/";
+      var dir = Database.rootPath + 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/";
       var dbRef = firebase.database().ref(dir);
       var cycleInfo = {
         control: control,
@@ -165,7 +166,7 @@ function Database() {
 
   Database.logCycleFinish = function () {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid;
+      var dir = Database.rootPath + 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid;
       var dbRef = firebase.database().ref(dir);
       var cycleEndInfo = {
         endTime: {},
@@ -180,7 +181,7 @@ function Database() {
 
   Database.logEvent = function (eventLog) {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/events";
+      var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
       var dbRef = firebase.database().ref(dir);
       eventLog.type = "action"
       eventLog.eePose = { x: ee.pose.x, y: ee.pose.y, theta: ee.pose.theta };
@@ -190,10 +191,21 @@ function Database() {
     }
   }
 
+  Database.logSelectedView = function (view) {
+    if (Database.isLogging) {
+      var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
+      var dbRef = firebase.database().ref(dir);
+      eventLog.type = "action"
+      eventLog.eePose = { view: view};
+      Database.insertTime(eventLog);
+      dbRef.push(eventLog);
+    }
+  }
+
   Database.logEEPose = function () {
     if (Database.isLogging) {
       if (Database.cid != null) {
-        var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/events";
+        var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
         var dbRef = firebase.database().ref(dir);
         eventLog = {
           type: "pose",
@@ -212,7 +224,7 @@ function Database() {
 
   Database.logQuestionnaire = function (data) {
     if (Database.isLogging) {
-      var dir = 'users/' + Database.uid + "/sessions/" + Database.sid + "/questionnaires/";
+      var dir = Database.rootPath + 'users/' + Database.uid + "/sessions/" + Database.sid + "/questionnaires/";
       var dbRef = firebase.database().ref(dir);
       var questionnaireInfo = {
         answers: data,
@@ -234,14 +246,14 @@ function Database() {
         var state = snapshot.val();
 
         // Delete the user from [in_progess, canceled] Add them to [completed]
-        firebase.database().ref(`state/${interface_num}/in_progress/${Database.uid}`).remove();
-        firebase.database().ref(`state/${interface_num}/canceled/${Database.uid}`).remove();
-        firebase.database().ref(`state/${interface_num}/complete/${Database.uid}`).set({timestamp: (state ? state : (new Date).getTime()) });
+        firebase.database().ref(Database.rootPath + `state/${interface_num}/in_progress/${Database.uid}`).remove();
+        firebase.database().ref(Database.rootPath + `state/${interface_num}/canceled/${Database.uid}`).remove();
+        firebase.database().ref(Database.rootPath + `state/${interface_num}/complete/${Database.uid}`).set({timestamp: (state ? state : (new Date).getTime()) });
       });
 
       // Decrement the total left to do for this interface
       //  * (This is done using a transaction to prevent two users overwriting each others changes)
-      firebase.database().ref(`state/${interface_num}/todo`).transaction(function (todo) {
+      firebase.database().ref(Database.rootPath + `state/${interface_num}/todo`).transaction(function (todo) {
         if (todo) {
           todo--;
         }
@@ -252,7 +264,7 @@ function Database() {
 
   Database.updateInterfaceStates = function (currentTime) {
     if (Database.isLogging) {
-      firebase.database().ref('state').once('value').then(function (snapshot) {
+      firebase.database().ref(Database.rootPath + 'state').once('value').then(function (snapshot) {
         var state = snapshot.val();
         for (var i = 0; i < state.length; i++) {
           // Update the current state of the database to move users around
@@ -260,9 +272,9 @@ function Database() {
             Object.keys(state[i].in_progress).forEach(function (user_id) {
               if (currentTime - state[i].in_progress[user_id].timestamp > Database.in_progess_timeout) {
                 // Delete the user from [in_progess] 
-                firebase.database().ref(`state/${i}/in_progress/${user_id}`).remove();
+                firebase.database().ref(Database.rootPath + `state/${i}/in_progress/${user_id}`).remove();
                 // Add them to [canceled]
-                firebase.database().ref(`state/${i}/canceled/${user_id}`).set(state[i].in_progress[user_id]);
+                firebase.database().ref(Database.rootPath + `state/${i}/canceled/${user_id}`).set(state[i].in_progress[user_id]);
               }
             });
           }
@@ -273,7 +285,7 @@ function Database() {
 
   Database.getAndUpdateInterfaceNum = function (callback) {
     if (Database.isLogging) {
-      var dir = 'state';
+      var dir = Database.rootPath + 'state';
       var dbRef = firebase.database().ref(dir);
       var currentTime = (new Date).getTime();
 
@@ -292,7 +304,7 @@ function Database() {
         
         // Select the interface that currently needs the most tests
         var chosen_interface = loc_max(neededTests);
-        firebase.database().ref(`${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });
+        firebase.database().ref(Database.rootPath + `${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });
         callback(chosen_interface);
       });
     }

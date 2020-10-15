@@ -18,6 +18,7 @@ window.clearInterval = function (intervalId) {
 
 // Selet a specific camera view in the 3d interface
 function updateSelectedView(view) {
+  Database.logSelectedView(view);
   switch (view) {
     case "top":
       $("#top-td").removeClass("background-block");
@@ -243,6 +244,7 @@ function setupEnvironment() {
       transitionTypes[currentTransitionType], targetInfo);
     if (logClock == null)
       logClock = window.setInterval(Database.logEEPose, 500);
+    Database.logSelectedView(selectedView);
   }
 }
 
