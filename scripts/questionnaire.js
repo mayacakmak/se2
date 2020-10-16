@@ -608,6 +608,7 @@ function validateForm() {
                 }
                 $("#" + required_questions[i]).stop().css("background-color", "#FF9C9C")
                     .animate({ backgroundColor: "#FFFFFF" }, 1500);
+                document.getElementById(required_questions[i]).scrollIntoView();
 
                 return false;
             }
