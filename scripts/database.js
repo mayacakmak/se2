@@ -147,13 +147,7 @@ function Database() {
       var cycleInfo = {
         control: control,
         transitionType: transitionType,
-        targetPose: {
-          x: targetPose.x,
-          y: targetPose.y,
-          theta: targetPose.theta,
-          threshXY: targetPose.threshXY,
-          threshTheta: targetPose.threshTheta
-        },
+        targetPose: targetPose,
         startTime: {},
         status: "incomplete",
         isTest: isTest
@@ -181,24 +175,30 @@ function Database() {
 
   Database.logEvent = function (eventLog) {
     if (Database.isLogging) {
-      var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
-      var dbRef = firebase.database().ref(dir);
-      eventLog.type = "action"
-      eventLog.eePose = { x: ee.pose.x, y: ee.pose.y, theta: ee.pose.theta };
-      Database.insertTime(eventLog);
-      dbRef.push(eventLog);
-      console.log(eventLog);
+      if (Database.cid != null) {
+        var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
+        var dbRef = firebase.database().ref(dir);
+        eventLog.type = "action"
+        eventLog.eePose = ee.get3DPose();
+        Database.insertTime(eventLog);
+        dbRef.push(eventLog);
+        console.log(eventLog);
+      }
     }
   }
 
   Database.logSelectedView = function (view) {
     if (Database.isLogging) {
-      var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
-      var dbRef = firebase.database().ref(dir);
-      eventLog.type = "action"
-      eventLog.eePose = { view: view};
-      Database.insertTime(eventLog);
-      dbRef.push(eventLog);
+      if (Database.cid != null) {
+        var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
+        var dbRef = firebase.database().ref(dir);
+        eventLog = {
+          view: view,
+          type: "view_change"
+        }
+        Database.insertTime(eventLog);
+        dbRef.push(eventLog);
+      }
     }
   }
 
@@ -209,25 +209,23 @@ function Database() {
         var dbRef = firebase.database().ref(dir);
         eventLog = {
           type: "pose",
-          eePose: {
-            x: ee.pose.x,
-            y: ee.pose.y,
-            theta: ee.pose.theta
-          }
-        };
+          eePose: ee.get3DPose()
+        }
         Database.insertTime(eventLog);
         dbRef.push(eventLog);
-//         console.log(eventLog);
+        //         console.log(eventLog);
       }
     }
   }
 
-  Database.logQuestionnaire = function (data) {
+  Database.logQuestionnaire = function (data, control, transition) {
     if (Database.isLogging) {
       var dir = Database.rootPath + 'users/' + Database.uid + "/sessions/" + Database.sid + "/questionnaires/";
       var dbRef = firebase.database().ref(dir);
       var questionnaireInfo = {
         answers: data,
+        control: control,
+        transition: transition,
         time: {}
       }
       Database.insertTime(questionnaireInfo.time);
@@ -248,7 +246,7 @@ function Database() {
         // Delete the user from [in_progess, canceled] Add them to [completed]
         firebase.database().ref(Database.rootPath + `state/${interface_num}/in_progress/${Database.uid}`).remove();
         firebase.database().ref(Database.rootPath + `state/${interface_num}/canceled/${Database.uid}`).remove();
-        firebase.database().ref(Database.rootPath + `state/${interface_num}/complete/${Database.uid}`).set({timestamp: (state ? state : (new Date).getTime()) });
+        firebase.database().ref(Database.rootPath + `state/${interface_num}/complete/${Database.uid}`).set({ timestamp: (state ? state : (new Date).getTime()) });
       });
 
       // Decrement the total left to do for this interface
@@ -301,7 +299,7 @@ function Database() {
             neededTests[i] -= Object.keys(state[i].in_progress).length;
           }
         }
-        
+
         // Select the interface that currently needs the most tests
         var chosen_interface = loc_max(neededTests);
         firebase.database().ref(Database.rootPath + `${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });

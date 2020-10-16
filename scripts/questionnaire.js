@@ -15,7 +15,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
-                    "required": true
+                    "required": true,
+                    "id": "mental-demand-1"
                 },
                 {
                     "type": "radio",
@@ -26,7 +27,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very easy",
                     "right-text": "Very demanding",
-                    "required": true
+                    "required": true,
+                    "id": "mental-demand-2"
                 },
                 {
                     "type": "radio",
@@ -37,7 +39,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very simple",
                     "right-text": "Very complex",
-                    "required": true
+                    "required": true,
+                    "id": "mental-demand-3"
                 },
                 {
                     "type": "radio",
@@ -48,7 +51,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
-                    "required": true
+                    "required": true,
+                    "id": "physical-demand-1"
                 },
                 {
                     "type": "radio",
@@ -59,7 +63,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very easy",
                     "right-text": "Very demanding",
-                    "required": true
+                    "required": true,
+                    "id": "physical-demand-2"
                 },
                 {
                     "type": "radio",
@@ -70,7 +75,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very slack",
                     "right-text": "Very strenuous",
-                    "required": true
+                    "required": true,
+                    "id": "physical-demand-3"
                 },
                 {
                     "type": "radio",
@@ -81,7 +87,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
-                    "required": true
+                    "required": true,
+                    "id": "temporal-demand-1"
                 },
                 {
                     "type": "radio",
@@ -92,7 +99,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very slow",
                     "right-text": "Very rapid",
-                    "required": true
+                    "required": true,
+                    "id": "temporal-demand-2"
                 },
                 {
                     "type": "radio",
@@ -103,7 +111,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Perfect",
                     "right-text": "Failure",
-                    "required": true
+                    "required": true,
+                    "id": "overall-performance-1"
                 },
                 {
                     "type": "radio",
@@ -114,7 +123,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very satisfied",
                     "right-text": "Very dissatisfied",
-                    "required": true
+                    "required": true,
+                    "id": "overall-performance-2"
                 },
                 {
                     "type": "radio",
@@ -125,7 +135,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very low",
                     "right-text": "Very high",
-                    "required": true
+                    "required": true,
+                    "id": "overall-performance-3"
                 },
                 {
                     "type": "radio",
@@ -136,7 +147,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very irritated",
                     "right-text": "Very content",
-                    "required": true
+                    "required": true,
+                    "id": "frustration-level-1"
                 },
                 {
                     "type": "radio",
@@ -147,7 +159,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very stressed",
                     "right-text": "Very relaxed",
-                    "required": true
+                    "required": true,
+                    "id": "frustration-level-2"
                 },
                 {
                     "type": "radio",
@@ -158,7 +171,8 @@ var questions = {
                     "display-options": false,
                     "left-text": "Very complacent",
                     "right-text": "Very annoyed",
-                    "required": true
+                    "required": true,
+                    "id": "frustration-level-3"
                 }
             ]
         },
@@ -174,7 +188,8 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-intuitive"
                 },
                 {
                     "type": "radio",
@@ -185,7 +200,8 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-easy-to-learn"
                 },
                 {
                     "type": "radio",
@@ -196,12 +212,14 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-easy-use-once-learned"
                 },
                 {
                     "type": "text",
                     "title": "How could the interface be improved to be more intuitive?",
-                    "required": true
+                    "required": true,
+                    "id": "how-control-more-intuitive"
                 },
                 {
                     "type": "radio",
@@ -212,12 +230,14 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-efficient"
                 },
                 {
                     "type": "text",
                     "title": "How could the interface be improved to allow faster control of the object?",
-                    "required": true
+                    "required": true,
+                    "id": "how-control-more-efficient"
                 },
                 {
                     "type": "radio",
@@ -228,7 +248,8 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-prone-to-errors"
                 },
                 {
                     "type": "radio",
@@ -239,12 +260,14 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-recover-from-errors"
                 },
                 {
                     "type": "text",
                     "title": "How could the interface be improved to reduce errors?",
-                    "required": true
+                    "required": true,
+                    "id": "how-control-reduce-errors"
                 },
                 {
                     "type": "radio",
@@ -255,12 +278,14 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "control-accessible"
                 },
                 {
                     "type": "text",
                     "title": "How could the interface be improved for better accessibility?",
-                    "required": false
+                    "required": false,
+                    "id": "how-control-more-accessible"
                 },
                 {
                     "type": "radio",
@@ -271,7 +296,8 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "flex-targets-easier"
                 },
                 {
                     "type": "radio",
@@ -282,7 +308,8 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "far-away-harder"
                 },
                 {
                     "type": "radio",
@@ -293,12 +320,14 @@ var questions = {
                     "display-options": true,
                     "left-text": "",
                     "right-text": "",
-                    "required": true
+                    "required": true,
+                    "id": "large-rotation-harder"
                 },
                 {
                     "type": "text",
                     "title": "Any other ways in which the control interface could be improved?",
-                    "required": false
+                    "required": false,
+                    "id": "how-interface-improve-general"
                 },
             ]
         },
@@ -309,7 +338,8 @@ var questions = {
                     "title": "Age",
                     "type": "input",
                     "layout": "horizontal",
-                    "required": true
+                    "required": true,
+                    "id": "age"
                 },
                 {
                     "title": "Gender",
@@ -317,7 +347,8 @@ var questions = {
                     "layout": "vertical",
                     "options": ["Male", "Female", "Non-binary", "Do not wish to share"],
                     "display-options": true,
-                    "required": true
+                    "required": true,
+                    "id": "gender"
                 },
                 {
                     "title": "How often do you use a computer?",
@@ -325,7 +356,8 @@ var questions = {
                     "layout": "vertical",
                     "options": ["Everyday, during a majority of business hours", "Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
                     "display-options": true,
-                    "required": true
+                    "required": true,
+                    "id": "computer-usage-general"
                 },
                 {
                     "title": "How often do you play computer games?",
@@ -333,12 +365,14 @@ var questions = {
                     "layout": "vertical",
                     "options": ["Everyday, a few hours", "Everyday, less than an hour", "Once or twice a week", "Rarely"],
                     "display-options": true,
-                    "required": true
+                    "required": true,
+                    "id": "computer-usage-games"
                 },
                 {
                     "title": "What types of computer games do you play the most?",
                     "type": "text",
-                    "required": false
+                    "required": false,
+                    "id": "which-games"
                 },
                 {
                     "title": "What device or interface are you using to move the cursor on your computer?",
@@ -346,12 +380,14 @@ var questions = {
                     "layout": "vertical",
                     "options": ["A mouse", "A trackpad", "A pointing stick", "An assistive device", "Other"],
                     "display-options": true,
-                    "required": true
+                    "required": true,
+                    "id": "cursor-move-device"
                 },
                 {
                     "title": "Please describe any relevant details about the device or interface you use for moving the cursor.",
                     "type": "text",
-                    "required": false
+                    "required": false,
+                    "id": "cursor-move-device-details"
                 },
                 {
                     "title": "What device or interface are you using for 'clicking' on your computer?",
@@ -359,12 +395,14 @@ var questions = {
                     "layout": "vertical",
                     "options": ["Mouse buttons", "Trackpad buttons", "Keyboard", "An assistive device", "Other"],
                     "display-options": true,
-                    "required": true
+                    "required": true,
+                    "id": "cursor-click-device"
                 },
                 {
                     "title": "Please describe any relevant details about the device or interface you use for clicking.",
                     "type": "text",
-                    "required": false
+                    "required": false,
+                    "id": "cursor-click-device-details"
                 },
             ]
         },
@@ -402,7 +440,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         if (validateForm() && current_section == num_sections - 1) {
-            Database.logQuestionnaire(getFormData());
+            Database.logQuestionnaire(getFormData(), controlTypesMap[controlType], transitionTypesMap[transitionType]);
 
             $("#mturk-key").html(`<h3>Thank you!</h3> <br> Here is your AMT completion code: <kbd>${Database.uid}</kbd>`);
             setSection(-1);
@@ -430,7 +468,7 @@ function generateForm(form_data) {
 
         for (var question in form_data.sections[section].questions) {
             var question_data = form_data.sections[section].questions[question];
-            questions_container.append(`<div class="mb-4" id="section-${section}-question-${question}"></div>`);
+            questions_container.append(`<div class="mb-4" id="section-${section}-question-${question}" qid="${question_data.id}"></div>`);
             var question_container = $(`#section-${section}-question-${question}`);
             switch (question_data.type) {
                 case "radio":
@@ -473,7 +511,7 @@ function generateForm(form_data) {
                     question_container.append(`
                     <div class="form-group">
                         <label for="${question_id}">${question_data.title} ${required}</label>
-                        <textarea class="form-control" id="${question_id}" ${placeholder}/>
+                        <textarea class="form-control" id="${question_id}" qid="${question_data.id}" ${placeholder}/>
                     </div>
                     `);
                     if (question_data.required) {
@@ -488,7 +526,7 @@ function generateForm(form_data) {
                     question_container.append(`
                     <div class="form-group">
                         <label for="${question_id}"><b>${question_data.title}</b> ${required}</label>
-                        <input class="form-control" id="${question_id}" ${placeholder}/>
+                        <input class="form-control" id="${question_id}" qid="${question_data.id}" ${placeholder}/>
                     </div>
                     `);
                     if (question_data.required) {
@@ -539,14 +577,20 @@ function setSection(sect_num) {
 function getFormData() {
 
     var radios = $('#form').serializeArray().reduce(function (obj, item) {
-        obj[item.name] = item.value;
+        obj[item.name] = {
+            resp: item.value,
+            qid: $("#"+item.name).attr('qid')
+        };
         return obj;
     }, {});
 
     var input = {}
     $("#form textarea, #form input").each(function (i, obj) {
         if ($(obj).attr('id').search("input") >= 0) {
-            input[$(obj).attr('id')] = $(obj).val();
+            input[$(obj).attr('id').replace("-input", "")] = {
+                resp: $(obj).val(),
+                qid: $(obj).attr('qid')
+            };
         }
     });
 

@@ -100,7 +100,7 @@ var ee = null;
 var control = null;
 
 // Enable/Disable logging
-var offline = true;
+var offline = false;
 var hasTimer = false;
 var isTest = false;
 var testConfigs = null;
@@ -236,17 +236,13 @@ function setupEnvironment() {
   }
 
   if (!offline) {
-    var targetInfo = target.pose;
-    targetInfo.threshXY = threshXY;
-    targetInfo.threshTheta = threshTheta;
-
     Database.logCycleStart(controlTypes[currentControl],
-      transitionTypes[currentTransitionType], targetInfo);
+      transitionTypes[currentTransitionType], target.getInfo());
     if (logClock == null)
-      logClock = window.setInterval(Database.logEEPose, 500);
+      logClock = window.setInterval(Database.logEEPose, 750);
     Database.logSelectedView(selectedView);
   }
-}
+} 
 
 function setTargetPose() {
   // Setup the default state of the target
@@ -270,9 +266,9 @@ function setTargetPose() {
       dim.x = getRandomArbitrary(0.2, 0.7);
       dim.z = getRandomArbitrary(1, 2);
 
-      rot.x = getRandomArbitrary(0, 360);
-      rot.y = getRandomArbitrary(0, 360);
-      rot.z = getRandomArbitrary(0, 360);
+      rot.x = getRandomArbitrary(0, 360) * DEG_TO_RAD;
+      rot.y = getRandomArbitrary(0, 360) * DEG_TO_RAD;
+      rot.z = getRandomArbitrary(0, 360) * DEG_TO_RAD;
 
       // TODO: Update this to convert the 3d positin of the target to 2d screen space to ensure that the panel never blocks the target
       // If there it a panel, don't let the target fall behind it

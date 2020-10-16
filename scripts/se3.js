@@ -163,6 +163,21 @@ function SE3(name, pose, color, threejs_object, threejs_object_ghost, posThresho
   this.getPosition = function () {
     return this.pose.getPosition();
   }
+
+  this.get3DPose = function () {
+    return {
+      pos: {
+        x: this.threejs_object.position.x,
+        y: this.threejs_object.position.y,
+        z: this.threejs_object.position.z
+      },
+      rot: {
+        x: this.threejs_object.rotation.x / DEG_TO_RAD,
+        y: this.threejs_object.rotation.y / DEG_TO_RAD,
+        z: this.threejs_object.rotation.z / DEG_TO_RAD
+      }
+    }
+  }
 }
 
 /*
@@ -273,6 +288,10 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
 }
 
 function SE3Target(color, pos, rot, dim) {
+  this.pos = pos;
+  this.rot = rot;
+  this.dim = dim;
+
   var geo = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
 
   var mat = new THREE.MeshLambertMaterial({ color: color });
@@ -288,8 +307,28 @@ function SE3Target(color, pos, rot, dim) {
     var l_finger = ee_threejs_object.getObjectByName("l_finger_mesh");
     var r_finger = ee_threejs_object.getObjectByName("r_finger_mesh");
     var finger_between = ee_threejs_object.getObjectByName("finger_between");
-    console.log(intersect(this.threejs_object, finger_between), intersect(this.threejs_object, l_finger), intersect(this.threejs_object, r_finger));
+
     return intersect(this.threejs_object, finger_between) && !(intersect(this.threejs_object, l_finger) || intersect(this.threejs_object, r_finger));
+  }
+
+  this.getInfo = function () {
+    return {
+      pos: {
+        x: this.pos.x,
+        y: this.pos.y,
+        z: this.pos.z
+      },
+      rot: {
+        x: this.rot.x / DEG_TO_RAD,
+        y: this.rot.y / DEG_TO_RAD,
+        z: this.rot.z / DEG_TO_RAD
+      },
+      dim: {
+        x: this.dim.x,
+        y: this.dim.y,
+        z: this.dim.z
+      }
+    }
   }
 }
 

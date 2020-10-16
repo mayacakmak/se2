@@ -180,8 +180,6 @@ Object.assign(OBB.prototype, {
 		t[1] = v1.dot(a.u[1]);
 		t[2] = v1.dot(a.u[2]);
 
-		console.log(t)
-
 		// compute common subexpressions. Add in an epsilon term to
 		// counteract arithmetic errors when two edges are parallel and
 		// their cross product is (near) null

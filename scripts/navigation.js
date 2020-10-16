@@ -21,6 +21,9 @@ var interface_nums_inverse = {
   }
 }
 
+var controlTypesMap = ["arrow", "drag", "target", "targetdrag", "panel"];
+var transitionTypesMap = ["press/release", "click"];
+
 
 let controlType = getURLParameter("c");
 let transitionType = getURLParameter("t");
