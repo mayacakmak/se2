@@ -7,3 +7,4 @@
     - `calculate_session_lengths.py` calculates metrics about how the total amount of time users spent on the study.
     - `process_data.py` calculates several metrics and graphs about the data
         - This file has the same contents as `data_processing.export.ipynb` to allow for better version control of the code than a raw Jupyter Notebook
+    - `process_questionnaire_results.py` calculates metrics from the NASA TLX questionnaire results

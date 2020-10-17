@@ -105,20 +105,18 @@ plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 fig = plt.figure(figsize=(16,20))
 fig.subplots_adjust(hspace=0.5, wspace=0.3)
 
-for i, interfaceID in enumerate(interface_dfs):
+for i, questionID in enumerate(questionIDs):
     ax = plt.subplot("33"+str(i+1))
-    ax.set_title(interfaceID)
-    
-    interface_df = interface_dfs[interfaceID]
+    ax.set_title(questionID)
 
     data = []
-    for questionID in questionIDs:
-        data.append(interface_df[questionIDs[questionID]].values.flatten())
+    for interfaceID in interfaceIDs:
+        data.append(interface_dfs[interfaceID][questionIDs[questionID]].values)
 
     ax.boxplot(data)
 
     ax.set_yticks(np.arange(1, 8))
     ax.set_ylim([0,8])
-    ax.set_xticklabels(questionIDs)
+    ax.set_xticklabels(interfaceIDs)
     plt.xticks(rotation=90)
 # %%
