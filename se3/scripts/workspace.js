@@ -250,7 +250,7 @@ function setTargetPose() {
   var rot = new THREE.Euler(0, 0, 0);
   var dim = new THREE.Vector3(0.3, 0.15, 1);
 
-  var type = "cylinder";//((Math.random() < 0.5) ? 'rectangle' : 'cylinder');
+  var type = ((Math.random() < 0.5) ? 'rectangle' : 'cylinder');
 
   if (isTest) {
     let currentConfig = testConfigs[currentTest];
