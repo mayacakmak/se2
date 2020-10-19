@@ -249,6 +249,9 @@ function setTargetPose() {
   var pos = new THREE.Vector3(6, 7, -1);
   var rot = new THREE.Euler(0, 0, 0);
   var dim = new THREE.Vector3(0.3, 0.15, 1);
+
+  var type = "cylinder";//((Math.random() < 0.5) ? 'rectangle' : 'cylinder');
+
   if (isTest) {
     let currentConfig = testConfigs[currentTest];
     //target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
@@ -266,6 +269,10 @@ function setTargetPose() {
       dim.x = getRandomArbitrary(0.2, 0.7);
       dim.z = getRandomArbitrary(1, 2);
 
+      if (type == "cylinder") {
+        dim.x = dim.y;
+      }
+
       rot.x = getRandomArbitrary(0, 360) * DEG_TO_RAD;
       rot.y = getRandomArbitrary(0, 360) * DEG_TO_RAD;
       rot.z = getRandomArbitrary(0, 360) * DEG_TO_RAD;
@@ -280,7 +287,7 @@ function setTargetPose() {
         poseFound = true;
     }
   }
-  return new SE3Target("rgb(50, 50, 50)", pos, rot, dim);
+  return new SE3Target("rgb(50, 50, 50)", pos, rot, dim, type);
 }
 
 function setEEPoseAtCenter() {

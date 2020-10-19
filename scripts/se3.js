@@ -287,7 +287,7 @@ function moveableSE3(name, pose, color, threejs_object, threejs_object_ghost, ha
   }
 }
 
-function SE3Target(color, pos, rot, dim) {
+function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
   this.pos = pos;
   this.rot = rot;
   this.dim = dim;
@@ -295,11 +295,27 @@ function SE3Target(color, pos, rot, dim) {
   var geo = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
 
   var mat = new THREE.MeshLambertMaterial({ color: color });
-  this.threejs_object = new THREE.Mesh(geo, mat);
-  this.threejs_object.position.copy(pos);
-  this.threejs_object.rotation.copy(rot);
-  this.threejs_object.userData.obb = new OBB();
-  this.threejs_object.userData.obb.halfSize.copy(dim).multiplyScalar(0.5);
+
+  this.threejs_object = new THREE.Group();
+
+  var duplicate_num = 1;
+  if (type == "cylinder") {
+    duplicate_num = cylinder_resolution;
+  }
+
+  for (var i = 0; i < duplicate_num; i++) {
+    var tempObj = new THREE.Mesh(geo, mat);
+    
+    tempObj.position.copy(pos);
+    tempObj.rotation.copy(rot);
+
+    tempObj.userData.obb = new OBB();
+    tempObj.userData.obb.halfSize.copy( dim ).multiplyScalar( 0.5 );
+    
+    tempObj.rotation.z += i * (360/duplicate_num);
+    this.threejs_object.add(tempObj);
+  }
+  
   scene.add(this.threejs_object)
 
   this.isSame = function (se3) {
@@ -308,7 +324,16 @@ function SE3Target(color, pos, rot, dim) {
     var r_finger = ee_threejs_object.getObjectByName("r_finger_mesh");
     var finger_between = ee_threejs_object.getObjectByName("finger_between");
 
-    return intersect(this.threejs_object, finger_between) && !(intersect(this.threejs_object, l_finger) || intersect(this.threejs_object, r_finger));
+    return this.intersectGroup(this.threejs_object, finger_between) && !(this.intersectGroup(this.threejs_object, l_finger) || this.intersectGroup(this.threejs_object, r_finger));
+  }
+
+  this.intersectGroup = function (group, obj) {
+    for (var i = 0; i < group.children.length; i++) {
+      if (intersect(group.children[i], obj)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   this.getInfo = function () {
