@@ -69,12 +69,6 @@ $('#side-td').click(function () {
 
 // Switch between world and local rotation axes
 var worldRotation = true;
-$('input[type=radio][name=rAxis]').change(function () {
-  if (this.id == "world")
-    worldRotation = true;
-  else if (this.id == "local")
-    worldRotation = false;
-});
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
@@ -154,6 +148,10 @@ function initializeTest() {
     var timer = new Timer();
     Timer.timerDoneCallback = setupEnvironment;
     timer.reset((currentTest + 1) + "/" + testConfigs.length);
+    
+    // Hide the interface to show the I'm ready button and coundown timer
+    $("#group-td").hide();
+    $("#ThreeJS").css("opacity", 0);
   }
   else {
     setupEnvironment();
@@ -170,9 +168,15 @@ function startTimer() {
 * Function to set up one particular test
 */
 function setupEnvironment() {
+  if (isTest) {
+    // Show the full interface now that the cycle has started
+    $("#group-td").show();
+    $("#ThreeJS").css("opacity", 1);
+  }
 
-  let threshXY = null;
-  let threshTheta = null;
+  // Not used in the 3d interface
+  // let threshXY = null;
+  // let threshTheta = null;
 
   if (isTest) {
     let currentConfig = testConfigs[currentTest];
@@ -180,20 +184,20 @@ function setupEnvironment() {
     threshTheta = currentConfig.thresh_theta;
   }
   else {
-    // During practice, randomly pick thresh_xy and thresh_theta
 
-    // For video making purposes 
-    let isExact = false;
+  // Not used in the 3d interface
+  //   // For video making purposes 
+  //   let isExact = false;
 
-    threshXY = 5;
-    threshTheta = 5;
+  //   threshXY = 5;
+  //   threshTheta = 5;
 
-    if (!isExact) {
-      if (Math.random() < 0.75)
-        threshXY += Math.random() * 25;
-      if (Math.random() < 0.75)
-        threshTheta += Math.random() * 85;
-    }
+  //   if (!isExact) {
+  //     if (Math.random() < 0.75)
+  //       threshXY += Math.random() * 25;
+  //     if (Math.random() < 0.75)
+  //       threshTheta += Math.random() * 85;
+  //   }
   }
 
   // Create target and place it in workspace
@@ -248,7 +252,7 @@ function setTargetPose() {
   // Setup the default state of the target
   var pos = new THREE.Vector3(6, 7, -1);
   var rot = new THREE.Euler(0, 0, 0);
-  var dim = new THREE.Vector3(0.3, 0.15, 1);
+  var dim = new THREE.Vector3(0.15, 0.15, 1);
 
   var type = ((Math.random() < 0.5) ? 'rectangle' : 'cylinder');
 
