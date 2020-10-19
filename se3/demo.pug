@@ -1,0 +1,37 @@
+extends structure/_layout.pug
+
+block content
+  .container-fluid.d-flex.h-100.align-items-center.justify-content-center
+    .container-fixed
+      .row.mx-5.mt-4
+        h1 Demo
+      .row.mx-5.mb-2
+        p Click on the button corresponding to the interface/control type you would like to try.
+      .row.mx-5.mb-2
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-primary" onclick="startInterface(0,0)") Arrow interface with press/release transitions
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-primary" onclick="startInterface(0,1)") Arrow interface with click transitions
+      .row.mx-5.mb-2
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-success" onclick="startInterface(1,0)") Drag interface with press/release transitions
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-success" onclick="startInterface(1,1)") Drag interface with click transitions
+      .row.mx-5.mb-2
+        .col-sm-6
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-danger" onclick="startInterface(2,1)") Target click interface
+      .row.mx-5.mb-2
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-warning" onclick="startInterface(3,0)") Target drag with press/release transitions
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-warning" onclick="startInterface(3,1)") Target drag with click transitions
+      .row.mx-5.mb-5
+        .col-sm-6
+          button(type="button" class="btn btn-block btn-info" onclick="startInterface(4,0)") Panel press/release interface
+        .col-sm-6
+
+  .footer
+
+block append scripts
+  script(src="scripts/navigation.js")

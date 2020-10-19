@@ -1,0 +1,19 @@
+extends structure/_layout.pug
+
+block content
+  .container-fluid.d-flex.h-100.align-items-center.justify-content-center
+    .container-fixed
+      .row.mx-5.mt-4
+        h1 Instructions
+      .row.mx-5.mt-1
+        p Thank you for participating in our study. Please watch the video carefully before moving onto the study.
+      .row.mx-5.mt-1
+        div.embed-responsive.embed-responsive-16by9
+          iframe.embed-responsive-item(src="https://www.youtube.com/embed/zpOULjyy-n8?rel=0", allowfullscreen)
+      .row.mx-5.mt-3.mb-4.flex-row-reverse
+          button.btn.btn-primary(onclick="moveToPracticePage()") Next
+
+  .footer
+
+block append scripts
+  script db.initialize()

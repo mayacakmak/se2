@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Accessible Teleoperation Study</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/style.processed.css">
+  </head>
+  <body>
+    <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+      <div class="container-fixed">
+        <div class="row mx-5 mt-4">
+          <h1>Demo</h1>
+        </div>
+        <div class="row mx-5 mb-2">
+          <p>Click on the button corresponding to the interface/control type you would like to try.</p>
+        </div>
+        <div class="row mx-5 mb-2">
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-primary" type="button" onclick="startInterface(0,0)">Arrow interface with press/release transitions</button>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-primary" type="button" onclick="startInterface(0,1)">Arrow interface with click transitions</button>
+          </div>
+        </div>
+        <div class="row mx-5 mb-2">
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-success" type="button" onclick="startInterface(1,0)">Drag interface with press/release transitions</button>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-success" type="button" onclick="startInterface(1,1)">Drag interface with click transitions</button>
+          </div>
+        </div>
+        <div class="row mx-5 mb-2">
+          <div class="col-sm-6"></div>
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-danger" type="button" onclick="startInterface(2,1)">Ring click interface</button>
+          </div>
+        </div>
+        <div class="row mx-5 mb-2">
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-warning" type="button" onclick="startInterface(3,0)">Target drag with press/release transitions</button>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-warning" type="button" onclick="startInterface(3,1)">Target drag with click transitions</button>
+          </div>
+        </div>
+        <div class="row mx-5 mb-5">
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-info" type="button" onclick="startInterface(4,0)">Panel press/release interface</button>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-block btn-info" type="button" onclick="startInterface(4,1)">Panel click interface</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer"></div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+    <script src="scripts/database.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script src="scripts/navigation.js"></script>
+  </body>
+</html>

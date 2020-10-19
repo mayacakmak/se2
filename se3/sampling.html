@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles/style.processed.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="scripts/se2.js"></script>
+</head>
+
+<body onload="initializeSamplingDebug()">
+  <div id='histogram-display-container'
+    style="width: 75px; height: 50px; position: absolute; z-index:1000; pointer-events: none;">
+    <svg id="workspace" width="750" height="500" class="border border-secondary"
+      style="background: #FFF; display: none;"></svg>
+  </div>
+
+  <div id='ee-display-container' style="position: absolute; z-index:1001; pointer-events: none;">
+    <h5 id="histogram-display" class="p-1 border border-secondary" style="background: #FFF"></h5>
+  </div>
+  <div class="container-fluid d-flex align-items-center justify-content-center">
+    <div style="background: #FFF">
+      <div class="row mx-5 mt-4">
+        <h1>Sampling</h1>
+      </div>
+      <div class="row mx-5">
+        <div>
+          <div class="workspace-div border border-secondary rounded-lg m-3">
+            <svg class="workspace" id="dist-xy"></svg>
+          </div>
+          <div class="m-3 d-flex justify-content-center">
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(1)">Sample 1</button>
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(100)">Sample 100</button>
+            <button class="btn btn-primary mx-2" onclick="sampleConfigs(300)">Sample 300</button>
+          </div>
+        </div>
+        <div class="border border-secondary rounded-lg m-3" style="width: 750px">
+          <div class="ml-2 mt-2">
+            <h3>Target Position Distance <span>(The euclidean distance between the center and the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="pos-dist"></svg>
+            <h3>Target Position Theta <span>(Rotation of the target position relative to the center where 0 is to the right)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="pos-angle"></svg>
+            <h3>Target Theta <span>(The angle of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="dist-theta"></svg>
+            <h3>XY Threshold <span>(The euclidean distance threshold of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="thresh-xy"></svg>
+            <h3>Theta Threshold <span>(The rotational threshold of the target)</span></h3>
+            <svg class="workspace mb-4" style="height: 100px" id="thresh-theta"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script src="scripts/sampling.js"></script>
+</body>
+</html>

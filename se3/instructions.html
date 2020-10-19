@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles/style.processed.css">
+</head>
+
+<body>
+  <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+    <div class="container-fixed">
+      <div class="row mx-5 mt-4">
+        <h1>Instructions</h1>
+      </div>
+      <div class="row mx-5 mt-1">
+        <p>Thank you for participating in our study. Please watch the video carefully before moving onto the study.</p>
+      </div>
+      <div class="row mx-5 mt-1">
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="" id="instruction-video" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
+        <button class="btn btn-primary" id="next">Next</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+  <script src="scripts/database.js"></script>
+  <script src="scripts/navigation.js"></script>
+  <script src="scripts/instructions.js"></script>
+  <script>
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      moveToPage("errors/mobile_error.html");
+    } else if ( !(/Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) ) {
+      moveToPage("errors/chrome_error.html");
+    } else {
+      Database.readyCallback = function () {
+        Database.getAndUpdateInterfaceNum(loadVideo);
+      };
+      db.initialize();
+    }
+  </script>
+</body>
+
+</html>
