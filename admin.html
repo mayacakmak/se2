@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="styles/style.processed.css">
+</head>
+
+<body>
+  <div class="container-fluid d-flex h-100 align-items-center justify-content-center">
+    <div id="container" class="container-fixed">
+      <div class="row mx-5 mt-4">
+        <h1 id="title">Replay</h1>
+      </div>
+      <div class="row mx-5">
+        <div id="description" class="mx-auto mb-2">Add start/stop buttons here</div>
+      </div>
+      <div class="row mx-5">
+        <div id="cycleSelector">
+          <div id="browse">
+            <button class="btn btn-success m-3" onclick="listAllCycles()">Browse Interfaces</button>
+            <button class="btn btn-primary m-3" onclick="listUsers()">Browse Users</button>
+            <div class="input-group p-3">
+              <input id="cycle-id-input" type="text" class="form-control" placeholder="Cycle ID">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button"
+                  onclick="selectCycle($('#cycle-id-input').val());">Replay</button>
+              </div>
+            </div>
+          </div>
+          <div id="select" style="height: 500px; width: 700px; overflow-y: auto;"></div>
+        </div>
+        <div id="workspace-container" class="workspace-div border border-secondary rounded-lg">
+          <svg class="workspace" id="workspace"></svg>
+        </div>
+      </div>
+      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
+        <button id="button" class="btn btn-primary">Go Back</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script src="scripts/database.js"></script>
+  <script>
+    // Pausable timer: https://stackoverflow.com/questions/3969475/javascript-pause-settimeout#3969760
+    var PausableTimer = function (callback, delay) {
+      var timerId, start, remaining = delay;
+
+      this.pause = function () {
+        window.clearTimeout(timerId);
+        remaining -= Date.now() - start;
+      };
+
+      this.resume = function () {
+        start = Date.now();
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(callback, remaining);
+      };
+
+      this.resume();
+    };
+
+    // Class to handle replaying a set of actions
+    class Replay {
+      constructor(action_list) {
+        this.action_list = action_list;
+        this.curr_action = 0;
+        this.timeOut;
+        this.control = "";
+      }
+
+      updateAction(cycle) {
+        var a = [];
+        Object.keys(cycle.events).forEach(function (eid) {
+          a.push(cycle.events[eid]);
+        });
+        this.action_list = a;
+        this.curr_action = 0;
+        this.timeOut = undefined;
+        this.control = cycle.control;
+
+        setupWorkspace(cycle.control, cycle.transitionType, cycle.targetPose);
+      }
+
+      resume() {
+        if (this.timeOut) {
+          this.timeOut.resume();
+        }
+        this.step();
+      }
+
+      step() {
+        // Step forward in the action list
+        handleEvent(this.action_list[this.curr_action], this.control);
+
+        if (this.curr_action + 1 < this.action_list.length) {
+          this.timeOut = new PausableTimer(function () {
+            // This is really bad because the we have to hardcode the name of the instace in the class
+            // For some reason, passing the instance in as an input creates an infinite chain of callbacks
+            replayer.step();
+          }, this.action_list[this.curr_action + 1].timestamp - this.action_list[this.curr_action].timestamp);
+          this.curr_action += 1;
+        }
+      }
+
+      pause() {
+        if (this.timeOut) {
+          this.timeOut.pause();
+        }
+      }
+
+      restart() {
+        this.curr_action = 0;
+        this.timeOut = undefined;
+        this.resume();
+      }
+    }
+
+    function setMode(mode) {
+      // Update the what is displayed base on the current mode
+
+      console.log(`New mode: ${mode}`);
+      switch (mode) {
+        case "loading":
+          $("#title").text("Loading...");
+          $("#description").text("");
+
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+          $("#button").hide();
+          break;
+        case "login":
+          $("#title").text("Admin Page");
+          $("#description").text("");
+
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+
+          $("#button").show();
+          $("#button").text("Login");
+          $("#button").unbind('click').click(function () {
+            db.initialize(anonymous = false);
+          });
+          break;
+
+        case "not_admin":
+          $("#title").text("You are not an admin");
+          $("#title").addClass("text-danger font-weight-bold")
+          $("#description").text("");
+
+          $("#browse").hide();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").hide();
+          $("#button").hide();
+          break;
+        case "browse":
+          $("#title").text("Browse Cycles");
+          $("#title").removeClass("text-danger font-weight-bold")
+          $("#description").text("");
+
+          $("#button").hide();
+          $("#browse").show();
+          $("#select").hide();
+          $("#workspace-container").hide();
+          $("#cycleSelector").show();
+          break;
+        case "select":
+          $("#browse").hide();
+          $("#select").show();
+          $("#workspace-container").hide();
+          $("#cycleSelector").show();
+
+          $("#button").show();
+          $("#button").text("Go Back");
+          $("#button").unbind('click').click(function () {
+            setMode("browse")
+          });
+          break;
+        case "replay":
+          $("#title").text("Replay");
+          $("#description").text("");
+
+          // Add Play, Pause, Restart Buttons          
+          $("#description").append(`<button id="play" class="btn btn-success mx-2" onclick="replayer.resume();"><i class="fa fa-play" aria-hidden="true"></i></button>`,
+            `<button id="pause" class="btn btn-warning mx-2" onclick="replayer.pause();"><i class="fa fa-pause" aria-hidden="true"></i></button>`,
+            `<button id="restart" class="btn btn-primary mx-2" onclick="replayer.restart();"><i class="fa fa-repeat" aria-hidden="true"></i></button>`);
+
+          $("#workspace-container").show();
+          $("#cycleSelector").hide();
+
+          $("#button").show();
+          $("#button").text("Go Back");
+          $("#button").unbind('click').click(function () {
+            setMode("browse")
+          });
+          break;
+      }
+    }
+
+    function listUsers() {
+      // Displays all users and how many cycles they have completed
+
+      // Remove anything that might have already been in the select div
+      $("#select").empty();
+
+      // Loop through and display all of the users
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (accessible_teleop_data.users[uid].sessions != undefined) {
+          var num_cycles = 0
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              num_cycles += Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).length;
+            }
+          });
+
+          $('#select').append(`<h3 style="cursor: pointer;" onclick="listCycles('${uid}')">${uid} Cycles: ${num_cycles}</h3>`)
+        }
+      });
+      setMode("select");
+    }
+
+    function listCycles(userID) {
+      // Displays all cycles for a specific user, sorted by display type
+
+      // Remove anything that might have already been in the select div
+      $("#select").empty();
+
+      // Search through users until the input one is found
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (userID = uid) {
+          // Loop thorugh all of this users sessions and cycles, appending them to the list
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+                var cycle = accessible_teleop_data.users[uid].sessions[sid].cycles[cid];
+                if (cycle != undefined) {
+                  var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
+                  if (!document.getElementById(interfaceID)) {
+                    $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." + cycle.transitionType}</h1><br>`)
+                  }
+                  $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
+                }
+              });
+            }
+          });
+
+        }
+      });
+      setMode("select");
+    }
+
+    function listAllCycles() {
+      // Displays all cycles sorted by display type
+
+      // Remove anything that might have already been in the select div
+      $("#select").empty();
+
+      // Loop thourgh all of the users, sessions, and cycles appending them to the corresponding div
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+          if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+            Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+              var cycle = accessible_teleop_data.users[uid].sessions[sid].cycles[cid];
+              if (cycle != undefined) {
+                var interfaceID = cycle.control + "_" + cycle.transitionType.replace(/\//g, "");
+                if (!document.getElementById(interfaceID)) {
+                  $('#select').append(`<h1 id="${interfaceID}">${cycle.control + "." + cycle.transitionType}</h1><br>`)
+                }
+                $('#' + interfaceID).append(`<h3 style="cursor: pointer;" onclick="selectCycle('${cid}')">${cid}</h3>`)
+              }
+            });
+          }
+        });
+      });
+      setMode("select");
+    }
+
+    function selectCycle(inputCycleID) {
+      // Searches the firebase data for a specific cycle and replays it
+      var cycleData;
+
+      // Loop thourgh all of the users, sessions, and cycles until the correct id is found
+      Object.keys(accessible_teleop_data.users).forEach(function (uid) {
+        if (accessible_teleop_data.users[uid].sessions != undefined) {
+          Object.keys(accessible_teleop_data.users[uid].sessions).forEach(function (sid) {
+            if (accessible_teleop_data.users[uid].sessions[sid].cycles) {
+              Object.keys(accessible_teleop_data.users[uid].sessions[sid].cycles).forEach(function (cid) {
+                if (accessible_teleop_data.users[uid].sessions[sid].cycles[cid] != undefined) {
+                  if (inputCycleID == cid) {
+                    cycleData = accessible_teleop_data.users[uid].sessions[sid].cycles[cid]
+                  }
+                }
+              });
+            }
+          });
+        }
+      });
+
+      // Enter replay mode
+      setMode("replay");
+
+      // Update the replayer with the new object
+      replayer.updateAction(cycleData);
+    }
+
+    function setupWorkspace(currentControl, currentTransitionType, targetPose) {
+      // Clear the workspace of any previous elements
+      $('#workspace').empty();
+
+      // Create target and place it in workspace
+      var target = new SE2("target", new Pose(), "#AAA", targetPose.threshXY, targetPose.threshTheta);
+      target.addToWorkspace();
+
+      // Create end effector and place it in workspace
+      var ee = new moveableSE2("ee", new Pose(), "#111");
+      ee.addToWorkspace();
+
+      // Create control and initialize to add it to the workspace
+      var control = null;
+      if (currentControl == "arrow")
+        control = new ArrowControl(ee, target, currentTransitionType);
+      else if (currentControl == "drag")
+        control = new DragControl(ee, target, currentTransitionType);
+      else if (currentControl == "target")
+        control = new TargetControl(ee, target);
+      else if (currentControl == "targetdrag")
+        control = new TargetDragControl(ee, target, currentTransitionType);
+      else if (currentControl == "panel")
+        control = new PanelControl(ee, target, currentTransitionType);
+
+      // Initialize control
+      Control.initialize(ee.pose);
+      Control.unregisterEvents();
+
+      // Set the position of the target
+      target.setPose(new Pose(targetPose.x, targetPose.y, targetPose.theta, targetPose.threshXY, targetPose.threshTheta));
+
+      // Move the ee to the center (Code is modified from setEEPoseAtCenter() in workspace.js)
+      var ws = document.getElementById("workspace");
+      var rect = ws.getBoundingClientRect();
+      var centerX = Math.round(rect.width / 2);
+      var centerY = Math.round(rect.height / 2);
+      handleEvent({ eePose: new Pose(centerX, centerY, 0) }, "panel");
+
+    }
+
+    // Updates the state of the display based on an action from Firebase
+    function handleEvent(state, control) {
+      var eePose = new Pose(state.eePose.x, state.eePose.y, state.eePose.theta);
+      Control.ee.setPose(eePose);
+
+      Control.ring.setPose(Control.ee.pose);
+      Control.handle.setPose(Control.ee.pose);
+
+      // We don't want to move the arrows if they are supposed to be part of the panel
+      if (control !== "panel") {
+        Control.xArrows.setPosition(Control.ee.getPosition());
+        Control.yArrows.setPosition(Control.ee.getPosition());
+      }
+
+      Control.checkEEatTarget();
+    }
+
+    function getFirebaseData() {
+      firebase.database().ref("/").once('value').then(function (snapshot) {
+        accessible_teleop_data = snapshot.val()
+        console.log(snapshot.val());
+        setMode("browse");
+      }).catch(function (error) {
+        if (error.code == "PERMISSION_DENIED") {
+          setMode("not_admin");
+        } else {
+          console.error(error);
+        }
+      });
+    }
+
+    var accessible_teleop_data;
+
+    var replayer = new Replay();
+
+    // Hide everything until the page is loaded
+    setMode("loading");
+
+    $(document).ready(function () {
+      $("#container").show();
+      Database.readyCallback = getFirebaseData;
+      setMode("login");
+    });
+  </script>
+  <script src="scripts/se2.js"></script>
+  <script src="scripts/control.js"></script>
+  <script src="scripts/drag_control.js"></script>
+  <script src="scripts/target_control.js"></script>
+  <script src="scripts/targetdrag_control.js"></script>
+  <script src="scripts/arrow_control.js"></script>
+  <script src="scripts/panel_control.js"></script>
+</body>
+
+</html>

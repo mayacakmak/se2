@@ -1,0 +1,27 @@
+extends structure/_layout.pug
+
+block content
+  .container-fluid.d-flex.h-100.align-items-center.justify-content-center
+    .container-fixed
+      .row.mx-5.mt-4
+        h1 Practice
+      .row.mx-5
+        p Now you can practice getting the arrow to the target for as long as you like. When you feel comfortable using the interface, press Next to complete the interface tests.
+      .row.mx-5
+        .workspace-div.border.border-secondary.rounded-lg
+          svg.workspace#workspace
+      .row.mx-5.mt-3.mb-4.flex-row-reverse
+          button.btn.btn-primary(onclick="moveToTestPage()") Next
+
+  .footer
+
+block append scripts
+  script(src="scripts/se2.js")
+  script(src="scripts/control.js")
+  script(src="scripts/drag_control.js")
+  script(src="scripts/target_control.js")
+  script(src="scripts/targetdrag_control.js")
+  script(src="scripts/arrow_control.js")
+  script(src="scripts/panel_control.js")
+  script(src="scripts/workspace.js")
+  script loadInterface()
