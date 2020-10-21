@@ -23,7 +23,7 @@ var yScale = 1.222;
 // IK Optimization Constants
 var kPos = 2;
 var kRot = 10;
-var kChange = 1/325;
+var kChange = 1 / 325;
 var kConstraint = 1;
 
 var kBackgroundColor = new THREE.Color(0.25, 0.25, 0.25);
@@ -152,7 +152,7 @@ function init() {
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
         dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xAAAAAA); } }, 0);
         dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xEEEEEE); } }, 0);
-        
+
         // Move the whole robot down in preparation for the torso being moved up on line 169
         dae.position.y = -4.6;
         scene.add(dae);
@@ -163,15 +163,15 @@ function init() {
         // Move the right arm down
         r_arm_joint_idx = findJointByName("r_shoulder_pan_link");
         kinematics.setJointValue(r_arm_joint_idx, -90);
-        kinematics.setJointValue(r_arm_joint_idx+1, 80);
-        kinematics.setJointValue(r_arm_joint_idx+2, -180);
+        kinematics.setJointValue(r_arm_joint_idx + 1, 80);
+        kinematics.setJointValue(r_arm_joint_idx + 2, -180);
 
         // Open the gripper
         var open_amount = 31.3981;
-        
+
         //kinematics.jointMap[findJointByName("l_gripper_r_finger_link")].joint.limits.max = open_amount;
         kinematics.setJointValue(findJointByName("l_gripper_r_finger_link"), open_amount);
-        
+
         //kinematics.jointMap[findJointByName("l_gripper_r_finger_link")].joint.limits.max = open_amount;
         //kinematics.setJointValue(findJointByName("l_gripper_l_finger_link"), 15.69905);
 
@@ -184,28 +184,33 @@ function init() {
 
 
     // Add the target
-    var x_geo = new THREE.BoxGeometry(1.5, 0.2, 0.2);
-    var y_geo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
+    var r = 0.1;
+    var h = 1.2;
+    var axis_geo = new THREE.BoxGeometry(h, r, r);
+    var center_geo = new THREE.SphereGeometry(0.17, 32, 32);
 
-    var z_size = new THREE.Vector3(0.2, 0.2, 0.7);
-    var z_geo = new THREE.BoxGeometry(z_size.x, z_size.y, z_size.z);
-    
     var red_mat = new THREE.MeshLambertMaterial({ color: 'rgb(255,0,0)' });
     var green_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,255,0)' });
     var blue_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,255)' });
+    var gray_mat = new THREE.MeshLambertMaterial({ color: 'rgb(190,190,190)' });
 
-    var x_obj = new THREE.Mesh(x_geo, red_mat);
-    x_obj.position.x += 1.5/2;
-    var y_obj = new THREE.Mesh(y_geo, green_mat);
-    var z_obj = new THREE.Mesh(z_geo, blue_mat);
-    z_obj.name = "finger_between";
-    z_obj.userData.obb = new OBB();
-    z_obj.userData.obb.halfSize.copy( z_size ).multiplyScalar( 0.5 );
+    var x_obj = new THREE.Mesh(axis_geo, blue_mat);
+    x_obj.position.x += h / 2;
+    var y_obj = new THREE.Mesh(axis_geo, red_mat);
+    y_obj.rotation.y += 90 * DEG_TO_RAD;
+    y_obj.position.z -= h / 2;
+    var z_obj = new THREE.Mesh(axis_geo, green_mat);
+    z_obj.rotation.z += 90 * DEG_TO_RAD;
+    z_obj.position.y += h / 2;
+
+    var center_obj = new THREE.Mesh(center_geo, gray_mat);
+
 
     ik_target = new THREE.Group();
     ik_target.add(x_obj);
     ik_target.add(y_obj);
     ik_target.add(z_obj);
+    ik_target.add(center_obj)
     ik_target.position.set(6, 7, -1);
 
     var f_size = new THREE.Vector3(0.5, 0.3, 0.3);
@@ -214,22 +219,35 @@ function init() {
     var l_finger = new THREE.Mesh(finger_geo, black_mat);
     var r_finger = new THREE.Mesh(finger_geo, black_mat);
     var finger_separation = 0.45;
-    
+
     l_finger.position.z = -finger_separation;
     r_finger.position.z = finger_separation;
     l_finger.visible = false;
     r_finger.visible = false;
     l_finger.name = "l_finger_mesh";
     r_finger.name = "r_finger_mesh";
-    
+
     l_finger.userData.obb = new OBB();
-    l_finger.userData.obb.halfSize.copy( f_size ).multiplyScalar( 0.5 );
+    l_finger.userData.obb.halfSize.copy(f_size).multiplyScalar(0.5);
 
     r_finger.userData.obb = new OBB();
-    r_finger.userData.obb.halfSize.copy( f_size ).multiplyScalar( 0.5 );
+    r_finger.userData.obb.halfSize.copy(f_size).multiplyScalar(0.5);
 
     ik_target.add(l_finger);
     ik_target.add(r_finger);
+
+    var finger_between_geo_size = new THREE.Vector3(0.2, 0.2, 0.7);
+    var finger_between_geo = new THREE.BoxGeometry(finger_between_geo_size.x, finger_between_geo_size.y, finger_between_geo_size.z);
+
+    var finger_between = new THREE.Mesh(finger_between_geo, black_mat);
+    finger_between.name = "finger_between";
+    finger_between.visible = false;
+    finger_between.position.x += 0.15
+
+    finger_between.userData.obb = new OBB();
+    finger_between.userData.obb.halfSize.copy(finger_between_geo_size).multiplyScalar(0.5);
+
+    ik_target.add(finger_between);
 
     scene.add(ik_target);
 
@@ -346,7 +364,7 @@ function getEEPose() {
     // var eeJoint = kinematics.jointMap[arm_joint_idx + NUM_JOINTS].node;
 
     // Set the endpoint to the tip of the hand, the positions of the right and left fingers are averaged together
-    var lFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS+2].node;
+    var lFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 2].node;
 
     var lposition = new THREE.Vector3();
     var lquaternion = new THREE.Quaternion();
@@ -354,7 +372,7 @@ function getEEPose() {
 
     lFinger.matrixWorld.decompose(lposition, lquaternion, lscale);
 
-    var rFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS+3].node;
+    var rFinger = kinematics.jointMap[arm_joint_idx + NUM_JOINTS + 3].node;
 
     var rposition = new THREE.Vector3();
     var rquaternion = new THREE.Quaternion();
@@ -423,7 +441,7 @@ function solveIK(target, iter) {
         var changeLoss = calcAngleDist(lastAngles, updatedAngles);
         tempLastAngles = updatedAngles;
 
-        return posLoss * kPos + rotLoss * kRot + changeLoss * kChange + constrainLoss*kConstraint;
+        return posLoss * kPos + rotLoss * kRot + changeLoss * kChange + constrainLoss * kConstraint;
     }
 
     dae.updateMatrixWorld(true);
