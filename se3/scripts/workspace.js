@@ -94,7 +94,7 @@ var ee = null;
 var control = null;
 
 // Enable/Disable logging
-var offline = false;
+var offline = true;
 var hasTimer = false;
 var isTest = false;
 var testConfigs = null;
@@ -267,7 +267,7 @@ function setTargetPose() {
     while (!poseFound) {
       pos.x = getRandomArbitrary(4.5, 7); // Max bounds: [3, 8.5]
       pos.y = getRandomArbitrary(1, 9.5); // Max bounds: [0.5, 10]
-      pos.z = getRandomArbitrary(-7, 1.5); // Max bounds: [-6.5, 2]
+      pos.z = getRandomArbitrary(-5, 1.5); // Max bounds: [-6.5, 2]
 
       dim.y = getRandomArbitrary(0.05, 0.18);
       dim.x = getRandomArbitrary(0.2, 0.7);

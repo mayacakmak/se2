@@ -883,6 +883,7 @@ THREE.ColladaLoader = function () {
 
 					var joint = jointData.joint;
 
+					
 					if ( value > joint.limits.max || value < joint.limits.min ) {
 
 						//console.log( 'setJointValue: joint ' + joint.name + ' value ' + value + ' outside of limits (min: ' + joint.limits.min + ', max: ' + joint.limits.max + ')' );

@@ -303,22 +303,49 @@ function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
   var duplicate_num = 1;
   if (type == "cylinder") {
     duplicate_num = cylinder_resolution;
+
+    // the radius of the cylinder is scaled down by 0.8 to match the radius of the collision geometry formed by the cubes
+    var geometry = new THREE.CylinderGeometry(dim.y*0.8, dim.y*0.8, dim.z, 32);
+    this.cylinder_viz = new THREE.Mesh(geometry, mat);
+
+    // The cylinder is originally not oriented correctly to line up with the cubes
+    this.cylinder_viz.rotation.x += 90 * DEG_TO_RAD;
+    // Reset + apply the position and scale of the object
+    this.cylinder_viz.updateMatrix();
+    this.cylinder_viz.geometry.applyMatrix( this.cylinder_viz.matrix );
+    this.cylinder_viz.rotation.set( 0, 0, 0 );
+    this.cylinder_viz.updateMatrix();
+
+
+    this.cylinder_viz.position.copy(pos);
+    this.cylinder_viz.rotation.copy(rot);
+
+    this.cylinder_viz.userData.viz_only = true;
+
+    this.threejs_object.add(this.cylinder_viz);
   }
 
   for (var i = 0; i < duplicate_num; i++) {
     var tempObj = new THREE.Mesh(geo, mat);
-    
+
     tempObj.position.copy(pos);
     tempObj.rotation.copy(rot);
 
     tempObj.userData.obb = new OBB();
-    tempObj.userData.obb.halfSize.copy( dim ).multiplyScalar( 0.5 );
-    
-    tempObj.rotation.z += i * (360/duplicate_num);
+    tempObj.userData.obb.halfSize.copy(dim).multiplyScalar(0.5);
+
+    tempObj.rotation.z += i * (360 / duplicate_num);
+
+    // We only want to hide the collision geometry if the object is a cylinder
+    if (type == "cylinder") {
+      tempObj.visible = false;
+    }
+
     this.threejs_object.add(tempObj);
   }
-  
-  scene.add(this.threejs_object)
+
+  scene.add(this.threejs_object);
+
 
   this.isSame = function (se3) {
     var ee_threejs_object = se3.threejs_object;
@@ -331,8 +358,10 @@ function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
 
   this.intersectGroup = function (group, obj) {
     for (var i = 0; i < group.children.length; i++) {
-      if (intersect(group.children[i], obj)) {
-        return true;
+      if (!group.children[i].userData.viz_only) {
+        if (intersect(group.children[i], obj)) {
+          return true;
+        }
       }
     }
     return false;

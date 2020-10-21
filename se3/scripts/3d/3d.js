@@ -167,8 +167,13 @@ function init() {
         kinematics.setJointValue(r_arm_joint_idx+2, -180);
 
         // Open the gripper
-        kinematics.setJointValue(findJointByName("l_gripper_r_finger_link"), 20);
-        kinematics.setJointValue(findJointByName("l_gripper_l_finger_link"), 20);
+        var open_amount = 31.3981;
+        
+        //kinematics.jointMap[findJointByName("l_gripper_r_finger_link")].joint.limits.max = open_amount;
+        kinematics.setJointValue(findJointByName("l_gripper_r_finger_link"), open_amount);
+        
+        //kinematics.jointMap[findJointByName("l_gripper_r_finger_link")].joint.limits.max = open_amount;
+        //kinematics.setJointValue(findJointByName("l_gripper_l_finger_link"), 15.69905);
 
         // Move the torso up
         kinematics.setJointValue(findJointByName("torso_lift_link"), 0.33);
@@ -208,7 +213,7 @@ function init() {
     var black_mat = new THREE.MeshLambertMaterial({ color: 'rgb(0,0,0)' });
     var l_finger = new THREE.Mesh(finger_geo, black_mat);
     var r_finger = new THREE.Mesh(finger_geo, black_mat);
-    var finger_separation = 0.3;
+    var finger_separation = 0.45;
     
     l_finger.position.z = -finger_separation;
     r_finger.position.z = finger_separation;
