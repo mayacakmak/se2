@@ -152,8 +152,9 @@ function SE3(name, pose, color, threejs_object, threejs_object_ghost, posThresho
   }
 
   this.resetColor = function () {
-    if (kinematics)
-      dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
+    if (kinematics) {
+      setPR2Color();
+    }
   }
 
   this.isSame = function (other) {

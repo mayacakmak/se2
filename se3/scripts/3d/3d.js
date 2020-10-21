@@ -1,6 +1,7 @@
 
 var ik_target, ik_target_ghost, dae, kinematics, collada;
 const arm_link_name = 'l_shoulder_pan_link';
+const gripper_link_name = "l_wrist_roll_link";
 const NUM_JOINTS = 7;
 const initial_angle_state = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
 
@@ -150,10 +151,10 @@ function init() {
 
         // Add the COLLADA
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
-        dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xAAAAAA); } }, 0);
-        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xEEEEEE); } }, 0);
-
-        // Move the whole robot down in preparation for the torso being moved up on line 169
+        dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
+        setPR2Color();
+        
+        // Move the whole robot down in preparation for the torso being moved up later
         dae.position.y = -4.6;
         scene.add(dae);
 
@@ -275,6 +276,11 @@ function init() {
     //renderer.setPixelRatio(windowWidth / windowHeight);
     renderer.setSize(windowWidth, windowHeight);
     container.appendChild(renderer.domElement);
+}
+
+function setPR2Color() {
+    dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
+    dae.getObjectByName(gripper_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xf0ff8f); } }, 0);
 }
 
 function animate() {

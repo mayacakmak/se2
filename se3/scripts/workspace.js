@@ -206,7 +206,6 @@ function setupEnvironment() {
   // Create end effector and place it in workspace
   ee = new moveableSE3("ee", new Pose(), "#111", ik_target, ik_target_ghost);
 
-
   // Place the EE and the target in the workspace
   setEEPoseAtCenter();
 
@@ -246,6 +245,7 @@ function setupEnvironment() {
       logClock = window.setInterval(Database.logEEPose, 750);
     Database.logSelectedView(selectedView);
   }
+
 } 
 
 function setTargetPose() {
