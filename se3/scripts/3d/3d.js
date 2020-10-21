@@ -26,6 +26,8 @@ var kRot = 10;
 var kChange = 1/325;
 var kConstraint = 1;
 
+var kBackgroundColor = new THREE.Color(0.25, 0.25, 0.25);
+
 var views = [
     {
         screenPos: "bottom-left",
@@ -34,10 +36,10 @@ var views = [
         bottom: 0,
         width: 0.5,
         height: 0.5,
-        background: new THREE.Color(0.8, 0.8, 0.8),
+        background: kBackgroundColor,
         eye: [15, 5, -3],
         rotation: new THREE.Vector3(0, Math.PI / 2, 0),
-        cameraScale: 60
+        cameraScale: 70
     },
     {
         screenPos: "top-left",
@@ -46,7 +48,7 @@ var views = [
         bottom: 0.5,
         width: 0.5,
         height: 0.5,
-        background: new THREE.Color(0.8, 0.8, 0.8),
+        background: kBackgroundColor,
         eye: [3, 20, -3],
         rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
         cameraScale: 70
@@ -58,7 +60,7 @@ var views = [
         bottom: 0,
         width: 0.5,
         height: 0.5,
-        background: new THREE.Color(0.8, 0.8, 0.8),
+        background: kBackgroundColor,
         eye: [10, 10, -10],
         target: new THREE.Vector3(0, 5, 0),
         fov: 50
@@ -70,7 +72,7 @@ var views = [
         bottom: 0.5,
         width: 0.5,
         height: 0.5,
-        background: new THREE.Color(0.8, 0.8, 0.8),
+        background: kBackgroundColor,
         eye: [3, 5, 15],
         rotation: new THREE.Vector3(0, 0, 0),
         cameraScale: 70
@@ -148,8 +150,8 @@ function init() {
 
         // Add the COLLADA
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
-        dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
-        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xCCCCCC); } }, 0);
+        dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xAAAAAA); } }, 0);
+        dae.getObjectByName(arm_link_name).traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0xEEEEEE); } }, 0);
         
         // Move the whole robot down in preparation for the torso being moved up on line 169
         dae.position.y = -4.6;

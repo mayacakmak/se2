@@ -298,6 +298,8 @@ function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
 
   this.threejs_object = new THREE.Group();
 
+  // The code for detecting intersections between objects only works on OBBs
+  // If the target is a cylinder, we duplicate many boxes rotated around an axis to simulate it
   var duplicate_num = 1;
   if (type == "cylinder") {
     duplicate_num = cylinder_resolution;

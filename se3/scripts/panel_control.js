@@ -4,17 +4,17 @@
 function PanelControl(ee, target, transitionType) {
   Control.call(this, "target", ee, target, transitionType);
 
-  Control.t_xArrows = new HorizontalArrows(Panel.width/8);
-  Control.t_yArrows = new VerticalArrows(Panel.height/8);
-  Control.t_thetaArrows = new RotateArrows();
+  Control.t_xArrows = new HorizontalArrows(Panel.width/8, "#181acc", "#383aec"); // blue
+  Control.t_yArrows = new VerticalArrows(Panel.height/8, "#cc070e", "#ed272e"); // red
+  Control.t_thetaArrows = new RotateArrows("#07cc0e", "#27ed2e"); // green
   
-  Control.f_xArrows = new HorizontalArrows(Panel.width/8);
-  Control.f_yArrows = new VerticalArrows(Panel.height/8);
-  Control.f_thetaArrows = new RotateArrows();
+  Control.f_xArrows = new HorizontalArrows(Panel.width/8, "#cc070e", "#ed272e"); // red
+  Control.f_yArrows = new VerticalArrows(Panel.height/8, "#07cc0e", "#27ed2e"); // green
+  Control.f_thetaArrows = new RotateArrows("#181acc", "#383aec"); // blue
   
-  Control.s_xArrows = new HorizontalArrows(Panel.width/8);
-  Control.s_yArrows = new VerticalArrows(Panel.height/8);
-  Control.s_thetaArrows = new RotateArrows();
+  Control.s_xArrows = new HorizontalArrows(Panel.width/8, "#181acc", "#383aec"); // blue
+  Control.s_yArrows = new VerticalArrows(Panel.height/8, "#07cc0e", "#27ed2e"); // green
+  Control.s_thetaArrows = new RotateArrows("#cc070e", "#ed272e"); // red
   
   Control.fsm = new FSM(["cursor-free", "moving-left", "moving-right",
     "moving-up", "moving-down", "rotating-cw", "rotating-ccw"],

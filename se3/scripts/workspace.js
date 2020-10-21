@@ -281,6 +281,7 @@ function setTargetPose() {
       rot.y = getRandomArbitrary(0, 360) * DEG_TO_RAD;
       rot.z = getRandomArbitrary(0, 360) * DEG_TO_RAD;
 
+      /*
       // TODO: Update this to convert the 3d positin of the target to 2d screen space to ensure that the panel never blocks the target
       // If there it a panel, don't let the target fall behind it
       if (controlTypes[currentControl] == "panel" &&
@@ -289,9 +290,11 @@ function setTargetPose() {
         console.log("pose rejected");
       else
         poseFound = true;
+      */
+     poseFound = true;
     }
   }
-  return new SE3Target("rgb(50, 50, 50)", pos, rot, dim, type);
+  return new SE3Target("rgb(255, 179, 0)", pos, rot, dim, type);
 }
 
 function setEEPoseAtCenter() {

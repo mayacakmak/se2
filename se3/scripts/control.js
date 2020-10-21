@@ -14,22 +14,22 @@ function Control(name, ee, target, transitionType) {
   Control.t_ring = new Ring();
   Control.t_handle = new Handle();
   Control.t_ghost = new Ghost();
-  Control.t_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
-  Control.t_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.t_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius, "#181acc", "#383aec"); // blue
+  Control.t_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius, "#cc070e", "#ed272e"); // red
   Control.t_panel = new Panel();
 
   Control.f_ring = new Ring();
   Control.f_handle = new Handle();
   Control.f_ghost = new Ghost();
-  Control.f_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
-  Control.f_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.f_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius, "#cc070e", "#ed272e"); // red
+  Control.f_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius, "#07cc0e", "#27ed2e"); // green
   Control.f_panel = new Panel();
 
   Control.s_ring = new Ring();
   Control.s_handle = new Handle();
   Control.s_ghost = new Ghost();
-  Control.s_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius);
-  Control.s_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius);
+  Control.s_xArrows = new HorizontalArrows(Ring.innerR + Ring.ringRadius, "#181acc", "#383aec"); // blue
+  Control.s_yArrows = new VerticalArrows(Ring.innerR + Ring.ringRadius, "#07cc0e", "#27ed2e"); // green
   Control.s_panel = new Panel();
 
   /*
@@ -455,8 +455,11 @@ function Arrow(id) {
 /*
 * Utility classes for arrows
 */
-function VerticalArrows(arrowOffset) {
+function VerticalArrows(arrowOffset, base_color, highlight_color) {
   Arrow.call(this, "yArrows");
+
+  this.base_color = base_color;
+  this.highlight_color = highlight_color;
 
   this.arrowUp = document.createElementNS(
     'http://www.w3.org/2000/svg', 'path');
@@ -477,17 +480,17 @@ function VerticalArrows(arrowOffset) {
   this.arrowDown.setAttribute("id", "arrowDown");
 
   this.resetColor = function () {
-    this.arrowUp.style.fill = "#cc070e";
-    this.arrowDown.style.fill = "#cc070e";
+    this.arrowUp.style.fill = this.base_color;
+    this.arrowDown.style.fill = this.base_color;
   }
 
   this.highlight = function (element) {
     if (element == undefined) {
-      this.arrowUp.style.fill = "#ed272e";
-      this.arrowDown.style.fill = "#ed272e";
+      this.arrowUp.style.fill = this.highlight_color;
+      this.arrowDown.style.fill = this.highlight_color;
     }
     else {
-      element.style.fill = "#ed272e";
+      element.style.fill = this.highlight_color;
     }
   }
 
@@ -495,8 +498,11 @@ function VerticalArrows(arrowOffset) {
 
 }
 
-function RotateArrows(arrowOffset) {
+function RotateArrows(base_color, highlight_color) {
   Arrow.call(this, "thetaArrows");
+
+  this.base_color = base_color;
+  this.highlight_color = highlight_color;
 
   this.arrowCW = document.createElementNS(
     'http://www.w3.org/2000/svg', 'path');
@@ -519,25 +525,28 @@ function RotateArrows(arrowOffset) {
   this.arrowCCW.setAttribute("id", "arrowCCW");
 
   this.resetColor = function () {
-    this.arrowCW.style.fill = "#07cc0e";
-    this.arrowCCW.style.fill = "#07cc0e";
+    this.arrowCW.style.fill = this.base_color;
+    this.arrowCCW.style.fill = this.base_color;
   }
 
   this.highlight = function (element) {
     if (element == undefined) {
-      this.arrowCW.style.fill = "#27ed2e";
-      this.arrowCCW.style.fill = "#27ed2e";
+      this.arrowCW.style.fill = this.highlight_color;
+      this.arrowCCW.style.fill = this.highlight_color;
     }
     else
-      element.style.fill = "#27ed2e";
+      element.style.fill = this.highlight_color;
   }
 
   this.resetColor();
 
 }
 
-function HorizontalArrows(arrowOffset) {
+function HorizontalArrows(arrowOffset, base_color, highlight_color) {
   Arrow.call(this, "xArrows");
+
+  this.base_color = base_color;
+  this.highlight_color = highlight_color;
 
   this.arrowLeft = document.createElementNS(
     'http://www.w3.org/2000/svg', 'path');
@@ -558,17 +567,17 @@ function HorizontalArrows(arrowOffset) {
   this.arrowRight.setAttribute("id", "arrowRight");
 
   this.resetColor = function () {
-    this.arrowLeft.style.fill = "#181acc";
-    this.arrowRight.style.fill = "#181acc";
+    this.arrowLeft.style.fill = this.base_color;
+    this.arrowRight.style.fill = this.base_color;
   }
 
   this.highlight = function (element) {
     if (element == undefined) {
-      this.arrowLeft.style.fill = "#383aec";
-      this.arrowRight.style.fill = "#383aec";
+      this.arrowLeft.style.fill = this.highlight_color;
+      this.arrowRight.style.fill = this.highlight_color;
     }
     else {
-      element.style.fill = "#383aec";
+      element.style.fill = this.highlight_color;
     }
   }
 
