@@ -157,7 +157,7 @@ function initializeTest() {
     setupEnvironment();
   }
   // The IK can sometimes get messed up so it is automatically reset every 1.5 seconds (from the user POV, this should be barely noticeable)
-  setInterval(resetIK, 1500);
+  //setInterval(resetIK, 1500);
 }
 
 function startTimer() {
@@ -306,7 +306,7 @@ function setEEPoseAtCenter() {
 
 // The IK can sometimes get stuck in a weird state
 // This function fully resets it
-function resetIK() {
+function resetIK(run_solveIK=true) {
   if (kinematics) {
     setJointAngles(initial_angle_state)
     dae.updateMatrixWorld(true);
@@ -315,7 +315,7 @@ function resetIK() {
   lastAngles = [...initial_angle_state];
   startingAngles = [...initial_angle_state];
 
-  if (kinematics && enableIK) {
+  if (kinematics && enableIK && run_solveIK) {
     solveIK(ik_target, iterations);
     solveIK(ik_target, iterations);
     solveIK(ik_target, iterations);

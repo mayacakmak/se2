@@ -29,6 +29,8 @@ var kConstraint = 1;
 
 var kBackgroundColor = new THREE.Color(0.25, 0.25, 0.25);
 
+var kZoomLevel = 80;
+
 var views = [
     {
         screenPos: "bottom-left",
@@ -40,7 +42,7 @@ var views = [
         background: kBackgroundColor,
         eye: [15, 5, -3],
         rotation: new THREE.Vector3(0, Math.PI / 2, 0),
-        cameraScale: 70
+        cameraScale: kZoomLevel
     },
     {
         screenPos: "top-left",
@@ -52,7 +54,7 @@ var views = [
         background: kBackgroundColor,
         eye: [3, 20, -3],
         rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
-        cameraScale: 70
+        cameraScale: kZoomLevel
     },
     {
         screenPos: "bottom-right",
@@ -76,7 +78,7 @@ var views = [
         background: kBackgroundColor,
         eye: [3, 5, 15],
         rotation: new THREE.Vector3(0, 0, 0),
-        cameraScale: 70
+        cameraScale: kZoomLevel
     }
 ];
 
@@ -153,7 +155,7 @@ function init() {
         THREE.Object3D.prototype.traverseDepth = function (a, i) { if (!1 !== this.visible) { a(this, i); for (var b = this.children, c = 0, d = b.length; c < d; c++)b[c].traverseDepth(a, i + 1) } };
         dae.traverseDepth(function (obj, i) { if (obj.material) { obj.material.color.setHex(0x999999); } }, 0);
         setPR2Color();
-        
+
         // Move the whole robot down in preparation for the torso being moved up later
         dae.position.y = -4.6;
         scene.add(dae);
@@ -419,19 +421,23 @@ function solveIK(target, iter) {
         var updatedAngles = [];
         for (var i = 0; i < NUM_JOINTS; i++) {
             var jointLimits = kinematics.joints[arm_joint_idx + i].limits;
-
-            // Map the input angle to the joint range
-            //var newAngle = map_range(angles[i], 0, 1, jointLimits.min, jointLimits.max);
-
-            // Limit the input angle to the joint range
-            var newAngle = Math.min(Math.max(angles[i], jointLimits.min), jointLimits.max);
-
-            updatedAngles.push(newAngle);
-
-            if (angles[i] < jointLimits.min) {
-                constrainLoss += jointLimits.min - angles[i];
-            } else if (angles[i] > jointLimits.max) {
-                constrainLoss += angles[i] - jointLimits.max;
+            // Some joints can spin 360 degrees, so we don't want to calculate a constraint loss for those
+            if ( !(jointLimits.min == -360 && jointLimits.max == 360) ) {
+                // Map the input angle to the joint range
+                //var newAngle = map_range(angles[i], 0, 1, jointLimits.min, jointLimits.max);
+    
+                // Limit the input angle to the joint range
+                var newAngle = Math.min(Math.max(angles[i], jointLimits.min), jointLimits.max);
+    
+                updatedAngles.push(newAngle);
+    
+                if (angles[i] < jointLimits.min) {
+                    constrainLoss += jointLimits.min - angles[i];
+                } else if (angles[i] > jointLimits.max) {
+                    constrainLoss += angles[i] - jointLimits.max;
+                }
+            } else {
+                updatedAngles.push(angles[i] % 360)
             }
         }
 

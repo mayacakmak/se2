@@ -47,8 +47,9 @@ function Control(name, ee, target, transitionType) {
 
     if (Control.target.isSame(se3))
       se3.setTempColor(targetSuccessColor);
-    else
-      se3.resetColor();
+    // resetting the color is taken care of by Control.updateControlPositions which runs after this
+    //else
+    //se3.resetColor();
   }
 
   // Check whether the EE is at the target and start the next cycle
@@ -98,6 +99,22 @@ function Control(name, ee, target, transitionType) {
     Control.s_xArrows.setPosition(s_pose);
     Control.s_yArrows.setPosition(s_pose);
     Control.s_handle.setPose(s_pose);
+
+    // Display and fix any IK errors
+    if (kinematics) {
+      var eePose = getEEPose();
+      if (calcDist(ik_target.position, eePose.position) * kPos > 0.25 || calcQuaternionDist(ik_target.quaternion, eePose.quaternion) > 0.6) {
+        // Run resetIK with a reduced number of iterations
+        var temp = iterations;
+        iterations = 100;
+        resetIK();
+        iterations = temp;
+
+        Control.ee.setTempColor(0x666666);
+      } else {
+        Control.ee.resetColor();
+      }
+    }
   }
 
 }
