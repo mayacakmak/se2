@@ -3,7 +3,9 @@ var ik_target, ik_target_ghost, dae, kinematics, collada;
 const arm_link_name = 'l_shoulder_pan_link';
 const gripper_link_name = "l_wrist_roll_link";
 const NUM_JOINTS = 7;
-const initial_angle_state = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
+const initial_angle_state = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0]; // Elbow to the side - works the best so far
+//const initial_angle_state = [0, -30, 180, -66.5005, 0, -62.4525, 0]; // Elbow up - works significantly worse
+//const initial_angle_state = [0, 30, 0, -75, 0, -50, 0] // Elbow down - also doesn't work that well
 
 var iterations = 10000;
 var enableIK = true;
@@ -413,7 +415,9 @@ function setJointAngles(angles) {
     }
 }
 
+// These are just placeholder values, they will be overwritten by resetIK
 var starting_position = [45, 25.000949999999996, 88.80845, -66.5005, 0, -62.4525, 0];
+
 var lastAngles = starting_position;
 function solveIK(target, iter) {
     function loss(angles) {
