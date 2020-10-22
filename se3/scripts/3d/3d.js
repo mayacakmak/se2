@@ -451,20 +451,16 @@ function solveIK(target, iter) {
         var rotLoss = calcQuaternionDist(target.quaternion, eePose.quaternion)
 
         var changeLoss = calcAngleDist(lastAngles, updatedAngles);
-        tempLastAngles = updatedAngles;
+        lastAngles = updatedAngles;
 
         return posLoss * kPos + rotLoss * kRot + changeLoss * kChange + constrainLoss * kConstraint;
     }
 
     dae.updateMatrixWorld(true);
 
-    var tempLastAngles = [];
-
     var startingAngles = Array(NUM_JOINTS).fill(0);
     startingAngles = starting_position; // Realistic angles (without range mapping)
     //startingAngles = getJointAngles();
 
     fmin.nelderMead(loss, startingAngles, { maxIterations: iter });
-
-    lastAngles = tempLastAngles;
 }

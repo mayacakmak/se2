@@ -103,7 +103,13 @@ function Control(name, ee, target, transitionType) {
     // Display and fix any IK errors
     if (kinematics) {
       var eePose = getEEPose();
-      if (calcDist(ik_target.position, eePose.position) * kPos > 0.25 || calcQuaternionDist(ik_target.quaternion, eePose.quaternion) > 0.6) {
+      if (calcDist(ik_target.position, eePose.position) > 0.25 || calcQuaternionDist(ik_target.quaternion, eePose.quaternion) > 0.75) {
+
+        // if (calcDist(ik_target.position, eePose.position) > 0.25)
+        //  console.log("dist_error:", calcDist(ik_target.position, eePose.position));
+        // if (calcQuaternionDist(ik_target.quaternion, eePose.quaternion) > 0.6)
+        //  console.log("rot_error:", calcQuaternionDist(ik_target.quaternion, eePose.quaternion));
+
         // Run resetIK with a reduced number of iterations
         var temp = iterations;
         iterations = 100;
