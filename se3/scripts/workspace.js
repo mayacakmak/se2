@@ -254,13 +254,13 @@ function setTargetPose() {
   var rot = new THREE.Euler(0, 0, 0);
   var dim = new THREE.Vector3(0.15, 0.15, 1);
 
-  var type = ((Math.random() < 0.5) ? 'rectangle' : 'cylinder');
+  var type = ((Math.random() < 0.5) ? 'box' : 'cylinder');
 
   if (isTest) {
-    let currentConfig = testConfigs[currentTest];
-    //target.setPose(new Pose(currentConfig.x, currentConfig.y, currentConfig.theta));
-    // DEBUGGING
-    // target.setPose(new Pose(currentConfig.x, currentConfig.y, 180));
+    pos = testConfigs[currentTest].pos;
+    rot = testConfigs[currentTest].rot;
+    dim = testConfigs[currentTest].dim;
+    type = testConfigs[currentTest].type
   }
   else {
     let poseFound = false;
@@ -294,11 +294,12 @@ function setTargetPose() {
      poseFound = true;
     }
   }
+  
   return new SE3Target("rgb(255, 179, 0)", pos, rot, dim, type);
 }
 
 function setEEPoseAtCenter() {
-  ee.threejs_object.position.set(6, 7, -1);
+  ee.threejs_object.position.set(4.5, 7, -1);
   ee.threejs_object.rotation.set(0, 0, 0);
 
   resetIK()
