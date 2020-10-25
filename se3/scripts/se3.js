@@ -292,6 +292,7 @@ function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
   this.pos = pos;
   this.rot = rot;
   this.dim = dim;
+  this.type = type;
 
   var geo = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
 
@@ -384,7 +385,8 @@ function SE3Target(color, pos, rot, dim, type, cylinder_resolution = 10) {
         x: this.dim.x,
         y: this.dim.y,
         z: this.dim.z
-      }
+      },
+      type: this.type
     }
   }
 }

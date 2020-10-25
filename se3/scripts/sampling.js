@@ -64,17 +64,15 @@ function sampleConfigs(num) {
     type: "cylinder"
   });
 
-  for (var i = 0; i < 100; i++) {
-    // T2, upright cylinder, and a bit further away from the EE
-    sampleList.push({
-      pos: new THREE.Vector3(getRandomArbitrary(7, 8),
-        getRandomArbitrary(4, 6),
-        getRandomArbitrary(-2, 1)),
-      rot: new THREE.Euler(90 * DEG_TO_RAD, 0, 0),
-      dim: t_1_2_dim,
-      type: "cylinder"
-    });
-  }
+  // T2, upright cylinder, and a bit further away from the EE
+  sampleList.push({
+    pos: new THREE.Vector3(getRandomArbitrary(7, 8),
+      getRandomArbitrary(4, 6),
+      getRandomArbitrary(-2, 1)),
+    rot: new THREE.Euler(90 * DEG_TO_RAD, 0, 0),
+    dim: t_1_2_dim,
+    type: "cylinder"
+  });
 
   // Generate dimentions of  targets T3-T5
   var t_3_5_dim = new THREE.Vector3(getRandomArbitrary(0.1, 0.16),
