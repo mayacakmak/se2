@@ -49,42 +49,69 @@ function sampleConfigs(num) {
 
   var sampleList = [];
 
+  // Generate dimentions of targets T1 and T2
+  var t_1_2_dim = new THREE.Vector3(getRandomArbitrary(0.12, 0.15), 0, 1);
+  t_1_2_dim.y = t_1_2_dim.x;
+
+
   // T1, upright cylinder right in front of the EE
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(7, 7.5),
-      getRandomArbitrary(5, 6),
-      getRandomArbitrary(-1, 0)),
+    pos: new THREE.Vector3(getRandomArbitrary(6, 6.5),
+      getRandomArbitrary(5.5, 6),
+      getRandomArbitrary(-1, -0.5)),
     rot: new THREE.Euler(90 * DEG_TO_RAD, 0, 0),
-    dim: new THREE.Vector3(0.10, 0.10, 1),
+    dim: t_1_2_dim,
     type: "cylinder"
   });
 
+  for (var i = 0; i < 100; i++) {
+    // T2, upright cylinder, and a bit further away from the EE
+    sampleList.push({
+      pos: new THREE.Vector3(getRandomArbitrary(7, 8),
+        getRandomArbitrary(4, 6),
+        getRandomArbitrary(-2, 1)),
+      rot: new THREE.Euler(90 * DEG_TO_RAD, 0, 0),
+      dim: t_1_2_dim,
+      type: "cylinder"
+    });
+  }
 
-  // T2, upright cylinder, slightly larger, and a bit further away from the EE
+  // Generate dimentions of  targets T3-T5
+  var t_3_5_dim = new THREE.Vector3(getRandomArbitrary(0.1, 0.16),
+    getRandomArbitrary(1.7, 2.3),
+    getRandomArbitrary(0.8, 1.1));
+
+  // T3, roughly phone-shaped box lying flat on a table
   sampleList.push({
     pos: new THREE.Vector3(getRandomArbitrary(7, 8),
       getRandomArbitrary(6, 8),
-      getRandomArbitrary(-2, 0.2)),
-    rot: new THREE.Euler(90 * DEG_TO_RAD, 0, 0),
-    dim: new THREE.Vector3(0.16, 0.16, 1),
-    type: "cylinder"
+      getRandomArbitrary(-4, 2)),
+    rot: new THREE.Euler(0, 0, 90 * DEG_TO_RAD),
+    dim: t_3_5_dim,
+    type: "box"
   });
 
-  
 
-  for (var i = 0; i < 100; i++) {
-    // T3, roughly phone-shaped box lying flat on a table, rotated randomly on Z
-    sampleList.push({
-      pos: new THREE.Vector3(getRandomArbitrary(7, 8),
-        getRandomArbitrary(6, 8),
-        getRandomArbitrary(-4, 2)),
-      rot: new THREE.Euler(0, getRandomArbitrary(-45, 45) * DEG_TO_RAD, 90 * DEG_TO_RAD),
-      dim: new THREE.Vector3(getRandomArbitrary(0.1, 0.16),
-                             getRandomArbitrary(1.7, 2.3), 
-                             getRandomArbitrary(0.8, 1.1)),
-      type: "box"
-    });
-  }
+  // T4, same as T3, but rotated 90 degrees
+  sampleList.push({
+    pos: new THREE.Vector3(getRandomArbitrary(7, 8),
+      getRandomArbitrary(6, 8),
+      getRandomArbitrary(-4, 2)),
+    rot: new THREE.Euler(0, 90 * DEG_TO_RAD, 90 * DEG_TO_RAD),
+    dim: t_3_5_dim,
+    type: "box"
+  });
+
+
+  // T5, same as T3, but rotated 45 degrees
+  sampleList.push({
+    pos: new THREE.Vector3(getRandomArbitrary(7, 8),
+      getRandomArbitrary(6, 8),
+      getRandomArbitrary(-4, 2)),
+    rot: new THREE.Euler(0, 45 * DEG_TO_RAD, 90 * DEG_TO_RAD),
+    dim: t_3_5_dim,
+    type: "box"
+  });
 
   return sampleList;
 }
