@@ -462,7 +462,9 @@ function PanelControl(ee, target, transitionType) {
         break;
     }
 
-    //Control.checkEEatTarget();
+    Control.updateControlPositions(update_svg=false);
+
+    Control.checkEEatTarget();
   }
 }
 

@@ -302,7 +302,7 @@ function Database() {
 
         // Select the interface that currently needs the most tests
         var chosen_interface = loc_max(neededTests);
-        firebase.database().ref(Database.rootPath + `${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });
+        firebase.database().ref(`${dir}/${chosen_interface}/in_progress/${Database.uid}`).set({ timestamp: currentTime });
         callback(chosen_interface);
       });
     }

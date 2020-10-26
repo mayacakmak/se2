@@ -94,7 +94,7 @@ var ee = null;
 var control = null;
 
 // Enable/Disable logging
-var offline = true;
+var offline = false;
 var hasTimer = false;
 var isTest = false;
 var testConfigs = null;
@@ -265,11 +265,11 @@ function setTargetPose() {
   else {
     let poseFound = false;
     while (!poseFound) {
-      pos.x = getRandomArbitrary(4.5, 7); // Max bounds: [3, 8.5]
-      pos.y = getRandomArbitrary(1, 9.5); // Max bounds: [0.5, 10]
-      pos.z = getRandomArbitrary(-5, 1.5); // Max bounds: [-6.5, 2]
+      pos.x = getRandomArbitrary(6, 7); // Max bounds: [3, 8.5]
+      pos.y = getRandomArbitrary(4, 7); // Max bounds: [0.5, 10]
+      pos.z = getRandomArbitrary(-3, 0); // Max bounds: [-6.5, 2]
 
-      dim.y = getRandomArbitrary(0.05, 0.18);
+      dim.y = getRandomArbitrary(0.05, 0.12);
       dim.x = getRandomArbitrary(0.2, 0.7);
       dim.z = getRandomArbitrary(1, 2);
 
@@ -277,9 +277,9 @@ function setTargetPose() {
         dim.x = dim.y;
       }
 
-      rot.x = getRandomArbitrary(0, 360) * DEG_TO_RAD;
-      rot.y = getRandomArbitrary(0, 360) * DEG_TO_RAD;
-      rot.z = getRandomArbitrary(0, 360) * DEG_TO_RAD;
+      rot.x = getRandomInt(0, 3) * 90 * DEG_TO_RAD;
+      rot.y = 0;
+      rot.z = 0;
 
       /*
       // TODO: Update this to convert the 3d positin of the target to 2d screen space to ensure that the panel never blocks the target

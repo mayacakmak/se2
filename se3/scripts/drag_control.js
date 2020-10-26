@@ -269,7 +269,7 @@ function DragControl(ee, target, transitionType) {
       
     Control.updateControlPositions();
 
-    //Control.checkEEatTarget();
+    Control.checkEEatTarget();
     return true;
   }
 }
