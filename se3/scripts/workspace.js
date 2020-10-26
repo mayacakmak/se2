@@ -266,7 +266,7 @@ function setTargetPose() {
     let poseFound = false;
     while (!poseFound) {
       pos.x = getRandomArbitrary(6, 7); // Max bounds: [3, 8.5]
-      pos.y = getRandomArbitrary(4, 7); // Max bounds: [0.5, 10]
+      pos.y = getRandomArbitrary(1, 5); // Max bounds: [0.5, 10]
       pos.z = getRandomArbitrary(-3, 0); // Max bounds: [-6.5, 2]
 
       dim.y = getRandomArbitrary(0.05, 0.12);
@@ -299,8 +299,8 @@ function setTargetPose() {
 }
 
 function setEEPoseAtCenter() {
-  ee.threejs_object.position.set(4.5, 7, -1);
-  ee.threejs_object.rotation.set(0, 0, 0);
+  ee.threejs_object.position.set(5.5, 2.5, -4.5); // Old starting location: (4.5, 7, -1);
+  ee.threejs_object.rotation.set(0, 0, -90*DEG_TO_RAD);
 
   resetIK()
 }
