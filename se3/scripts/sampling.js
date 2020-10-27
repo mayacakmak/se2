@@ -75,9 +75,9 @@ function sampleConfigs(num) {
   });
 
   // Generate dimentions of  targets T3-T5
-  var t_3_5_dim = new THREE.Vector3(getRandomArbitrary(0.1, 0.16),
+  var t_3_5_dim = new THREE.Vector3(getRandomArbitrary(0.08, 0.2),
     getRandomArbitrary(1.7, 2.3),
-    getRandomArbitrary(0.8, 1.1));
+    getRandomArbitrary(0.3, 0.4));
 
   // T3, roughly phone-shaped box lying flat on a table
   sampleList.push({

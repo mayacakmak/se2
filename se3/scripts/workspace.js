@@ -277,8 +277,8 @@ function setTargetPose() {
         dim.x = dim.y;
       }
 
-      rot.x = getRandomInt(0, 3) * 90 * DEG_TO_RAD;
-      rot.y = 0;
+      rot.x = 90 * DEG_TO_RAD;
+      rot.y = getRandomInt(0, 3) * 90 * DEG_TO_RAD;
       rot.z = 0;
 
       /*
