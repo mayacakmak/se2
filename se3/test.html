@@ -39,6 +39,19 @@
       <div class="row mx-5">
         <p>Next you will test the control intereface in 5 different target configurations. Press "I'm ready!" to get the next configuration. The target will appear after the countdown. Try to get the object to the target as fast as possible. </p>
       </div>
+      <div class="row mb-3">
+        <div class="col-4 mx-auto">
+          <label for="basic-url">Elbow Position (change this before "I'm ready"): </label>
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary active">
+              <input type="radio" name="rAxis" id="up" autocomplete="off" checked>Elbow Up
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="rAxis" id="down" autocomplete="off">Elbow Down
+            </label>
+          </div>
+        </div>
+      </div>
       <div class="row mx-5">
         <div id="ThreeJS"></div>
         <div class="workspace-div border border-secondary" id="workspace-container" style="position:absolute;">

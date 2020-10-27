@@ -70,6 +70,15 @@ $('#side-td').click(function () {
 // Switch between world and local rotation axes
 var worldRotation = true;
 
+// Switch between world and local rotation axes
+var elbowUp = true;
+$('input[type=radio][name=rAxis]').change(function () {
+  if (this.id == "up")
+    elbowUp = true;
+  else if (this.id == "down")
+    elbowUp = false;
+});
+
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
 var currentControl = 0;
@@ -148,7 +157,7 @@ function initializeTest() {
     var timer = new Timer();
     Timer.timerDoneCallback = setupEnvironment;
     timer.reset((currentTest + 1) + "/" + testConfigs.length);
-    
+
     // Hide the interface to show the I'm ready button and coundown timer
     $("#group-td").hide();
     $("#ThreeJS").css("opacity", 0);
@@ -185,19 +194,19 @@ function setupEnvironment() {
   }
   else {
 
-  // Not used in the 3d interface
-  //   // For video making purposes 
-  //   let isExact = false;
+    // Not used in the 3d interface
+    //   // For video making purposes 
+    //   let isExact = false;
 
-  //   threshXY = 5;
-  //   threshTheta = 5;
+    //   threshXY = 5;
+    //   threshTheta = 5;
 
-  //   if (!isExact) {
-  //     if (Math.random() < 0.75)
-  //       threshXY += Math.random() * 25;
-  //     if (Math.random() < 0.75)
-  //       threshTheta += Math.random() * 85;
-  //   }
+    //   if (!isExact) {
+    //     if (Math.random() < 0.75)
+    //       threshXY += Math.random() * 25;
+    //     if (Math.random() < 0.75)
+    //       threshTheta += Math.random() * 85;
+    //   }
   }
 
   // Create target and place it in workspace
@@ -246,7 +255,7 @@ function setupEnvironment() {
     Database.logSelectedView(selectedView);
   }
 
-} 
+}
 
 function setTargetPose() {
   // Setup the default state of the target
@@ -291,23 +300,33 @@ function setTargetPose() {
       else
         poseFound = true;
       */
-     poseFound = true;
+      poseFound = true;
     }
   }
-  
+
   return new SE3Target("rgb(255, 179, 0)", pos, rot, dim, type);
 }
 
 function setEEPoseAtCenter() {
-  ee.threejs_object.position.set(5.5, 2.5, -4.5); // Old starting location: (4.5, 7, -1);
-  ee.threejs_object.rotation.set(0, 0, -90*DEG_TO_RAD);
+  if (elbowUp) {
+    ee.threejs_object.position.set(5.511428117752075, 2.489123249053955, -4.494971823692322); //(5.5, 2.5, -4.5); // Old starting location: (4.5, 7, -1);
+    //ee.threejs_object.rotation.set(0, 0, -90*DEG_TO_RAD);
+    ee.threejs_object.quaternion = new THREE.Quaternion(0.7891517295996459, 0.08924656141729262, 0.10129941990806501, -0.5991769558411375);
+  } else {
+    // This is based on the position of the EE with the current starting state of the arm
+    setJointAngles(initial_angle_state);
+    dae.updateMatrixWorld();
+    ee_pose = getEEPose();
+    ee.threejs_object.position.copy(ee_pose.position);
+    ee.threejs_object.quaternion.copy(ee_pose.quaternion);
+  }
 
   resetIK()
 }
 
 // The IK can sometimes get stuck in a weird state
 // This function fully resets it
-function resetIK(run_solveIK=true) {
+function resetIK(run_solveIK = true) {
   if (kinematics) {
     setJointAngles(initial_angle_state)
     dae.updateMatrixWorld(true);
