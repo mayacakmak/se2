@@ -72,12 +72,6 @@ var worldRotation = true;
 
 // Switch between world and local rotation axes
 var elbowUp = true;
-$('input[type=radio][name=rAxis]').change(function () {
-  if (this.id == "up")
-    elbowUp = true;
-  else if (this.id == "down")
-    elbowUp = false;
-});
 
 var controlTypes = ["arrow", "drag", "target", "targetdrag", "panel"];
 var transitionTypes = ["press/release", "click"];
