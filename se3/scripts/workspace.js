@@ -272,7 +272,7 @@ function setTargetPose() {
       pos.y = getRandomArbitrary(1, 5); // Max bounds: [0.5, 10]
       pos.z = getRandomArbitrary(-3, 0); // Max bounds: [-6.5, 2]
 
-      dim.y = getRandomArbitrary(0.05, 0.12);
+      dim.y = getRandomArbitrary(0.1, 0.18);
       dim.x = getRandomArbitrary(0.2, 0.7);
       dim.z = getRandomArbitrary(1, 2);
 
