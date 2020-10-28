@@ -81,8 +81,8 @@ function sampleConfigs(num) {
 
   // T3, roughly phone-shaped box lying flat on a table
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(4, 6),
-      getRandomArbitrary(3, 5),
+    pos: new THREE.Vector3(getRandomArbitrary(1.5, 4),
+      getRandomArbitrary(1, 3),
       getRandomArbitrary(-4, 2)),
     rot: new THREE.Euler(0, 0, 90 * DEG_TO_RAD),
     dim: t_3_5_dim,
@@ -92,8 +92,8 @@ function sampleConfigs(num) {
 
   // T4, same as T3, but rotated 90 degrees
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(4, 6),
-      getRandomArbitrary(3, 5),
+    pos: new THREE.Vector3(getRandomArbitrary(1.5, 4),
+      getRandomArbitrary(1, 3),
       getRandomArbitrary(-4, 2)),
     rot: new THREE.Euler(0, 90 * DEG_TO_RAD, 90 * DEG_TO_RAD),
     dim: t_3_5_dim,
@@ -103,8 +103,8 @@ function sampleConfigs(num) {
 
   // T5, same as T3, but rotated 45 degrees
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(7, 8),
-      getRandomArbitrary(3, 5),
+    pos: new THREE.Vector3(getRandomArbitrary(1.5, 4),
+      getRandomArbitrary(1, 3),
       getRandomArbitrary(-4, 2)),
     rot: new THREE.Euler(0, 45 * DEG_TO_RAD, 90 * DEG_TO_RAD),
     dim: t_3_5_dim,

@@ -305,7 +305,7 @@ function setEEPoseAtCenter() {
   if (elbowUp) {
     ee.threejs_object.position.set(5.511428117752075, 2.489123249053955, -4.494971823692322); //(5.5, 2.5, -4.5); // Old starting location: (4.5, 7, -1);
     //ee.threejs_object.rotation.set(0, 0, -90*DEG_TO_RAD);
-    ee.threejs_object.quaternion = new THREE.Quaternion(0.7891517295996459, 0.08924656141729262, 0.10129941990806501, -0.5991769558411375);
+    ee.threejs_object.quaternion.set(0, 0, 0, 1);// = new THREE.Quaternion(0.7891517295996459, 0.08924656141729262, 0.10129941990806501, -0.5991769558411375);
   } else {
     // This is based on the position of the EE with the current starting state of the arm
     setJointAngles(initial_angle_state);
@@ -327,7 +327,6 @@ function resetIK(run_solveIK = true) {
   }
   starting_position = [...initial_angle_state];
   lastAngles = [...initial_angle_state];
-  startingAngles = [...initial_angle_state];
 
   if (kinematics && enableIK && run_solveIK) {
     solveIK(ik_target, iterations);
@@ -346,6 +345,8 @@ function clearWorkspace() {
 
   Control.unregisterEvents();
   ws.removeEventListener("mousemove", Control.update);
+
+  ee.threejs_object_ghost.visible = false;
 
   // This is already handled by not recreating intervals if their handle is not null
   //clearInterval(logClock);
@@ -385,4 +386,5 @@ function success() {
   if (!isTest || currentTest < testConfigs.length) {
     initializeTest();
   }
+
 }

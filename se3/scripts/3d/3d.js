@@ -43,7 +43,7 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: kBackgroundColor,
-        eye: [15, 5, -3],
+        eye: [15, 3, -3],
         rotation: new THREE.Vector3(0, Math.PI / 2, 0),
         cameraScale: kZoomLevel
     },
@@ -55,7 +55,7 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: kBackgroundColor,
-        eye: [3, 20, -3],
+        eye: [3, 20, -1.5],
         rotation: new THREE.Vector3(-Math.PI / 2, 0, 0),
         cameraScale: kZoomLevel
     },
@@ -69,7 +69,7 @@ var views = [
         background: kBackgroundColor,
         eye: [10, 10, -10],
         target: new THREE.Vector3(0, 5, 0),
-        fov: 50
+        fov: 70
     },
     {
         screenPos: "top-right",
@@ -79,7 +79,7 @@ var views = [
         width: 0.5,
         height: 0.5,
         background: kBackgroundColor,
-        eye: [3, 5, 15],
+        eye: [3, 3, 15],
         rotation: new THREE.Vector3(0, 0, 0),
         cameraScale: kZoomLevel
     }
@@ -242,13 +242,13 @@ function init() {
     ik_target.add(l_finger);
     ik_target.add(r_finger);
 
-    var finger_between_geo_size = new THREE.Vector3(0.2, 0.2, 0.7);
+    var finger_between_geo_size = new THREE.Vector3(0.4, 0.3, 0.7);
     var finger_between_geo = new THREE.BoxGeometry(finger_between_geo_size.x, finger_between_geo_size.y, finger_between_geo_size.z);
 
     var finger_between = new THREE.Mesh(finger_between_geo, black_mat);
     finger_between.name = "finger_between";
     finger_between.visible = false;
-    finger_between.position.x += 0.15
+    //finger_between.position.x += 0.15
 
     finger_between.userData.obb = new OBB();
     finger_between.userData.obb.halfSize.copy(finger_between_geo_size).multiplyScalar(0.5);

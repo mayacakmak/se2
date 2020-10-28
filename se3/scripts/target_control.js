@@ -110,9 +110,9 @@ function TargetControl(ee, target) {
 
       }
       
-      //Control.checkEEatTarget();
 
       Control.updateControlPositions();
+      Control.checkEEatTarget();
       
       Control.fsm.emitEvent("cursor-click");
       window.setTimeout(Control.checkSuccess, 200);

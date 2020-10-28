@@ -64,7 +64,8 @@ function TargetDragControl(ee, target, transitionType) {
       Control.ee.threejs_object.rotation.z = Control.ee.threejs_object_ghost.rotation.z;
 
       //Control.checkAtTarget(Control.ghost);
-      //Control.checkEEatTarget();
+      Control.ee.threejs_object.updateMatrixWorld();
+      Control.checkEEatTarget();
       window.setTimeout(Control.checkSuccess, 200);
     }
 
@@ -160,9 +161,9 @@ function TargetDragControl(ee, target, transitionType) {
             break;
         }
         Control.updateControlPositions();
-        // Control.checkAtTarget(Control.ghost);
+        //Control.checkAtTarget(Control.ghost);
 
-        // Control.checkEEatTarget();
+        Control.checkEEatTarget();
       }
     }
     else
