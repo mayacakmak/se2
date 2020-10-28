@@ -125,7 +125,13 @@ function Control(name, ee, target, transitionType) {
       }
     }
   }
-
+  Control.limitPosetoViewBounds = function (pose, v) {
+    var screenPos = world_to_screen_space(pose, v);
+    //console.log(screenPos);
+    screenPos.x = clamp(screenPos.x, windowWidth * v.left, windowWidth * (v.left + v.width));
+    screenPos.y = clamp(screenPos.y, windowHeight * (1 - v.bottom - v.height), windowHeight * (1 - v.bottom));
+    return screen_to_world_space(screenPos, v);
+  }
 }
 
 /*

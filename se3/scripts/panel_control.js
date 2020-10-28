@@ -383,6 +383,10 @@ function PanelControl(ee, target, transitionType) {
           if (Control.currentRotSpeed < Control.maxRotSpeed)
             Control.currentRotSpeed += acceleration;
         }
+        Control.ee.threejs_object.updateMatrixWorld();
+        var newWorldPos = Control.limitPosetoViewBounds(Control.ee.threejs_object, views[1]);
+        Control.ee.threejs_object.position.x = newWorldPos.x;
+        Control.ee.threejs_object.position.z = newWorldPos.z;
         break;
       case "front":
         if (Control.fsm.currentState == "moving-left") {
@@ -421,6 +425,10 @@ function PanelControl(ee, target, transitionType) {
           if (Control.currentRotSpeed < Control.maxRotSpeed)
             Control.currentRotSpeed += acceleration;
         }
+        Control.ee.threejs_object.updateMatrixWorld();
+        var newWorldPos = Control.limitPosetoViewBounds(Control.ee.threejs_object, views[0]);
+        Control.ee.threejs_object.position.z = newWorldPos.z;
+        Control.ee.threejs_object.position.y = newWorldPos.y;
         break;
       case "side":
         if (Control.fsm.currentState == "moving-left") {
@@ -459,6 +467,10 @@ function PanelControl(ee, target, transitionType) {
           if (Control.currentRotSpeed < Control.maxRotSpeed)
             Control.currentRotSpeed += acceleration;
         }
+        Control.ee.threejs_object.updateMatrixWorld();
+        var newWorldPos = Control.limitPosetoViewBounds(Control.ee.threejs_object, views[3]);
+        Control.ee.threejs_object.position.x = newWorldPos.x;
+        Control.ee.threejs_object.position.y = newWorldPos.y;
         break;
     }
 
