@@ -92,7 +92,7 @@ function sampleConfigs(num) {
 
   // T4, same as T3, but rotated 90 degrees
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(1.5, 4),
+    pos: new THREE.Vector3(getRandomArbitrary(2, 4),
       getRandomArbitrary(1, 3),
       getRandomArbitrary(-4, 2)),
     rot: new THREE.Euler(0, 90 * DEG_TO_RAD, 90 * DEG_TO_RAD),
@@ -103,7 +103,7 @@ function sampleConfigs(num) {
 
   // T5, same as T3, but rotated 45 degrees
   sampleList.push({
-    pos: new THREE.Vector3(getRandomArbitrary(1.5, 4),
+    pos: new THREE.Vector3(getRandomArbitrary(2, 4),
       getRandomArbitrary(1, 3),
       getRandomArbitrary(-4, 2)),
     rot: new THREE.Euler(0, 45 * DEG_TO_RAD, 90 * DEG_TO_RAD),
