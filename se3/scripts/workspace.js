@@ -340,7 +340,9 @@ function resetIK(run_solveIK = true) {
 
 // Manually reset IK based on user input, also logs to the database
 function manualResetIK() {
-  resetIK();
+  // resetIK();
+  setEEPoseAtCenter();
+  Control.initialize(ee.pose);
   Database.logResetIK();
 }
 
