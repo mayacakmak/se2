@@ -342,7 +342,8 @@ function resetIK(run_solveIK = true) {
 function manualResetIK() {
   // resetIK();
   setEEPoseAtCenter();
-  Control.initialize(ee.pose);
+  Control.updateControlPositions();
+  //Control.initialize(ee.pose);
   Database.logResetIK();
 }
 
