@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Accessible Teleoperation Study</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="styles/style.processed.css">
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.0/firebase-database.js"></script>
+
+  <!-- 3d IK imports -->
+  <script src="scripts/3d/three.min.js"></script>
+  <script src="scripts/3d/ColladaLoader.js"></script>
+  <script src="scripts/3d/OBB.js"></script>
+  <script src="scripts/3d/fmin.min.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid d-flex align-items-center justify-content-center">
+    <div class="container-fixed" style="width: 1200px">
+      <div class="row mx-5 mt-4">
+        <h1>Practice</h1>
+      </div>
+      <div class="row mx-5">
+        <p>Now you can practice getting the arrow to the target for as long as you like. When you feel comfortable using
+          the interface, press Next to complete the interface tests.</p>
+      </div>
+      <div class="row mx-5">
+        <div id="ThreeJS"></div>
+        <div class="workspace-div" id="workspace-container" style="position:absolute;">
+          <svg class="workspace" id="workspace"></svg>
+        </div>
+        <!-- Add a outline around the 4 camera views using a table with borders -->
+        <table class="workspace-div">
+          <tr>
+            <td id="top-td" style="vertical-align:top; text-align:right">
+              <div class="h3">1</div>
+            </td>
+            <td id="side-td" style="vertical-align:top; text-align:right">
+              <div class="h3">2</div>
+            </td>
+          </tr>
+          <tr>
+            <td id="front-td" style="vertical-align:top; text-align:right">
+              <div class="h3">3</div>
+            </td>
+            <td id="perspective-td"></td>
+          </tr>
+        </table>
+      </div>
+      <div class="row mx-5 mt-3 mb-4 flex-row-reverse">
+        <button id="next-button" class="btn btn-primary" disabled onclick="startTest()">Next</button>
+        <button id="reset-ik" class="btn btn-primary mx-3" onclick="manualResetIK()">Reset Arm Pose</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"></div>
+  <script src="scripts/database.js"></script>
+  <script src="scripts/navigation.js"></script>
+  <script src="scripts/se3.js"></script>
+  <script src="scripts/control.js"></script>
+  <script src="scripts/drag_control.js"></script>
+  <script src="scripts/target_control.js"></script>
+  <script src="scripts/targetdrag_control.js"></script>
+  <script src="scripts/arrow_control.js"></script>
+  <script src="scripts/panel_control.js"></script>
+  <script src="scripts/3d/3d.js"></script>
+  <script src="scripts/3d/fmin.min.js"></script>
+  <script src="scripts/workspace.js"></script>
+  <script src="scripts/sampling.js"></script>
+  <script>loadInterface(false)</script>
+  <script>
+    $("#workspace-container").width(windowWidth);
+    $("#workspace-container").height(windowHeight);
+  </script>
+</body>
+
+</html>
