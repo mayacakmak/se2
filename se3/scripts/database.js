@@ -150,7 +150,8 @@ function Database() {
         targetPose: targetPose,
         startTime: {},
         status: "incomplete",
-        isTest: isTest
+        isTest: isTest,
+        reset_ik_num: 0
       }
       Database.insertTime(cycleInfo.startTime);
       Database.cid = dbRef.push(cycleInfo).key;
@@ -198,6 +199,34 @@ function Database() {
         }
         Database.insertTime(eventLog);
         dbRef.push(eventLog);
+      }
+    }
+  }
+
+
+  Database.logResetIK = function () {
+    if (Database.isLogging) {
+      if (Database.cid != null) {
+
+        // Add a reset_ik action to this cycle's action list
+        var dir = Database.rootPath + "cycles/" + Database.cid + "/events";
+        var dbRef = firebase.database().ref(dir);
+        eventLog = {
+          type: "reset_ik"
+        }
+        Database.insertTime(eventLog);
+        dbRef.push(eventLog);
+
+        // Increment the number of reset_ik under the properties for this cycle
+        firebase.database().ref(Database.rootPath + 'users/' + Database.uid + "/sessions/" + Database.sid + "/cycles/" + Database.cid + "/reset_ik_num").transaction(function (reset_ik_num) {
+          if (reset_ik_num) {
+            reset_ik_num++;
+          } else if (reset_ik_num == 0) {
+            reset_ik_num = 1;
+          }
+          return reset_ik_num;
+        });
+
       }
     }
   }

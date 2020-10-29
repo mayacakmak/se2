@@ -315,6 +315,9 @@ function setEEPoseAtCenter() {
     ee.threejs_object.quaternion.copy(ee_pose.quaternion);
   }
 
+  ee.threejs_object_ghost.position.copy(ee.threejs_object.position);
+  ee.threejs_object_ghost.quaternion.copy(ee.threejs_object.quaternion);
+
   resetIK()
 }
 
@@ -333,6 +336,12 @@ function resetIK(run_solveIK = true) {
     solveIK(ik_target, iterations);
     solveIK(ik_target, iterations);
   }
+}
+
+// Manually reset IK based on user input, also logs to the database
+function manualResetIK() {
+  resetIK();
+  Database.logResetIK();
 }
 
 function clearWorkspace() {

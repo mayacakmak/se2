@@ -74,7 +74,6 @@ function TargetDragControl(ee, target, transitionType) {
       switch (selectedView) {
         case "top":
           var newPos = screen_to_world_space(Control.firstClickPoint, views[1]);
-          console.log(Control.firstClickPoint, newPos, Control.ee.threejs_object_ghost.position)
           Control.ee.threejs_object_ghost.position.x = newPos.x;
           Control.ee.threejs_object_ghost.position.z = newPos.z;
           Control.ee.threejs_object_ghost.visible = true;

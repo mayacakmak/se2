@@ -113,9 +113,16 @@ function Control(name, ee, target, transitionType) {
         // if (calcQuaternionDist(ik_target.quaternion, eePose.quaternion) > 0.6)
         //  console.log("rot_error:", calcQuaternionDist(ik_target.quaternion, eePose.quaternion));
 
+
         // Run resetIK with a reduced number of iterations
         var temp = iterations;
-        iterations = 100;
+
+        if (controlTypesMap[controlType] == "target" || controlTypesMap[controlType] == "targetdrag") {
+          iterations = 1500;
+        } else {
+          iterations = 100;
+        }
+        
         resetIK();
         iterations = temp;
 
