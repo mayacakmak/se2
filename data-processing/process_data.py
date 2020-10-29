@@ -61,7 +61,7 @@ def resample(x, n, kind='linear'):
 
 # %%
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "1601175865.21"
+snapshot_name = "1602793554.53"
 
 # %% [markdown]
 ## Load data from Firebase

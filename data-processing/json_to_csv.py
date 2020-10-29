@@ -5,7 +5,7 @@ import os
 import simplejson as json
 
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "accessible-teleop-export-9-17-study"
+snapshot_name = "1602794450.64"
 
 # Load the json data
 json_snapshot = {}
