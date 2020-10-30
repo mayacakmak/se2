@@ -89,7 +89,10 @@ cycles_data = json_snapshot['cycles']
 # Gather UIDs from states/`interface_num`/completed
 uids = []
 for interface_num in state_data:
-    uids += interface_num['complete'].keys()
+    try:
+        uids += interface_num['complete'].keys()
+    except:
+        pass
 
 # %%
 # [interfaceIDs] is a set that contains one of each ID

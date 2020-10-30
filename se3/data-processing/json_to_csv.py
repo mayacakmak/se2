@@ -36,7 +36,8 @@ cycle_data_columns = ["startTime", "endTime", "control", "transitionType",
                       "targetDimX", "targetDimY", "targetDimZ",
                       "targetType", 
                       "uid", "sid", "cid", "interfaceID", 
-                      "numClicks", "draggingDuration", "resetIKNum"]
+                      "numClicks", "draggingDuration", "resetIKNum",
+                      "topViewDuration", "sideViewDuration", "frontViewDuration", "numViewSwitches"]
 cycle_data = []
 
 questionnaire_data_columns = []
@@ -49,6 +50,9 @@ interfaceIDs = set()
 
 for uid in user_data:
     if uid in uids:
+        # The view is not reset when a new cycle is started
+        # We need to track how it changes across cycles to make sure that the starting view of a cycle is correct
+        current_view = 'top'
         for sid in user_data[uid]['sessions']:
             if 'cycles' in user_data[uid]['sessions'][sid]:
                 for cid in user_data[uid]['sessions'][sid]['cycles']:
@@ -94,20 +98,50 @@ for uid in user_data:
 
                             numClicks = 0
                             draggingDuration = 0
+
+                            topViewDuration = 0
+                            sideViewDuration = 0
+                            frontViewDuration = 0
+                            numViewSwitches = 0
                             
-                            start_time = -1
+                            start_dragging_time = -1
+                            start_view_time = cycle['startTime']['timestamp']
                             for eventID in cycles_data[cid]['events']:
                                 event = cycles_data[cid]['events'][eventID]
                                 if event['type'] == 'action':
                                     numClicks += 1
 
                                     if event['prevState'] == 'cursor-free':
-                                        start_time = event['timestamp']
+                                        start_dragging_time = event['timestamp']
                                     if event['prevState'] != 'cursor-free':
-                                        draggingDuration += event['timestamp'] - start_time
-                            draggingDuration /= 1000
+                                        draggingDuration += event['timestamp'] - start_dragging_time
+                                if event['type'] == 'view_change':
+                                    numViewSwitches += 1
+                                    temp = event['timestamp'] - start_view_time
+                                    if current_view == 'top':
+                                        topViewDuration += temp
+                                    elif current_view == 'side':
+                                        sideViewDuration += temp
+                                    elif current_view == 'front':
+                                        frontViewDuration += temp
+                                    start_view_time = event['timestamp']
+                                    current_view = event['view']
+                            
+                            # We need to make sure we account for the time from the last view switch until the end
+                            temp = cycle['endTime']['timestamp'] - start_view_time
+                            if current_view == 'top':
+                                topViewDuration += temp
+                            elif current_view == 'side':
+                                sideViewDuration += temp
+                            elif current_view == 'front':
+                                frontViewDuration += temp
 
-                            if transitionType == 'press/release':
+                            draggingDuration /= 1000
+                            topViewDuration /= 1000
+                            sideViewDuration /= 1000
+                            frontViewDuration /= 1000
+
+                            if transitionType != 'press/release':
                                 draggingDuration = -1
 
                             cycle_data.append([startTime, endTime, control, transitionType, 
@@ -116,7 +150,8 @@ for uid in user_data:
                                                targetDimX, targetDimY, targetDimZ,
                                                targetType, 
                                                uid, sid, cid, interfaceID, 
-                                               numClicks, draggingDuration, resetIKNum])
+                                               numClicks, draggingDuration, resetIKNum,
+                                               topViewDuration, sideViewDuration, frontViewDuration, numViewSwitches])
 
 
             if 'questionnaires' in user_data[uid]['sessions'][sid]:
@@ -141,9 +176,9 @@ cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 Disable filtering because there is not enoughd data at the moment
 
 uid_counts = cycles_df.uid.value_counts()
-uid_filter_36 = uid_counts[uid_counts == 36]
+uid_filter_5 = uid_counts[uid_counts == 5]
 
-cycles_df = cycles_df[cycles_df['uid'].isin(list(uid_filter_36.index))]
+cycles_df = cycles_df[cycles_df['uid'].isin(list(uid_filter_5.index))]
 
 multi_level_index = pd.pivot_table(cycles_df, index=["interfaceID", "uid"])
 for interfaceID in interfaceIDs:
