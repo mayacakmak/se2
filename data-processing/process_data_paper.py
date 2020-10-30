@@ -245,7 +245,7 @@ for rect1 in rects1[0:4]:
     ax.text(0.1, rect1.get_y() + 0.22, '$\it{P/R}$', c="white", fontsize=12, fontweight='bold')
 
 for rect2 in rects2:
-    ax.text(0.1, rect2.get_y() + 0.22, '$\it{Cycle}$', c="white", fontsize=12, fontweight='bold')
+    ax.text(0.1, rect2.get_y() + 0.22, '$\it{Click}$', c="white", fontsize=12, fontweight='bold')
 
 plt.tight_layout()
 
