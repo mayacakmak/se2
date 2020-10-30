@@ -5,23 +5,23 @@ var transitionTypes = ["press/release", "click"];
 //    some urls are repeated or placeholders are used just to test that everything is working
 var videoIds = {
     "arrow": {
-        "press/release": "8jFbHrpaptU",
-        "click": "ADlGCOGRjxc"
+        "press/release": "ciDJ-NLr_Tg",
+        "click": "ciDJ-NLr_Tg"
     },
     "drag": {
-        "press/release": "A-mzWlPjxDU",
-        "click": "W2uMjeDp4LI"
+        "press/release": "TopgXGcI9cQ",
+        "click": "TopgXGcI9cQ"
     },
     "target": {
-        "click": "-qUV753YINg"
+        "click": "W7hsfnFKDLU"
     },
     "targetdrag": {
-        "press/release": "YEVwIV0PPDE",
-        "click": "VpbocBmKBLk"
+        "press/release": "0-bn1FVWSxs",
+        "click": "0-bn1FVWSxs"
     },
     "panel": {
-        "press/release": "B8QkeA3O_RY",
-        "click": "Y_t3GDRDD_s"
+        "press/release": "3fC6vZYEwyA",
+        "click": "3fC6vZYEwyA"
     }
 }
 

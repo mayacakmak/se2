@@ -1,3 +1,14 @@
+// INDEXES of the interfaces in Firebase
+// 0:[0, 0] - arrow **
+// 1:[0, 1] - arrow-click
+// 2:[1, 0] - drag **
+// 3:[1, 1] - drag-click
+// 4:[2, 1] - target-click **
+// 5:[3, 0] - targetdrag
+// 6:[3, 1] - targetdrag-click **
+// 7:[4, 0] - panel **
+// 8:[4, 1] - panel-click
+
 var interface_nums = [[0, 0], [0, 1], [1, 0], [1, 1], [2, 1], [3, 0], [3, 1], [4, 0], [4, 1]];
 var interface_nums_inverse = {
   0: {

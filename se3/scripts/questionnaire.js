@@ -224,7 +224,7 @@ var questions = {
                 {
                     "type": "radio",
                     "layout": "horizontal",
-                    "title": "The control interface allowed efficient control of the object.",
+                    "title": "The control interface allowed efficient control of the robot hand.",
                     "text": "",
                     "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
                     "display-options": true,
@@ -235,7 +235,7 @@ var questions = {
                 },
                 {
                     "type": "text",
-                    "title": "How could the interface be improved to allow faster control of the object?",
+                    "title": "How could the interface be improved to allow faster control of the robot hand?",
                     "required": true,
                     "id": "how-control-more-efficient"
                 },
@@ -286,42 +286,6 @@ var questions = {
                     "title": "How could the interface be improved for better accessibility?",
                     "required": false,
                     "id": "how-control-more-accessible"
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Flexible targets were easier to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true,
-                    "id": "flex-targets-easier"
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Far away targets were harder to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true,
-                    "id": "far-away-harder"
-                },
-                {
-                    "type": "radio",
-                    "layout": "horizontal",
-                    "title": "Targets with large rotation differences were harder to reach.",
-                    "text": "",
-                    "options": ["Strongly disagree", "Somewhat disagree", "Neither agree/nor disagree", "Somewhat agree", "Strongly agree"],
-                    "display-options": true,
-                    "left-text": "",
-                    "right-text": "",
-                    "required": true,
-                    "id": "large-rotation-harder"
                 },
                 {
                     "type": "text",
