@@ -21,7 +21,7 @@ import copy
 color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
 
 # %%
-snapshot_name = "accessible-teleop-export-9-17-study-questionnaires-fixed-order"
+snapshot_name = "1604030078.5142221-questionnaires"
 
 cycles_df = pd.read_csv(snapshot_name + ".csv", index_col=0)
 
@@ -111,12 +111,11 @@ for i, questionID in enumerate(questionIDs):
 
     data = []
     for interfaceID in interfaceIDs:
-        data.append(interface_dfs[interfaceID][questionIDs[questionID]].values)
+        data.append(interface_dfs[interfaceID][questionIDs[questionID]].values.flatten())
 
-    ax.boxplot(data)
+    ax.boxplot(data, labels=interfaceIDs, showmeans=True, meanline=True)
 
     ax.set_yticks(np.arange(1, 8))
     ax.set_ylim([0,8])
-    ax.set_xticklabels(interfaceIDs)
     plt.xticks(rotation=90)
 # %%
