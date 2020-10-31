@@ -393,7 +393,8 @@ function success() {
     }
   }
   else {
-    if (currentTest == 5) {
+    if (currentTest >= 5) {
+      console.log('next is enabled')
       let btn = document.getElementById("next-button");
       btn.disabled = false;
     }
