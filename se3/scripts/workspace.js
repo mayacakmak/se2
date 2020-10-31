@@ -100,7 +100,7 @@ var control = null;
 var offline = false;
 var hasTimer = false;
 var isTest = false;
-var testConfigs = null;
+var testConfigs = [];
 var currentTest = 0;
 
 /*
@@ -393,8 +393,8 @@ function success() {
     }
   }
   else {
+    console.log(currentTest);
     if (currentTest >= 5) {
-      console.log('next is enabled')
       let btn = document.getElementById("next-button");
       btn.disabled = false;
     }

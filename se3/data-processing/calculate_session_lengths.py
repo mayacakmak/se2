@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "1604043846.2768369"
+snapshot_name = "1604179441.9017837"
 
 json_snapshot = {}
 with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
