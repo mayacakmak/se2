@@ -342,7 +342,11 @@ function resetIK(run_solveIK = true) {
 function manualResetIK() {
   // resetIK();
   setEEPoseAtCenter();
-  Control.updateControlPositions(update_svg = false);
+  if (controlTypes[currentControl] == 'panel') {
+    Control.updateControlPositions(update_svg = false);
+  } else {
+    Control.updateControlPositions();
+  }
   //Control.initialize(ee.pose);
   Database.logResetIK();
 }
