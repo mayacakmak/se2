@@ -130,7 +130,7 @@ def plot_bar_chart(interface_dfs, label, x_label, x_lim):
         ax.text(0.1, rects[i].get_y() + 0.64, '$\it{'+study2types[i]+'}$', c="white", fontsize=22, fontfamily="Times New Roman")
 
     plt.tight_layout()
-    plt.savefig('data/' + label + '.pdf')
+    plt.savefig('data/study2' + label + '.pdf')
     # plt.show()
 
 
