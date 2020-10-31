@@ -111,8 +111,8 @@ def plot_scatter(interface_dfs):
 
         ax.plot(lineax[0], lineax[1], c="black", linewidth=2.0)
         bx.plot(linebx[0], linebx[1], c="black", linewidth=2.0)
-        ax.text(80, 30, '$\mathbf{R^2}$ = %0.2f' %(1-r_squaredax), c="black", fontsize=20)
-        bx.text(10, 30, '$\mathbf{R^2}$ = %0.2f' %(1-r_squaredbx), c="black", fontsize=20)
+        # ax.text(80, 30, '$\mathbf{R^2}$ = %0.2f' %(1-r_squaredax), c="black", fontsize=20)
+        # bx.text(10, 30, '$\mathbf{R^2}$ = %0.2f' %(1-r_squaredbx), c="black", fontsize=20)
         
         #_, _, r_val, _, _ = scp.stats.linregress(interface_df['targetDistance'], interface_df['cycleLength'])
         #print(r_val**2)

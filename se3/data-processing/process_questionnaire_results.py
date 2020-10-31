@@ -11,6 +11,9 @@ import numpy as np
 import seaborn as sns
 from sklearn.preprocessing import normalize
 
+plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.size"] = 18
+plt.rcParams["axes.labelsize"] = 'medium'
 
 # General
 import os
@@ -18,18 +21,25 @@ import simplejson as json
 import time
 import copy
 
-color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
-
-# %%
 snapshot_name = "se3-10-31-filtered-questionnaires"
+color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
+targetplotcolors = ['#ffe500','#ff9405','#ff4791','#007bff','#09bc6b']
+questionIDs = {
+    "Mental Demand": ["section-0-question-0", "section-0-question-1", "section-0-question-2"],
+    "Physical Demand": ["section-0-question-3", "section-0-question-4", "section-0-question-5"],
+    "Temporal Demand": ["section-0-question-6", "section-0-question-7"],
+    "Effort": ["section-0-question-10"],
+    "Frustration Level": ["section-0-question-11", "section-0-question-12", "section-0-question-13"]
+}
+
 
 cycles_df = pd.read_csv('data/' + snapshot_name + ".csv", index_col=0)
-
 interfaceIDs = cycles_df.interfaceID.unique()
-
-# Reverse coded scales
 cycles_df["section-0-question-11"] = 8 - cycles_df["section-0-question-11"]
 cycles_df["section-0-question-12"] = 8 - cycles_df["section-0-question-12"]
+
+study2conditions = ['panel-press/release','arrow-press/release','drag-press/release','targetdrag-click','target-click']
+study2names = ['Fixed','ArrowRing','CircleRing','TargetAnchor','TargetRing']
 
 interface_dfs = {}
 for interfaceID in interfaceIDs:
@@ -37,93 +47,74 @@ for interfaceID in interfaceIDs:
 
 cycles_df.head()
 
-# %%
-
-questionIDs = {
-    "Mental Demand": ["section-0-question-0", "section-0-question-1", "section-0-question-2"],
-    "Physical Demand": ["section-0-question-3", "section-0-question-4", "section-0-question-5"],
-    "Temporal Demand": ["section-0-question-6", "section-0-question-7"],
-    "Effort": ["section-0-question-10"],
-    "Frustration Level": ["section-0-question-11", "section-0-question-12", "section-0-question-13"]
-}
-
-fig = plt.figure()
-X = np.arange(len(interfaceIDs))
-ax = fig.add_axes([0,0,1,1])
-
-w = 0.15
-
-handles = []
-
-for i, questionID in enumerate(questionIDs):
-    #print(i, questionID)
-    data = []
-    for interfaceID in interfaceIDs:
-        data.append(np.average(interface_dfs[interfaceID][questionIDs[questionID]].values.tolist()))
-    handles.append(ax.bar(X + w*i, data, color = color_list[i], width = w*0.6, label=questionID))
-
-ax.set_yticks(np.arange(1, 8))
-ax.set_ylim([0,8])
-
-ax.set_xticks(X)
-ax.set_xticklabels(interfaceIDs)
-plt.xticks(rotation=90)
-
-ax.legend(handles=handles)
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-
-# %%
-questionIDs = {
-    "Mental Demand": ["section-0-question-0", "section-0-question-1", "section-0-question-2"],
-    "Physical Demand": ["section-0-question-3", "section-0-question-4", "section-0-question-5"],
-    "Temporal Demand": ["section-0-question-6", "section-0-question-7"],
-    "Effort": ["section-0-question-10"],
-    "Frustration Level": ["section-0-question-11", "section-0-question-12", "section-0-question-13"]
-}
-
 fig = plt.figure()
 X = np.arange(len(questionIDs))
 ax = fig.add_axes([0,0,1,1])
 
-w = 0.1
-
-handles = []
-
-for i, interfaceID in enumerate(interfaceIDs):
-    data = []
-    for questionID in questionIDs:
-        data.append(np.average(interface_dfs[interfaceID][questionIDs[questionID]].values.tolist()))
-    handles.append(ax.bar(X + w*i, data, color = color_list[i], width = w*0.6, label=interfaceID))
-
-ax.set_yticks(np.arange(1, 8))
-ax.set_ylim([0,8])
-
-ax.set_xticks(X)
-ax.set_xticklabels(questionIDs)
-plt.xticks(rotation=90)
-
-ax.legend(handles=handles)
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-
 # %%
-fig = plt.figure(figsize=(16,20))
+fig = plt.figure(figsize=(12,3))
 fig.subplots_adjust(hspace=0.5, wspace=0.3)
 
 for i, questionID in enumerate(questionIDs):
-    ax = plt.subplot("33"+str(i+1))
-    ax.set_title(questionID)
+    # ax = plt.subplot("33"+str(i+1))
+    ax = plt.subplot(1,5,i+1)
+    ax.set_title(questionID, fontsize=18, fontstyle='italic')
 
     data = []
-    for interfaceID in interfaceIDs:
+    for interfaceID in study2conditions:
         data.append(interface_dfs[interfaceID][questionIDs[questionID]].values.flatten())
 
-    ax.boxplot(data, labels=interfaceIDs, showmeans=True, meanline=True)
+    if i == 0:
+        ax.boxplot(data, labels=study2names, showmeans=True, meanline=True, vert=False)
+        for ytick, color in zip(ax.get_yticklabels(), targetplotcolors):
+            ytick.set_color(color)
+    else:
+        ax.boxplot(data, labels=['','', '', '', ''], showmeans=True, meanline=True, vert=False)
 
-    ax.set_yticks(np.arange(1, 8))
-    ax.set_ylim([0,8])
-    plt.xticks(rotation=90)
+    ax.set_xticks(np.arange(1, 8))
+    ax.set_xlim([0,8])
+    # plt.xticks(rotation=90)
+
 
 plt.tight_layout()
-plt.savefig('data/questionnaire.pdf')
+plt.savefig('data/study2nasatlx.pdf')
+
+
+
+
+
+# w = 0.1
+# handles = []
+# for i, interfaceID in enumerate(study2conditions):
+#     data = []
+#     for questionID in questionIDs:
+#         data.append(np.average(interface_dfs[interfaceID][questionIDs[questionID]].values.tolist()))
+#     handles.append(ax.bar(X + w*i, data, color = color_list[i], width = w*0.6, label=interfaceID))
+
+# ax.set_yticks(np.arange(1, 8))
+# ax.set_ylim([0,8])
+# ax.set_xticks(X)
+# ax.set_xticklabels(questionIDs)
+# ax.legend(handles=handles)
+# plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
 
 # %%
+# fig = plt.figure()
+# X = np.arange(len(interfaceIDs))
+# ax = fig.add_axes([0,0,1,1])
+# w = 0.15
+# handles = []
+# for i, questionID in enumerate(questionIDs):
+#     #print(i, questionID)
+#     data = []
+#     for interfaceID in interfaceIDs:
+#         data.append(np.average(interface_dfs[interfaceID][questionIDs[questionID]].values.tolist()))
+#     handles.append(ax.bar(X + w*i, data, color = color_list[i], width = w*0.6, label=questionID))
+# ax.set_yticks(np.arange(1, 8))
+# ax.set_ylim([0,8])
+# ax.set_xticks(X)
+# ax.set_xticklabels(interfaceIDs)
+# plt.xticks(rotation=90)
+# ax.legend(handles=handles)
+# plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
