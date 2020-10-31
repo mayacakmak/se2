@@ -78,9 +78,9 @@ def plot_everything():
     # %% [markdown]
     ## Time stats per interface
 
-    # plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)')
-    # plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks')
-    # plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)')
+    plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)')
+    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks')
+    plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)')
 
     plot_scatter(all_interface_dfs)
 
@@ -193,7 +193,7 @@ def plot_bar_chart(interface_dfs, label, y_label):
     rects2 = ax.barh(y_pos + width/2, means_clicks, width, xerr=errors_clicks, 
         alpha=1.0, color=targetplotcolors, ecolor="gray", capsize=16, zorder=2)
     # ax.set_ylabel('Interface',fontsize=24)
-    ax.set_xlabel(y_label,fontsize=24)
+    ax.set_xlabel(y_label,fontsize=24, fontstyle='italic')
     ax.set_yticks(y_pos)
     ax.set_yticklabels(targetplotnames)
     #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
