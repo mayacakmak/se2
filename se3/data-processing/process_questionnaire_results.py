@@ -21,7 +21,7 @@ import copy
 color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
 
 # %%
-snapshot_name = "1604043846.2768369-questionnaires"
+snapshot_name = "data/se3-10-31-filtered-questionnaires"
 
 cycles_df = pd.read_csv(snapshot_name + ".csv", index_col=0)
 

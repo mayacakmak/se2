@@ -60,7 +60,7 @@ def resample(x, n, kind='linear'):
 ## Firebase snapshot and other inputs
 
 # %%
-snapshot_name = "1604043846.2768369-cycles"
+snapshot_name = "data/se3-10-31-filtered-cycles"
 
 cycles_df = pd.read_csv(snapshot_name+".csv", index_col=0)
 interfaceIDs = cycles_df.interfaceID.unique()
