@@ -96,7 +96,7 @@ for uid in user_data:
                                         dragging_duration += event['timestamp'] - start_time
                             dragging_duration /= 1000
 
-                            if transitionType == 'press/release':
+                            if transitionType != 'press/release':
                                 dragging_duration = -1
 
                             cycle_data.append([startTime, endTime, control, transitionType, targetX, targetY, targetTheta, threshXY, threshTheta, uid, sid, cid, interfaceID, num_clicks, dragging_duration])
