@@ -135,15 +135,15 @@ def plot_scatter(interface_dfs):
         ax.tick_params(axis='both', which='major', labelsize=20)
         bx.tick_params(axis='both', which='major', labelsize=20)
 
-        ax.set_xlabel('Target distance', fontsize=24)
+        ax.set_xlabel('Target distance', fontsize=24, fontstyle='italic')
         ax.set_ylim([0, 40])
         
-        bx.set_xlabel('Target size', fontsize=24)
+        bx.set_xlabel('Target size', fontsize=24, fontstyle='italic')
         bx.set_ylim([0, 40])
         
         if i == 0:
-            ax.set_ylabel('Time', fontsize=24)
-            bx.set_ylabel('Time', fontsize=24)
+            ax.set_ylabel('Time (sec)', fontsize=24, fontstyle='italic')
+            bx.set_ylabel('Time (sec)', fontsize=24, fontstyle='italic')
     
 
     plt.tight_layout()
