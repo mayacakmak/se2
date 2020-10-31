@@ -9,7 +9,7 @@ from urllib.parse import parse_qs
 import random
 
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "1604043846.2768369"
+snapshot_name = "1604138024.59"
 # snapshot_name = "accessible-teleop-export-9-17-study-fixed-order"
 
 # Load the json data
@@ -174,6 +174,7 @@ cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
 '''
 
 Disable filtering because there is not enoughd data at the moment
+'''
 
 uid_counts = cycles_df.uid.value_counts()
 uid_filter_5 = uid_counts[uid_counts == 5]
@@ -186,7 +187,6 @@ for interfaceID in interfaceIDs:
     cycles_df = cycles_df[~cycles_df['uid'].isin(to_delete)]
 
 cycles_df.reset_index(inplace = True, drop = True)
-'''
 
 # Calculate the length of each cycle
 cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
