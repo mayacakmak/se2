@@ -38,8 +38,8 @@ interfaceIDs = cycles_df.interfaceID.unique()
 cycles_df["section-0-question-11"] = 8 - cycles_df["section-0-question-11"]
 cycles_df["section-0-question-12"] = 8 - cycles_df["section-0-question-12"]
 
-study2conditions = ['panel-press/release','arrow-press/release','drag-press/release','targetdrag-click','target-click']
-study2names = ['Fixed','ArrowRing','CircleRing','TargetAnchor','TargetRing']
+study2conditions = ['target-click','targetdrag-click','drag-press/release','arrow-press/release','panel-press/release']
+study2names = ['TargetRing','TargetAnchor','CircleRing','ArrowRing','Fixed']
 
 interface_dfs = {}
 for interfaceID in interfaceIDs:
