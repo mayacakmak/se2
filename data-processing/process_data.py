@@ -18,43 +18,6 @@ import simplejson as json
 import time
 import copy
 
-# %%
-# Custom tools
-
-def fit_line(x, y):
-    '''
-    Fits a line to an input set of points
-
-    Returns a tuple of the x and y components of the line
-
-    Adapted from: https://stackoverflow.com/a/31800660/6454085
-    '''
-    return np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x))
-
-def pad_with_zeros(a, new_length):
-    '''
-    Pads a 1D array with zeros
-
-    If the array is less than the input length it will not be changed
-    '''
-    a = np.array(a)
-    if a.shape[0] >= new_length:
-        return a
-    else:
-        return np.pad(a, (0, new_length-a.shape[0]), mode='constant', constant_values=0)
-
-def remap_array(a, low1, high1, low2, high2):
-    '''
-    Remaps a numpy array to a specific range
-    '''
-    return low2 + (high2 - low2) * (a - low1) / (high1 - low1)
-
-def resample(x, n, kind='linear'):
-    x = np.array(x)
-    f = interpolate.interp1d(np.linspace(0, 1, x.size), x, kind)
-    return f(np.linspace(0, 1, n))
-
-    
 
 # %% [markdown]
 ## Firebase snapshot and other inputs
@@ -395,3 +358,42 @@ for i, interfaceID in enumerate(interfaceIDs):
     ax.xaxis.set_ticks(np.arange(start, end, 1))
 
 # %%
+
+
+# %%
+# Custom tools
+
+def fit_line(x, y):
+    '''
+    Fits a line to an input set of points
+
+    Returns a tuple of the x and y components of the line
+
+    Adapted from: https://stackoverflow.com/a/31800660/6454085
+    '''
+    return np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x))
+
+def pad_with_zeros(a, new_length):
+    '''
+    Pads a 1D array with zeros
+
+    If the array is less than the input length it will not be changed
+    '''
+    a = np.array(a)
+    if a.shape[0] >= new_length:
+        return a
+    else:
+        return np.pad(a, (0, new_length-a.shape[0]), mode='constant', constant_values=0)
+
+def remap_array(a, low1, high1, low2, high2):
+    '''
+    Remaps a numpy array to a specific range
+    '''
+    return low2 + (high2 - low2) * (a - low1) / (high1 - low1)
+
+def resample(x, n, kind='linear'):
+    x = np.array(x)
+    f = interpolate.interp1d(np.linspace(0, 1, x.size), x, kind)
+    return f(np.linspace(0, 1, n))
+
+    
