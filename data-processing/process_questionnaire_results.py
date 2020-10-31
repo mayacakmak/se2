@@ -21,9 +21,12 @@ import copy
 color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
 
 # %%
-snapshot_name = "1604030078.5142221-questionnaires"
+snapshot_name = "se2-10-29-filtered-questionnaires"
+cycles_df = pd.read_csv("data/" + snapshot_name + ".csv", index_col=0)
 
-cycles_df = pd.read_csv(snapshot_name + ".csv", index_col=0)
+# Reverse coded scales
+cycles_df["section-0-question-11"] = 8 - cycles_df["section-0-question-11"]
+cycles_df["section-0-question-12"] = 8 - cycles_df["section-0-question-12"]
 
 interfaceIDs = cycles_df.interfaceID.unique()
 
@@ -119,3 +122,6 @@ for i, questionID in enumerate(questionIDs):
     ax.set_ylim([0,8])
     plt.xticks(rotation=90)
 # %%
+
+plt.tight_layout()
+plt.savefig('data/questionnaire.pdf')
