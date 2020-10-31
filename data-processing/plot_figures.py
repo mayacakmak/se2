@@ -108,6 +108,7 @@ def plot_scatter(interface_dfs):
         linebx = fit_line(interface_df['threshXY'], interface_df['cycleLength'])
         r_squaredax = lineax[2]
         r_squaredbx = linebx[2]
+
         ax.plot(lineax[0], lineax[1], c="black", linewidth=2.0)
         bx.plot(linebx[0], linebx[1], c="black", linewidth=2.0)
         ax.text(80, 30, '$\mathbf{R^2}$ = %0.2f' %(1-r_squaredax), c="black", fontsize=20)
@@ -234,11 +235,19 @@ def fit_line(x, y):
     Returns a tuple of the x and y components of the line
     Adapted from: https://stackoverflow.com/a/31800660/6454085
     '''
-    correlation_matrix = np.corrcoef(x,y)
-    correlation_xy = correlation_matrix[0,1]
-    r_squared = correlation_xy**2
+    #correlation_matrix = np.corrcoef(x,y)
+    #correlation_xy = correlation_matrix[0,1]
+    #r_squared = correlation_xy**2
 
-    return np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)), r_squared
+    y_hat = np.poly1d(np.polyfit(x, y, 1))(x)
+    y_bar =np.sum(y)/len(y)
+
+    ssres = np.sum((y_hat - y)**2)
+    sstot = np.sum((y - y_bar)**2)
+
+    r_squared = ssres / sstot
+
+    return x, y_hat, r_squared
 
 def pad_with_zeros(a, new_length):
     '''

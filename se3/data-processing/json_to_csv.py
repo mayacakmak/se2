@@ -191,9 +191,14 @@ cycles_df.reset_index(inplace = True, drop = True)
 # Calculate the length of each cycle
 cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
 
-# Calculate the euclidean distace between where the ee starts (357, 249) and the target
-#cycles_df['targetDistance'] = ((cycles_df['targetX'] - 357) ** 2 + (cycles_df['targetY'] - 249) ** 2) ** 0.5
+# Insert starting rotation and position of the EE nito the 
+cycles_df['eeLocX'] = 5.511428117752075
+cycles_df['eeLocY'] = 2.489123249053955
+cycles_df['eeLocZ'] = -4.494971823692322
 
+cycles_df['eeRotX'] = 0
+cycles_df['eeRotY'] = 0
+cycles_df['eeRotZ'] = 0
 # Save the cycles to disk
 cycles_df.to_csv(snapshot_name+"-cycles.csv")
 
