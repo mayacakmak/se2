@@ -100,7 +100,7 @@ var control = null;
 var offline = false;
 var hasTimer = false;
 var isTest = false;
-var testConfigs = null;
+var testConfigs = [];
 var currentTest = 0;
 
 /*
@@ -342,7 +342,11 @@ function resetIK(run_solveIK = true) {
 function manualResetIK() {
   // resetIK();
   setEEPoseAtCenter();
-  Control.updateControlPositions();
+  if (controlTypes[currentControl] == 'panel') {
+    Control.updateControlPositions(update_svg = false);
+  } else {
+    Control.updateControlPositions();
+  }
   //Control.initialize(ee.pose);
   Database.logResetIK();
 }
@@ -389,7 +393,8 @@ function success() {
     }
   }
   else {
-    if (currentTest == 5) {
+    console.log(currentTest);
+    if (currentTest >= 5) {
       let btn = document.getElementById("next-button");
       btn.disabled = false;
     }

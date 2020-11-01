@@ -9,7 +9,7 @@ from urllib.parse import parse_qs
 import random
 
 snapshot_folder = "firebase-snapshots"
-snapshot_name = "1604138024.59"
+snapshot_name = "1604183639.9990926"
 # snapshot_name = "accessible-teleop-export-9-17-study-fixed-order"
 
 # Load the json data
@@ -181,11 +181,22 @@ uid_filter_5 = uid_counts[uid_counts == 5]
 
 cycles_df = cycles_df[cycles_df['uid'].isin(list(uid_filter_5.index))]
 
+print(cycles_df.interfaceID.value_counts())
+
 multi_level_index = pd.pivot_table(cycles_df, index=["interfaceID", "uid"])
 for interfaceID in interfaceIDs:
-    to_delete = list(multi_level_index.loc[interfaceID].index)[24:]
+    to_delete = list(multi_level_index.loc[interfaceID].index)[12:]
     cycles_df = cycles_df[~cycles_df['uid'].isin(to_delete)]
 
+cycles_df.reset_index(inplace = True, drop = True)
+
+u_dfs = []
+for uid in cycles_df.uid.unique():
+    u_df = cycles_df[cycles_df['uid'] == uid].sort_values(by="startTime")
+    u_df.reset_index(inplace = True, drop = True)
+    u_df['taskID'] = u_df.index.values.copy()
+    u_dfs.append(u_df)
+cycles_df = pd.concat(u_dfs)
 cycles_df.reset_index(inplace = True, drop = True)
 
 # Calculate the length of each cycle

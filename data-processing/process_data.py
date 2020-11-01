@@ -22,10 +22,6 @@ import copy
 # %% [markdown]
 ## Firebase snapshot and other inputs
 
-# %%
-snapshot_folder = "firebase-snapshots"
-snapshot_name = "1602793554.53"
-
 # %% [markdown]
 ## Load data from Firebase
 # The data is loaded from a .json file and converted into a pandas DataFrame, and a dictionary.
@@ -38,91 +34,11 @@ snapshot_name = "1602793554.53"
 # - The status of the cycle (incomplete or complete)
 # - The pose (X, Y, and Theta) of the target
 #
-#The dictionary [action_list] is organized by interfaceID, and contains all the action chains that made up cycles
-#It is used to calcuate specific data about specific actions (for example % of time spent orienting vs translating)
-#
 # %%
-json_snapshot = {}
-with open(os.path.join(snapshot_folder, snapshot_name + ".json")) as f:
-    json_snapshot = json.load(f)
-user_data = json_snapshot['users'] 
-state_data = json_snapshot['state'] 
+snapshot_name = "data/se2-10-29-filtered-cycles"
 
-# Gather UIDs from states/`interface_num`/completed
-uids = []
-for interface_num in state_data:
-    uids += interface_num['complete'].keys()
-
-# %%
-# [interfaceIDs] is a set that contains one of each ID
-# We use it later on to separate the dataframe by interface
-interfaceIDs = set()
-
-cycle_data_columns = ["startTime", "endTime", "status", "control", "transitionType", "interfaceID", "targetX", "targetY", "targetTheta", "threshXY", "threshTheta"]
-cycle_data = []
-
-action_list = {}
-
-for uid in user_data:
-    if uid in uids:
-        for sid in user_data[uid]['sessions']:
-            if 'cycles' in user_data[uid]['sessions'][sid]:
-                for cid in user_data[uid]['sessions'][sid]['cycles']:
-                    cycle = user_data[uid]['sessions'][sid]['cycles'][cid]
-                    
-                    if 'isTest' not in cycle:
-                        continue
-
-                    if cycle['isTest']:
-                        # Update cycle_data with general information about the cycle
-                        startTime = cycle['startTime']['timestamp'] / 1000
-                        status = cycle['status']
-
-                        # There is no end timestamp if the cycle is incomplete
-                        endTime = startTime
-                        if status == "complete":
-                            endTime = cycle['endTime']['timestamp'] / 1000
-
-                        control = cycle['control']
-                        transitionType = cycle['transitionType']
-                        interfaceID = control + "." +transitionType
-
-                        interfaceIDs.add(interfaceID)
-
-                        targetX = cycle['targetPose']['x']
-                        targetY = cycle['targetPose']['y']
-                        targetTheta = cycle['targetPose']['theta']
-                        threshXY = cycle['targetPose']['threshXY']
-                        threshTheta = cycle['targetPose']['threshTheta']
-
-                        cycle_data.append([startTime, endTime, status, control, transitionType, interfaceID, targetX, targetY, targetTheta, threshXY, threshTheta])
-
-                        # Update action_list with the set of actions for this cycle
-                        if 'events' in cycle: # Sometimes the last cycle of a session has no action so we skip it
-                            actions = []
-                            for aid in cycle['events']:
-
-                                # We want to ignore any events that are just ee pose logs, and only keep user actions
-                                if cycle['events'][aid]['type'] != 'pose':
-                                    # We want to remove any actions that are just a release of the cursor
-                                    action_type = cycle['events'][aid]['newState']
-                                    if action_type != "cursor-free":
-                                        actions.append(action_type)
-                                    elif interfaceID == "target.click" or interfaceID == "targetdrag.click":
-                                        actions.append(action_type)
-                            
-                            if interfaceID in action_list:
-                                action_list[interfaceID].append(actions)
-                            else:
-                                action_list[interfaceID] = [actions]
-
-# %%
-cycles_df = pd.DataFrame(cycle_data, columns=cycle_data_columns)
-cycles_df['cycleLength'] = cycles_df['endTime'] - cycles_df['startTime']
-
-# Calculate the euclidean distace between where the ee starts (357, 249) and the target
-cycles_df['targetDistance'] = ((cycles_df['targetX'] - 357) ** 2 + (cycles_df['targetY'] - 249) ** 2) ** 0.5
-cycles_df = cycles_df[cycles_df["status"] == "complete"]
+cycles_df = pd.read_csv(snapshot_name+".csv", index_col=0)
+interfaceIDs = cycles_df.interfaceID.unique()
 
 cycles_df['targetPosTheta'] = np.degrees(np.arccos((cycles_df['targetX'] - 357)/cycles_df['targetDistance']))
 
@@ -131,7 +47,6 @@ for interfaceID in interfaceIDs:
     interface_dfs[interfaceID] = cycles_df[cycles_df["interfaceID"] == interfaceID]
 
 cycles_df.head()
-
 # %% [markdown]
 ## Time stats per interface
 
@@ -258,6 +173,39 @@ for i, interfaceID in enumerate(interface_dfs):
     
     ax.set_ylim([0, 50])
 plt.show()
+
+#%% [markdown]
+## Standard Deviation across Users across Interfaces
+
+# %%
+
+fig = plt.figure(figsize=(16,10))
+fig.subplots_adjust(hspace=0.6, wspace=0.3)
+
+for i, interfaceID in enumerate(interface_dfs):
+    # ax = plt.subplot("33"+str(i+1))
+    # ax.set_title(interfaceID)
+    
+    stdevs = []
+
+
+    interface_df = interface_dfs[interfaceID]
+    print(interfaceID)
+    print("Standard Deviation:",np.std(interface_df['cycleLength']))
+    # for uid in interface_df.uid.unique():
+    #     stdevs.append(np.std(interface_df[interface_df.uid == uid].cycleLength))
+
+    #ax.hist(stdevs, color="tab:blue")
+    
+    #ax.text(0.5, 0.8, f"Overall StDev: {np.round(np.std(interface_df['cycleLength']), 2)}", horizontalalignment='center', verticalalignment='center', transform = ax.transAxes)
+
+#     ax.set_xlabel('Standard Deviation')
+#     ax.set_ylabel('Users')
+
+    
+#     ax.set_ylim([0, 20])
+#     ax.set_xlim([0, 130])
+# plt.show()
 
 # %% [markdown]
 ## Action stats per interface
