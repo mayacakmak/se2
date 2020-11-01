@@ -79,10 +79,87 @@ def plot_everything():
     ## Time stats per interface
 
     plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)')
-    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks')
+    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks', has_labels=False)
     plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)')
 
     plot_scatter(all_interface_dfs)
+
+
+def plot_bar_chart(interface_dfs, label, y_label, has_labels=True):
+    # %%
+    if has_labels:
+        fig = plt.figure(figsize=(10,5))
+    else:
+        fig = plt.figure(figsize=(8,5))
+    fig.subplots_adjust(hspace=0.6, wspace=0.3)
+    ax = fig.add_subplot(1,1,1)
+
+    means_clicks = []
+    means_prs = []
+
+    errors_prs = []
+    errors_clicks = []
+
+    for i in np.arange(len(targetbarclicks)):
+        interface_dfclicks = interface_dfs[targetbarclicks[i]]
+        interface_dfprs = interface_dfs[targetbarprs[i]]
+        
+        means_clicks.append(np.mean(interface_dfclicks[label]))
+        means_prs.append(np.mean(interface_dfprs[label]))
+        
+        errors_clicks.append(np.std(interface_dfclicks[label]))
+        errors_prs.append(np.std(interface_dfprs[label]))
+
+        #print("Mean:", np.mean(interface_dfclicks['cycleLength']))
+        #print("Standard Deviation:",np.std(interface_dfclicks['cycleLength']))
+        #print("Min:",np.min(interface_dfclicks['cycleLength']))
+        #print("Max:",np.max(interface_dfclicks['cycleLength']))
+        #print()
+
+    means_prs[4] = 0
+    errors_prs[4] = 0
+
+    ax.grid(color='gray', linestyle='-.', linewidth=1, axis='x', which='major', zorder=0)
+
+    y_pos = np.arange(len(targetplotnames))
+    width = 0.44
+    rects1 = ax.barh(y_pos - width/2, means_prs, width-0.02, xerr=errors_prs, 
+        alpha=1.0, color=targetplotcolorslight, ecolor="gray", capsize=9, zorder=2)
+    rects2 = ax.barh(y_pos + width/2, means_clicks, width-0.02, xerr=errors_clicks, 
+        alpha=1.0, color=targetplotcolors, ecolor="gray", capsize=9, zorder=2)
+    # ax.set_ylabel('Interface',fontsize=24)
+    ax.set_xlabel(y_label,fontsize=24, fontstyle='italic')
+    ax.set_yticks(y_pos)
+
+    if has_labels:
+        ax.set_yticklabels(targetplotnames)
+    else:
+        ax.set_yticklabels(['','','','',''])
+
+    #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(2.0)
+    ax.spines['left'].set_linewidth(2.0)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.tick_params(axis='both', which='major', labelsize=24)
+    ax.set_xlim([0, 25])
+    #plt.xticks(rotation=45)
+    ax.invert_yaxis()
+
+    # for ytick, color in zip(ax.get_yticklabels(), targetplotcolors):
+        # ytick.set_color(color)
+
+    for rect1 in rects1[0:4]:
+        ax.text(0.1, rect1.get_y() + 0.36, '$\it{P/R}$', c="white", fontsize=20, fontfamily="Times New Roman")
+
+    for rect2 in rects2:
+        ax.text(0.1, rect2.get_y() + 0.36, '$\it{Click}$', c="white", fontsize=20, fontfamily="Times New Roman")
+
+    plt.tight_layout()
+    plt.savefig('data/' + label + '.pdf')
+    # plt.show()
 
 
 def plot_scatter(interface_dfs):
@@ -91,7 +168,7 @@ def plot_scatter(interface_dfs):
     ### Euclidean Distance vs Time
 
     # %%
-    fig = plt.figure(figsize=(16,8))
+    fig = plt.figure(figsize=(16,6))
     fig.subplots_adjust(hspace=0.6, wspace=0.3)
     targetplots = ['panel-click','arrow-click','drag-click','targetdrag-click','target-click']
     interface_dftargets = [interface_dfs[idx] for idx in targetplots]
@@ -137,10 +214,10 @@ def plot_scatter(interface_dfs):
         bx.tick_params(axis='both', which='major', labelsize=20)
 
         ax.set_xlabel('Target distance', fontsize=24, fontstyle='italic')
-        ax.set_ylim([0, 40])
+        ax.set_ylim([0, 30])
         
         bx.set_xlabel('Target size', fontsize=24, fontstyle='italic')
-        bx.set_ylim([0, 40])
+        bx.set_ylim([0, 30])
         
         if i == 0:
             ax.set_ylabel('Time (sec)', fontsize=24, fontstyle='italic')
@@ -149,77 +226,6 @@ def plot_scatter(interface_dfs):
 
     plt.tight_layout()
     plt.savefig('data/scatter.pdf')
-    # plt.show()
-
-
-
-
-def plot_bar_chart(interface_dfs, label, y_label):
-    # %%
-    fig = plt.figure(figsize=(10,8))
-    fig.subplots_adjust(hspace=0.6, wspace=0.3)
-    ax = fig.add_subplot(1,1,1)
-
-    means_clicks = []
-    means_prs = []
-
-    errors_prs = []
-    errors_clicks = []
-
-    for i in np.arange(len(targetbarclicks)):
-        interface_dfclicks = interface_dfs[targetbarclicks[i]]
-        interface_dfprs = interface_dfs[targetbarprs[i]]
-        
-        means_clicks.append(np.mean(interface_dfclicks[label]))
-        means_prs.append(np.mean(interface_dfprs[label]))
-        
-        errors_clicks.append(np.std(interface_dfclicks[label]))
-        errors_prs.append(np.std(interface_dfprs[label]))
-
-        #print("Mean:", np.mean(interface_dfclicks['cycleLength']))
-        #print("Standard Deviation:",np.std(interface_dfclicks['cycleLength']))
-        #print("Min:",np.min(interface_dfclicks['cycleLength']))
-        #print("Max:",np.max(interface_dfclicks['cycleLength']))
-        #print()
-
-    means_prs[4] = 0
-    errors_prs[4] = 0
-
-    ax.grid(color='gray', linestyle='-.', linewidth=1, axis='x', which='major', zorder=0)
-
-    y_pos = np.arange(len(targetplotnames))
-    width = 0.45
-    rects1 = ax.barh(y_pos - width/2, means_prs, width, xerr=errors_prs, 
-        alpha=1.0, color=targetplotcolorslight, ecolor="gray", capsize=16, zorder=2)
-    rects2 = ax.barh(y_pos + width/2, means_clicks, width, xerr=errors_clicks, 
-        alpha=1.0, color=targetplotcolors, ecolor="gray", capsize=16, zorder=2)
-    # ax.set_ylabel('Interface',fontsize=24)
-    ax.set_xlabel(y_label,fontsize=24, fontstyle='italic')
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(targetplotnames)
-    #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['bottom'].set_linewidth(2.0)
-    ax.spines['left'].set_linewidth(2.0)
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
-    ax.tick_params(axis='both', which='major', labelsize=24)
-    ax.set_xlim([0, 25])
-    #plt.xticks(rotation=45)
-    ax.invert_yaxis()
-
-    # for ytick, color in zip(ax.get_yticklabels(), targetplotcolors):
-        # ytick.set_color(color)
-
-    for rect1 in rects1[0:4]:
-        ax.text(0.1, rect1.get_y() + 0.32, '$\it{P/R}$', c="white", fontsize=22, fontfamily="Times New Roman")
-
-    for rect2 in rects2:
-        ax.text(0.1, rect2.get_y() + 0.32, '$\it{Click}$', c="white", fontsize=22, fontfamily="Times New Roman")
-
-    plt.tight_layout()
-    plt.savefig('data/' + label + '.pdf')
     # plt.show()
 
 
