@@ -24,6 +24,7 @@ import copy
 snapshot_name = "se3-10-31-filtered-questionnaires"
 color_list = ["tab:blue","tab:orange","tab:green","tab:red","tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan"]
 targetplotcolors = ['#ffe500','#ff9405','#ff4791','#007bff','#09bc6b']
+targetplotcolorsreversed = ['#09bc6b', '#007bff', '#ff4791', '#ff9405','#ffe500']
 
 
 questionIDs = {
@@ -85,7 +86,7 @@ for i, questionID in enumerate(questionIDs):
 
     if i == 0:
         ax.boxplot(data, labels=study2names, showmeans=True, meanline=True, vert=False)
-        for ytick, color in zip(ax.get_yticklabels(), targetplotcolors):
+        for ytick, color in zip(ax.get_yticklabels(), targetplotcolorsreversed):
             ytick.set_color(color)
     else:
         ax.boxplot(data, labels=['','', '', '', ''], showmeans=True, meanline=True, vert=False)
