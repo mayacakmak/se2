@@ -78,9 +78,9 @@ def plot_everything():
     # %% [markdown]
     ## Time stats per interface
 
-    plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)')
-    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks')
-    plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)')
+    plot_box_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)')
+    plot_box_chart(interface_dfs, 'numClicks', 'Number of clicks')
+    plot_box_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)')
 
     plot_scatter(all_interface_dfs)
 
@@ -223,8 +223,85 @@ def plot_bar_chart(interface_dfs, label, y_label):
     # plt.show()
 
 
+def plot_box_chart(interface_dfs, label, y_label):
+    # %%
+    fig = plt.figure(figsize=(11.11111111,5.55555))
+    fig.subplots_adjust(hspace=0.6, wspace=0.3)
+    ax = fig.add_subplot(1,1,1)
 
+    interface_data_combined = []
 
+    for i in np.arange(len(targetbarclicks)):
+        interface_dfclicks = interface_dfs[targetbarclicks[i]]
+        interface_dfprs = interface_dfs[targetbarprs[i]]
+        
+        interface_data_combined.append(interface_dfprs[label])
+        interface_data_combined.append(interface_dfclicks[label])
+
+    interface_data_combined[8] = 0
+    
+    # Combine both color lists every alternating items: https://stackoverflow.com/a/3678938
+    targetplotcolorscombined = [None]*(len(targetplotcolorslight)*2)
+    targetplotcolorscombined[::2] = targetplotcolorslight
+    targetplotcolorscombined[1::2] = targetplotcolors
+
+    flierprops = {'marker':'.', 'markerfacecolor':'none', 'markersize':10,
+                  'linestyle':'none', 'markeredgecolor':'gray'}
+
+    width = 0.6
+    positions = np.arange(len(targetplotcolorscombined)) + np.array([(1-width)/2,0]*len(targetplotcolors)) + np.array([0, -(1-width)/2]*len(targetplotcolors)) # In order to group the boxes, we need to shift the top and bottom box of each pair up/down by half of the spacing (1-width)/2
+    bplot = ax.boxplot(interface_data_combined, 0, '.', 0, patch_artist=True, widths=width, positions=positions, flierprops=flierprops) # Setting patch_artist = True is requried to set the background color of the boxes: https://stackoverflow.com/a/28742262
+
+    for patch, color in zip(bplot['boxes'], targetplotcolorscombined):
+        patch.set(color="gray")
+        patch.set_facecolor(color)
+
+    for whisker in bplot['whiskers']:
+        whisker.set(color="gray")
+    
+    for cap in bplot['caps']: 
+        cap.set(color ='gray')
+    
+    for median in bplot['medians']: 
+        median.set(color='white')
+    
+    y_pos = np.arange(len(targetplotnames))*2 - 0.3
+    
+    ax.grid(color='gray', linestyle='-.', linewidth=1, axis='x', which='major', zorder=0)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(2.0)
+    ax.spines['left'].set_linewidth(2.0)
+
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.tick_params(axis='both', which='major', labelsize=24)
+    ax.set_xlim([0, 25])
+    #plt.xticks(rotation=45)
+    # ax.set_ylabel('Interface',fontsize=24)
+    ax.set_xlabel(y_label,fontsize=24, fontstyle='italic')
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(targetplotnames)
+    #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
+    ax.invert_yaxis()
+
+    ax.set_aspect(1.4)
+
+    # for ytick, color in zip(ax.get_yticklabels(), targetplotcolors):
+    #     ytick.set_color(color)
+
+    # for rect1 in rects1[0:4]:
+    #     ax.text(0.1, rect1.get_y() + 0.32, '$\it{P/R}$', c="white", fontsize=22, fontfamily="Times New Roman")
+
+    # for rect2 in rects2:
+    #     ax.text(0.1, rect2.get_y() + 0.32, '$\it{Click}$', c="white", fontsize=22, fontfamily="Times New Roman")
+
+    for i in range(len(positions)):
+        ax.text(-0.1, positions[i] + 0.3, '$\it{' + ('P/R' if (i%2 == 0) else 'Click') + '}$', c="black", fontsize=18, fontfamily="Times New Roman", zorder = 0, ha='right')
+
+    plt.tight_layout()
+    plt.savefig('data/' + label + '.pdf')
+    # plt.show()
 
 # %%
 # Custom tools
