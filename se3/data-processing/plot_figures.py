@@ -86,17 +86,21 @@ def plot_everything():
     ## Time stats per interface
 
     plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)', 100)
-    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks', 80)
+    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks', 80, has_labels=False)
     plot_bar_chart(interface_dfs, 'resetIKNum', 'Number of resets', 4)
     plot_bar_chart(interface_dfs, 'numViewSwitches', 'Number of view switches', 8)
-    # plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)', 500000)
+    plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)', 100)
 
     plot_stacked_bar(interface_dfs)
     # plot_scatter(all_interface_dfs)
 
-def plot_bar_chart(interface_dfs, label, x_label, x_lim):
+def plot_bar_chart(interface_dfs, label, x_label, x_lim, has_labels=True):
     # %%
-    fig = plt.figure(figsize=(10,4))
+    if has_labels:
+        fig = plt.figure(figsize=(10,4))
+    else:
+        fig = plt.figure(figsize=(8,4))
+
     fig.subplots_adjust(hspace=0.6, wspace=0.3)
     ax = fig.add_subplot(1,1,1)
 
@@ -118,7 +122,12 @@ def plot_bar_chart(interface_dfs, label, x_label, x_lim):
         alpha=1.0, color=targetplotcolors, ecolor="gray", capsize=16, zorder=2)
     ax.set_xlabel(x_label,fontsize=24, fontstyle='italic')
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(targetplotnames)
+
+    if has_labels:
+        ax.set_yticklabels(targetplotnames)
+    else:
+        ax.set_yticklabels(['','','','',''])
+
     #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
