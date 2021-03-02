@@ -85,8 +85,8 @@ def plot_everything():
     # %% [markdown]
     ## Time stats per interface
 
-    plot_bar_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)', 100)
-    plot_bar_chart(interface_dfs, 'numClicks', 'Number of clicks', 80, has_labels=False)
+    plot_box_chart(interface_dfs, 'cycleLength', 'Task completion time (sec)', 100)
+    plot_box_chart(interface_dfs, 'numClicks', 'Number of clicks', 80, has_labels=False)
     plot_bar_chart(interface_dfs, 'resetIKNum', 'Number of resets', 4)
     plot_bar_chart(interface_dfs, 'numViewSwitches', 'Number of view switches', 8)
     plot_bar_chart(interface_dfs, 'draggingDuration', 'Drag duration (sec)', 100)
@@ -145,6 +145,72 @@ def plot_bar_chart(interface_dfs, label, x_label, x_lim, has_labels=True):
 
     for i in np.arange(len(rects)):
         ax.text(0.1, rects[i].get_y() + 0.64, '$\it{'+study2types[i]+'}$', c="white", fontsize=22, fontfamily="Times New Roman")
+
+    plt.tight_layout()
+    plt.savefig('data/study2' + label + '.pdf')
+    # plt.show()
+
+def plot_box_chart(interface_dfs, label, x_label, x_lim, has_labels=True):
+    # %%
+    if has_labels:
+        fig = plt.figure(figsize=(10,4))
+    else:
+        fig = plt.figure(figsize=(8,4))
+
+    fig.subplots_adjust(hspace=0.6, wspace=0.3)
+    ax = fig.add_subplot(1,1,1)
+
+    interface_data_combined = []
+
+    for i in np.arange(len(study2conditions)):
+        interface_df = interface_dfs[study2conditions[i]]
+
+        interface_data_combined.append(interface_df[label])
+
+    flierprops = {'marker':'.', 'markerfacecolor':'none', 'markersize':10,
+                  'linestyle':'none', 'markeredgecolor':'gray'}
+
+    width = 0.6
+    bplot = ax.boxplot(interface_data_combined, 0, '.', 0, patch_artist=True, widths=width, flierprops=flierprops) # Setting patch_artist = True is requried to set the background color of the boxes: https://stackoverflow.com/a/28742262
+
+    for patch, color in zip(bplot['boxes'], targetplotcolors):
+        patch.set(color="gray")
+        patch.set_facecolor(color)
+
+    for whisker in bplot['whiskers']:
+        whisker.set(color="gray")
+    
+    for cap in bplot['caps']: 
+        cap.set(color ='gray')
+    
+    for median in bplot['medians']: 
+        median.set(color='white')
+    
+    y_pos = np.arange(len(targetplotnames)) + 0.875
+    
+    ax.grid(color='gray', linestyle='-.', linewidth=1, axis='x', which='major', zorder=0)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(2.0)
+    ax.spines['left'].set_linewidth(2.0)
+
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.tick_params(axis='both', which='major', labelsize=24)
+    ax.set_xlim([0, 100])
+    #plt.xticks(rotation=45)
+    # ax.set_ylabel('Interface',fontsize=24)
+    ax.set_xlabel(x_label,fontsize=24, fontstyle='italic')
+    ax.set_yticks(y_pos)
+    if has_labels:
+        ax.set_yticklabels(targetplotnames)
+    else:
+        ax.set_yticklabels(['','','','',''])
+    #ax.set_title('Task Completion Time', fontsize=24, fontweight='bold')
+    ax.invert_yaxis()
+
+    for i in np.arange(len(bplot['boxes'])):
+        ax.text(-0.1, i + 1.5, '$\it{' + study2types[i] + '}$', c="black", fontsize=15, fontfamily="Times New Roman", zorder = 0, ha='right')
 
     plt.tight_layout()
     plt.savefig('data/study2' + label + '.pdf')
